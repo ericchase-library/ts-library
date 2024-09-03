@@ -1,3 +1,17 @@
+## About
+
+This project houses the typescript library that I use on a day-to-day basis (yes, daily). Everyone is free to use it! I tried to make this comprehensive README file to explain everything about the project. If you have any questions or suggestions, or just want some basic help setting up your dev environment, please feel free to contact me!
+
+You can find the email I use for github on my github profile:
+
+- github @ericchase https://github.com/ericchase
+
+If you want to reach me sooner with modern technology, try discord:
+
+- discord @chaseeric https://discordapp.com/users/208091532648120320
+- Zero to Hero https://discord.gg/cXG3KGKuu6
+- JavaScript.info https://discord.gg/AuEWpFkfD4
+
 ## Massive Disclaimer
 
 **This library is updated often!**
