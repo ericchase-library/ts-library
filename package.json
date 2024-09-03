@@ -1,6 +1,7 @@
 {
   "dependencies": {},
   "scripts": {
+    "all": "bun ./tools/all.ts",
     "build": "bun ./tools/build.ts",
     "dev": "bun ./tools/dev.ts",
     "strip": "bun ./tools/strip.ts",
