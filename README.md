@@ -1,6 +1,6 @@
 ## About
 
-This project houses the typescript library that I use on a day-to-day basis (yes, daily). Everyone is free to use it! I tried to make this comprehensive README file to explain everything about the project. If you have any questions or suggestions, or just want some basic help setting up your dev environment, please feel free to contact me!
+This project houses the TypeScript library that I use on a day-to-day basis (yes, daily). Everyone is free to use it! I tried to make this comprehensive README file to explain everything about the project. If you have any questions or suggestions, or just want some basic help setting up your dev environment, please feel free to contact me!
 
 You can find the email I use for github on my github profile:
 
@@ -60,23 +60,25 @@ bun run format
 
 ## Project Structure
 
-### ./src
+### ./src/
 
-This folder contains _all_ of the library files including test files and working examples. If you _just_ want the library files themselves, then run the `bun run strip` command to copy all of the `./src/**/*.ts` files into the `./src-stripped` folder. You can view the script in `./tools/strip.ts`. It's a simple script that can help you learn how to write your own automation scripts.
+This folder contains _all_ of the library files including test files and working examples. If you _just_ want the library files themselves, then run the `bun run strip` command to copy all of the `./src/**/*.ts` files into the `./src-stripped/` folder. You can view the script in `./tools/strip.ts`. It's a simple script that can help you learn how to write your own automation scripts.
 
-### ./build
+### ./build/
 
-This folder is produced during the build process and contains the final compiled source code. For this library project, the goal is to compile the typescript files into javascript files in case you need a pure javascript library.
+This folder is produced during the build process and contains the final compiled source code.
+
+For this project, the TypeScript files are compiled into JavaScript files for a pure JavaScript library solution. Generally, you should prefer using the TypeScript files; but sometimes you can't.
 
 **Note:**
 
-The resulting files are not bundles. They are javascript files using the ES6 module system. Some files rely on Bun and Node, and will not simply work when imported into a website. For websites, you need properly bundled code. Depending on your requirements, you may require different kinds of bundlers. Vite is a well known popular frontend tool that uses Rollup and esbuild for bundling. These are great for certain kinds of projects.
+The resulting files are not bundles. They are JavaScript files using the ES6 module system. Some files rely on Bun and Node, and will not simply work when imported into a website. For websites, you need properly bundled code. Depending on your requirements, you may require different kinds of bundlers. Vite is a well known popular frontend tool that uses Rollup and esbuild for bundling. These are great for certain kinds of projects.
 
 If you want a custom build or bundle, then you'll need to work with the configuration files to make that happen. This can become very complicated and difficult quickly. It also means your project is dependent on those tools, and indirectly dependent on how Node and npm work. With Bun, things are different. You can write tools that don't depend on Node and npm at all, letting you do things that cannot normally be done when using popular editors like VSCode that also depend on Node and npm and how they work.
 
 If you can't think of why you might need to use hand written build tools, that's ok! You don't _need_ to use any of the build tools in this project. You can use whichever tools you want. In fact, you can probably easily combine these hand written scripts with other popular tools and harness more power than your peers who only rely on packaged tools. The power is yours!
 
-### ./tools
+### ./tools/
 
 This folder contains the scripts we use to automate work flows, like:
 
@@ -90,7 +92,7 @@ You can literally do anything you want, which is the point of this library. Thes
 
 **Note:**
 
-The scripts under `./tools/` also use modules from this library (from `./src/`). To reiterate, the goal of these scripts is not to produce a package; though, you can do that if you want to! For new projects, you would ideally copy the library files from `./src/` (or `./src-stripped` if you don't want the test files and example) into your project's `./src/lib/ericchase/` folder (you can use `ericchase` to distinguish that the folder is from this library, or choose whatever folder name you want), then update the import statements in your project's copy of `./tools/` to match the new location. This is already done for you in the various `ts-templates-` repositories.
+The scripts under `./tools/` also use modules from this library (from `./src/`). To reiterate, the goal of these scripts is not to produce a package; though, you can do that if you want to! For new projects, you would ideally copy the library files from `./src/` (or `./src-stripped/` if you don't want the test files and example) into your project's `./src/lib/ericchase/` folder (you can use `ericchase` to distinguish that the folder is from this library, or choose whatever folder name you want), then update the import statements in your project's copy of `./tools/` to match the new location. This is already done for you in the various `ts-templates-` repositories.
 
 ### ./
 
