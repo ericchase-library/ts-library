@@ -1,6 +1,6 @@
 ## Massive Disclaimer
 
-**This library gets updated often!**
+**This library is updated often!**
 
 - Expect breaking changes if you **directly** rely on it!
 
@@ -67,7 +67,7 @@ If you can't think of why you might need to use hand written build tools, that's
 This folder contains the scripts we use to automate work flows, like:
 
 - building source code into a website, browser extension, or command line application;
-- performing some kind of mainentance on project files;
+- performing some kind of maintenance on project files;
 - and even other operations like:
   - opening all the source files in your project (`./tools/open-all-source-files.ts`);
   - re-installing all the npm packages in your package.json file (`./tools/re-install-packages.ts`)
@@ -106,7 +106,7 @@ The code in this repository will always be truly free and open source (unless I 
 
 - _please leave a trail_
 
-When making a copy of this project, I _kindly ask_ that you include the text within the `NOTICE` file somewhere (perhaps in your own README or LICENSE or NOTICE file?) or a link to this repository so that other readers of your project may also be able to find this original template.
+When making a copy of this project, I _kindly ask_ that you include the text within the `NOTICE` file somewhere (perhaps in your own README.md or LICENSE or NOTICE file?) or a link to this repository so that other readers of your project may also be able to find this original template.
 
 ```
 Template Website
@@ -143,6 +143,6 @@ To reiterate, I hereby informally waive the other terms and conditions under the
 
 - _your derivative works_
 
-As for your own projects, any new additions and/or modifications you make **ARE NOT** subject to my license and copyright notice. You do not need to mention additions and/or modifications to the original source code. You will need to apply your own license and copyright notices if you wish to make your project code open source. If you wish to keep your source code private, you may do so. You may use a propreitery and/or closed source license if you wish. All of this is entirely up to you.
+As for your own projects, any new additions and/or modifications you make **ARE NOT** subject to my license and copyright notice. You do not need to mention additions and/or modifications to the original source code. You will need to apply your own license and copyright notices if you wish to make your project code open source. If you wish to keep your source code private, you may do so. You may use a proprietary and/or closed source license if you wish. All of this is entirely up to you.
 
 _This is what it means to be truly free and open source._
