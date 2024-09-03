@@ -1,5 +1,7 @@
 ## About
 
+- https://github.com/ericchase-library/ts-library
+
 This project houses the TypeScript library that I use on a day-to-day basis (yes, daily). Everyone is free to use it! I tried to make this comprehensive README file to explain everything about the project. If you have any questions or suggestions, or just want some basic help setting up your dev environment, please feel free to contact me!
 
 You can find the email I use for github on my github profile:
@@ -125,8 +127,8 @@ The code in this repository will always be truly free and open source (unless I 
 When making a copy of this project, I _kindly ask_ that you include the text within the `NOTICE` file somewhere (perhaps in your own README.md or LICENSE or NOTICE file?) or a link to this repository so that other readers of your project may also be able to find this original template.
 
 ```
-Template Website
-https://github.com/ericchase-library/ts-templates-website
+Typescript Library
+https://github.com/ericchase-library/ts-library
 
 Copyright © 2024 ericchase
 
