@@ -91,9 +91,11 @@ export class GlobManager {
     }
     return this;
   }
-  scan(basedir: string, pattern: string) {
-    const globGroup = GlobManager.Scan(basedir, pattern);
-    this.globGroupMap.set(`${globGroup.basedir}|${globGroup.pattern}`, globGroup);
+  scan(basedir: string, ...patterns: string[]) {
+    for (const pattern of patterns) {
+      const globGroup = GlobManager.Scan(basedir, pattern);
+      this.globGroupMap.set(`${globGroup.basedir}|${globGroup.pattern}`, globGroup);
+    }
     return this;
   }
   *pathGroup_iterator() {
