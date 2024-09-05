@@ -1,5 +1,5 @@
 import { GlobManager } from '../src/Platform/Bun/Path.js';
-import { ClearDirectory } from '../src/Platform/Node/Fs.js';
+import { CleanDirectory } from '../src/Platform/Node/Fs.js';
 import { NormalizePath } from '../src/Platform/Node/Path.js';
 import { copy } from './lib/build.js';
 
@@ -8,7 +8,7 @@ const sourceDir = NormalizePath('./src') + '/';
 const strippedDir = NormalizePath('./src-stripped') + '/';
 
 // Init
-await ClearDirectory(strippedDir);
+await CleanDirectory(strippedDir);
 
 // Setup Path Managers
 const toCopy = new GlobManager() //
