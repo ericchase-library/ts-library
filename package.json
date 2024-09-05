@@ -11,7 +11,7 @@
   "devDependencies": {
     "@types/bun": "^1.1.8",
     "@types/chrome": "^0.0.270",
-    "@types/node": "^22.5.3",
+    "@types/node": "^22.5.4",
     "node-html-parser": "^6.1.13",
     "prettier": "^3.3.3"
   }
