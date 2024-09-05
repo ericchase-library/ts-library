@@ -1,3 +1,5 @@
+// ! WIP
+
 export class RecursiveOperationWalker {
   static walk<T>(root: T, fn: (values: T[]) => T[]) {
     const stack: [T, number][] = [[root, -1]];

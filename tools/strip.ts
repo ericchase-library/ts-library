@@ -14,6 +14,7 @@ await ClearDirectory(strippedDir);
 const toCopy = new GlobManager() //
   .scan(sourceDir, '**/*.ts');
 const toExclude = new GlobManager() //
+  .scan(sourceDir, '**/Example -- */**')
   .scan(sourceDir, '**/*.test.ts');
 
 // Copy

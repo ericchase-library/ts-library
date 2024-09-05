@@ -4,6 +4,7 @@ import { Watcher } from '../src/Platform/Node/Watch.js';
 
 const runBuild = Debounce(async () => {
   await Run('bun run build');
+  await Run('bun run strip');
 }, 250);
 
 runBuild();
