@@ -7,14 +7,17 @@ export class JobQueue<Result = void, Tag = void> {
    * 0: No delay. -1: Consecutive.
    */
   constructor(public delay_ms: number) {}
-  public abort() {
-    this._aborted = true;
-  }
-  public get aborted() {
-    return this._aborted;
+  /**
+   * ! Watch out for circular calls !
+   *
+   * Sets the `aborted` state and resolves when currently running jobs finish.
+   */
+  public async abort() {
+    this.aborted = true;
+    await this.done;
   }
   public add(fn: () => Promise<Result>, tag?: Tag) {
-    if (this._aborted === false) {
+    if (this.aborted === false) {
       this.queue.push({ fn, tag });
       if (this.running === false) {
         this.running = true;
@@ -22,21 +25,30 @@ export class JobQueue<Result = void, Tag = void> {
       }
     }
   }
+  /**
+   * Returns a promise that resolves when jobs finish.
+   */
   public get done() {
-    return this.completionCount === this.queue.length ? true : false;
-  }
-  public reset() {
     return new Promise<void>((resolve) => {
-      this.runningCount.subscribe(() => {
-        this._aborted = false;
-        this.completionCount = 0;
-        this.queue = [];
-        this.queueIndex = 0;
-        this.results = [];
-        this.running = false;
-        resolve();
+      this.runningCount.subscribe((count) => {
+        if (count === 0) resolve();
       });
     });
+  }
+  /**
+   * Resets the JobQueue to an initial state, keeping subscriptions alive.
+   *
+   * @throws If called when jobs are currently running.
+   */
+  public async reset() {
+    if (this.running === true || (await this.runningCount.get()) > 0) {
+      throw 'Warning: Wait for running jobs to finish before calling reset. `await JobQueue.done;`';
+    }
+    this.aborted = false;
+    this.completionCount = 0;
+    this.queue.length = 0;
+    this.queueIndex = 0;
+    this.results.length = 0;
   }
   public subscribe(callback: SubscriptionCallback<Result, Tag>): () => void {
     this.subscriptionSet.add(callback);
@@ -50,7 +62,7 @@ export class JobQueue<Result = void, Tag = void> {
       this.subscriptionSet.delete(callback);
     };
   }
-  protected _aborted = false;
+  protected aborted = false;
   protected completionCount = 0;
   protected queue: { fn: () => Promise<Result>; tag?: Tag }[] = [];
   protected queueIndex = 0;
@@ -59,17 +71,21 @@ export class JobQueue<Result = void, Tag = void> {
   protected runningCount = new Store(0);
   protected subscriptionSet = new Set<SubscriptionCallback<Result, Tag>>();
   protected run() {
-    if (this._aborted === false && this.queueIndex < this.queue.length) {
+    if (this.aborted === false && this.queueIndex < this.queue.length) {
       const { fn, tag } = this.queue[this.queueIndex++];
       (async () => {
-        this.runningCount.update((count) => count + 1);
+        this.runningCount.update((count) => {
+          return count + 1;
+        });
         try {
           const value = await fn();
           this.send({ value, tag });
         } catch (error: any) {
           this.send({ error, tag });
         }
-        this.runningCount.update((count) => count - 1);
+        this.runningCount.update((count) => {
+          return count - 1;
+        });
         if (this.delay_ms < 0) {
           this.run();
         }
@@ -82,7 +98,7 @@ export class JobQueue<Result = void, Tag = void> {
     }
   }
   protected send(result: { value?: Result; error?: Error; tag?: Tag }) {
-    if (this._aborted === false) {
+    if (this.aborted === false) {
       this.completionCount++;
       this.results.push(result);
       for (const callback of this.subscriptionSet) {
