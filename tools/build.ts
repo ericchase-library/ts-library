@@ -1,5 +1,6 @@
 // ! using old library code
 
+import { Run } from '../src/Platform/Bun/Process.js';
 import { FilterDirectoryTree } from '../src/Platform/Cxx/LSD.js';
 import { DeleteDirectory } from '../src/Platform/Node/Fs.js';
 
@@ -40,13 +41,15 @@ for (const path of files) {
   }
 }
 
-if (success.length > 0) {
-  for (const path of success) {
-    console.log('\x1b[32mpass\x1b[0m', path);
-  }
-}
+// if (success.length > 0) {
+//   for (const path of success) {
+//     console.log('\x1b[32mcopied\x1b[0m', path);
+//   }
+// }
 if (failure.length > 0) {
   for (const path of failure) {
-    console.log('\x1b[31mfail\x1b[0m', path);
+    console.log('\x1b[31merror\x1b[0m', path);
   }
+} else {
+  await Run('bun test');
 }
