@@ -29,4 +29,5 @@ yarn-error.log*
 **/build/*
 **/debug/*
 **/src-tauri/target
+**/src-stripped/*
 sync.ffs_db
