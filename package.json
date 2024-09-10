@@ -9,7 +9,7 @@
     "format": "prettier . --write"
   },
   "devDependencies": {
-    "@types/bun": "^1.1.8",
+    "@types/bun": "^1.1.9",
     "@types/chrome": "^0.0.270",
     "@types/node": "^22.5.4",
     "node-html-parser": "^6.1.13",

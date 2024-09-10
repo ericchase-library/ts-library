@@ -10,16 +10,9 @@ const strippedDir = NormalizePath('./src-stripped') + '/';
 // Init
 await CleanDirectory(strippedDir);
 
-// Setup Path Managers
-const toCopy = new GlobManager() //
-  .scan(sourceDir, '**/*.ts');
-const toExclude = new GlobManager() //
-  .scan(sourceDir, '**/Example -- */**')
-  .scan(sourceDir, '**/*.test.ts');
-
 // Copy
 await copy({
   outDir: strippedDir,
-  toCopy,
-  toExclude,
+  toCopy: new GlobManager().scan(sourceDir, '**/*.ts'),
+  toExclude: new GlobManager().scan(sourceDir, '**/*.example.ts', '**/*.test.ts'),
 });
