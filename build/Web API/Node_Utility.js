@@ -26,6 +26,12 @@ export class CNodeRef {
       return this.node;
     }
   }
+  get classList() {
+    return this.as(HTMLElement).classList;
+  }
+  get className() {
+    return this.as(HTMLElement).className;
+  }
   get style() {
     return this.as(HTMLElement).style;
   }
