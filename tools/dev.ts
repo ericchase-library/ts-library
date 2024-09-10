@@ -1,6 +1,7 @@
 import { Debounce } from '../src/Algorithm/Debounce.js';
 import { Run } from '../src/Platform/Bun/Process.js';
 import { Watcher } from '../src/Platform/Node/Watch.js';
+import { ConsoleError, ConsoleLog } from '../src/Utility/Console.js';
 
 const runBuild = Debounce(async () => {
   await Run('bun run build');
@@ -10,12 +11,10 @@ const runBuild = Debounce(async () => {
 runBuild();
 
 try {
-  const watcher = new Watcher('./src', 250);
-  watcher.observe(() => {
-    runBuild();
-  });
-  console.log();
-  await watcher.done;
+  const watcher_src = new Watcher('./src', 250);
+  ConsoleLog();
+  watcher_src.observe(() => runBuild());
+  await watcher_src.done;
 } catch (error) {
-  console.log(error);
+  ConsoleError(error);
 }
