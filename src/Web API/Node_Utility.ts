@@ -1,14 +1,14 @@
-export class NodeRef {
+export class CNodeRef {
   node: Node;
 
-  constructor(ref?: Node | null) {
-    if (ref === null) {
+  constructor(node?: Node | null) {
+    if (node === null) {
       throw new ReferenceError('Reference is null.');
     }
-    if (ref === undefined) {
+    if (node === undefined) {
       throw new ReferenceError('Reference is undefined.');
     }
-    this.node = ref;
+    this.node = node;
   }
 
   as<T extends abstract new (...args: any) => any>(constructor: T): InstanceType<T> {
@@ -46,19 +46,22 @@ export class NodeRef {
     return this.as(HTMLElement).style.setProperty(property, value, priority);
   }
 }
+export function NodeRef(node?: Node | null): CNodeRef {
+  return new CNodeRef(node);
+}
 
-export class NodeListRef extends Array<NodeRef> {
-  constructor(references?: NodeList | Node[] | null) {
-    if (references === null) {
+export class CNodeListRef extends Array<CNodeRef> {
+  constructor(nodes?: NodeList | Node[] | null) {
+    if (nodes === null) {
       throw new ReferenceError('Reference list is null.');
     }
-    if (references === undefined) {
+    if (nodes === undefined) {
       throw new ReferenceError('Reference list is undefined.');
     }
     super();
-    for (const node of Array.from(references)) {
+    for (const node of Array.from(nodes)) {
       try {
-        this.push(new NodeRef(node));
+        this.push(new CNodeRef(node));
       } catch (_) {}
     }
   }
@@ -72,4 +75,7 @@ export class NodeListRef extends Array<NodeRef> {
       ref.passAs(constructor, fn);
     }
   }
+}
+export function NodeListRef(nodes?: NodeList | Node[] | null): CNodeListRef {
+  return new CNodeListRef(nodes);
 }
