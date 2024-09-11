@@ -1,8 +1,7 @@
-type UnobserveFn = () => void;
-type ObserverCallback<T> = (data: T, unsubscribe: () => void) => void;
+export type SubscriptionCallback<Value> = (value: Value, unsubscribe: () => void) => void;
 
-class Observable<T> {
-  public notify(data: T): void {
+export class Observable<Value> {
+  public notify(data: Value): void {
     for (const callback of this.callbackSet) {
       callback(data, () => {
         this.callbackSet.delete(callback);
@@ -12,7 +11,7 @@ class Observable<T> {
       });
     }
   }
-  public observe(callback: ObserverCallback<T>): UnobserveFn {
+  public observe(callback: SubscriptionCallback<Value>): () => void {
     this.callbackSet.add(callback);
     if (this.callbackSet.size === 1) {
       // do some init
@@ -24,5 +23,5 @@ class Observable<T> {
       }
     };
   }
-  protected callbackSet = new Set<ObserverCallback<T>>();
+  protected callbackSet = new Set<SubscriptionCallback<Value>>();
 }

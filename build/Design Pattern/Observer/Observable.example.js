@@ -1,4 +1,4 @@
-class Observable {
+export class Observable {
   notify(data) {
     for (const callback of this.callbackSet) {
       callback(data, () => {

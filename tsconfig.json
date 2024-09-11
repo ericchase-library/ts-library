@@ -13,5 +13,6 @@
     "strict": true,
     "skipLibCheck": true,
     "noFallthroughCasesInSwitch": true
-  }
+  },
+  "exclude": ["./build", "./src-stripped"]
 }

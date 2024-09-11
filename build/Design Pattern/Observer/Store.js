@@ -1,4 +1,4 @@
-export class Const {
+export class ConstantStore {
   value;
   subscriptionSet = new Set();
   constructor(value) {
@@ -32,6 +32,30 @@ export class Const {
         });
       }
     }
+  }
+}
+
+export class OptionalStore {
+  store;
+  constructor(notifyOnChangeOnly = false) {
+    this.store = new Store(undefined, notifyOnChangeOnly);
+  }
+  subscribe(callback) {
+    return this.store.subscribe(callback);
+  }
+  get() {
+    return new Promise((resolve) => {
+      this.subscribe((value, unsubscribe) => {
+        unsubscribe();
+        resolve(value);
+      });
+    });
+  }
+  set(value) {
+    this.store.set(value);
+  }
+  update(callback) {
+    this.store.update(callback);
   }
 }
 
@@ -74,30 +98,6 @@ export class Store {
     this.set(callback(this.currentValue));
   }
 }
-
-export class Optional {
-  store;
-  constructor(notifyOnChangeOnly = false) {
-    this.store = new Store(undefined, notifyOnChangeOnly);
-  }
-  subscribe(callback) {
-    return this.store.subscribe(callback);
-  }
-  get() {
-    return new Promise((resolve) => {
-      this.subscribe((value, unsubscribe) => {
-        unsubscribe();
-        resolve(value);
-      });
-    });
-  }
-  set(value) {
-    this.store.set(value);
-  }
-  update(callback) {
-    this.store.update(callback);
-  }
-}
 export function CompoundSubscription(stores, callback) {
   const unsubs = [];
   const unsubscribe = () => {
@@ -121,4 +121,20 @@ export function CompoundSubscription(stores, callback) {
     });
   }
   return unsubscribe;
+}
+export function Once(subscribable) {
+  return new Promise((resolve, reject) => {
+    try {
+      let once = false;
+      subscribable.subscribe((value, unsubscribe) => {
+        if (once === true) {
+          unsubscribe();
+          return resolve(value);
+        }
+        once = true;
+      });
+    } catch (error) {
+      return reject(error);
+    }
+  });
 }
