@@ -55,7 +55,6 @@ describe("PathGroup('aaa', 'bbb', 'c...c..c.', '...ddd')", () => {
     expect(pathGroup.ext).toBe('.ddd');
   });
   test('path', () => {
-    console.log(pathGroup.path);
     expect(pathGroup.path).toBe(NormalizePath('aaa/bbb/c...c..c..ddd'));
   });
 });

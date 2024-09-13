@@ -31,3 +31,4 @@ yarn-error.log*
 **/src-tauri/target
 # **/src-stripped/*
 sync.ffs_db
+tools/cache
