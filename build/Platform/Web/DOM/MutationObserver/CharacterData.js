@@ -5,7 +5,11 @@ export class CharacterDataObserver {
         this.send(record);
       }
     });
-    this.mutationObserver.observe(source, { characterData: true, characterDataOldValue: options.characterDataOldValue ?? true, subtree: options.subtree ?? true });
+    this.mutationObserver.observe(source, {
+      characterData: true,
+      characterDataOldValue: options.characterDataOldValue ?? true,
+      subtree: options.subtree ?? true,
+    });
   }
   subscribe(callback) {
     this.subscriptionSet.add(callback);

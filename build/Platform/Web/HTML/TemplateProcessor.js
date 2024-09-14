@@ -1,4 +1,3 @@
-//! use Bun.HTMLRewriter instead
 import * as Parser from 'node-html-parser';
 import node_fs from 'node:fs/promises';
 import { ParseHTML } from './ParseHTML.js';
@@ -7,7 +6,7 @@ export async function LoadHtmlFile(filePath) {
     const html = await node_fs.readFile(filePath, { encoding: 'utf8' });
     return ParseHTML(html);
   } catch (err) {
-    throw 'Could not open file: ' + filePath;
+    throw `Could not open file: ${filePath}`;
   }
 }
 export async function SaveHtmlFile(root, filePath) {
@@ -23,19 +22,18 @@ export async function LoadIncludeFile(includeName, includePath) {
     includeMap.set(includeName, html);
     return html;
   } catch (err) {
-    throw 'Could not open file: ' + includePath;
+    throw `Could not open file: ${includePath}`;
   }
 }
 async function getInclude(includeName) {
   const html = includeMap.get(includeName);
   if (html) {
     return ParseHTML(html);
-  } else {
-    try {
-      return ParseHTML(await LoadIncludeFile(includeName, includeName + '.html'));
-    } catch (err) {
-      throw 'Could not load include: ' + includeName;
-    }
+  }
+  try {
+    return ParseHTML(await LoadIncludeFile(includeName, `${includeName}.html`));
+  } catch (err) {
+    throw `Could not load include: ${includeName}`;
   }
 }
 export async function ProcessTemplateNode(root) {
@@ -61,7 +59,7 @@ async function processInclude(oldItem) {
   const includeName = Object.keys(oldItem.attributes)[0];
   oldItem.removeAttribute(includeName);
   const root = await getInclude(includeName);
-  const newItem = (function () {
+  const newItem = (() => {
     const childNodes = trimNodelist(root.childNodes);
     if (childNodes.length === 1) {
       oldItem.replaceWith(childNodes[0]);

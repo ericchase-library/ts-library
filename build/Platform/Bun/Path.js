@@ -11,7 +11,7 @@ export class PathGroup {
     this.name = name;
     this.ext = ext;
     if (ext.length > 0) {
-      this.ext = '.' + ext.slice(ext.lastIndexOf('.') + 1);
+      this.ext = `.${ext.slice(ext.lastIndexOf('.') + 1)}`;
     }
   }
   static new({ basedir = '', path = '' }) {
@@ -90,12 +90,12 @@ export class GlobGroup {
     return this.path_iterator();
   }
   replaceBasedir(new_base) {
-    new_base = node_path.normalize(new_base);
+    const new_base_normalize = node_path.normalize(new_base);
     const new_pathGroupSet = new Set();
     for (const pathGroup of this.pathGroupSet) {
-      new_pathGroupSet.add(pathGroup.replaceBasedir(new_base));
+      new_pathGroupSet.add(pathGroup.replaceBasedir(new_base_normalize));
     }
-    return new GlobGroup(new_base, this.pattern, new_pathGroupSet);
+    return new GlobGroup(new_base_normalize, this.pattern, new_pathGroupSet);
   }
   *pathGroup_iterator() {
     for (const pathGroup of this.pathGroupSet) {
@@ -111,7 +111,11 @@ export class GlobGroup {
 
 export class GlobManager {
   static Scan(basedir, pattern, dot = false) {
-    return GlobGroup.new({ basedir: node_path.normalize(basedir), pattern, dot });
+    return GlobGroup.new({
+      basedir: node_path.normalize(basedir),
+      pattern,
+      dot,
+    });
   }
   globGroupMap = new Map();
   get globGroups() {

@@ -13,7 +13,10 @@ export class ElementAddedObserver {
         }
       }
     });
-    this.mutationObserver.observe(source, { childList: true, subtree: options.subtree ?? true });
+    this.mutationObserver.observe(source, {
+      childList: true,
+      subtree: options.subtree ?? true,
+    });
     if (includeExistingElements === true) {
       const treeWalker = document.createTreeWalker(document, NodeFilter.SHOW_ELEMENT);
       while (treeWalker.nextNode()) {

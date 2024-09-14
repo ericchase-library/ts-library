@@ -1,0 +1,142 @@
+// Bun Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`FuzzyMatcher snapshot 1`] = `
+[
+  [
+    {
+      "distance": 0,
+      "inputIndex": 3,
+    },
+    {
+      "distance": 0,
+      "inputIndex": 4,
+    },
+    {
+      "distance": 0,
+      "inputIndex": 31,
+    },
+    {
+      "distance": 0,
+      "inputIndex": 32,
+    },
+    {
+      "distance": 0,
+      "inputIndex": 35,
+    },
+    {
+      "distance": 0,
+      "inputIndex": 37,
+    },
+    {
+      "distance": 0,
+      "inputIndex": 38,
+    },
+    {
+      "distance": 0,
+      "inputIndex": 39,
+    },
+    {
+      "distance": 0,
+      "inputIndex": 40,
+    },
+    {
+      "distance": 2,
+      "inputIndex": 9,
+    },
+    {
+      "distance": 2,
+      "inputIndex": 16,
+    },
+    {
+      "distance": 2,
+      "inputIndex": 25,
+    },
+    {
+      "distance": 2,
+      "inputIndex": 25,
+    },
+    {
+      "distance": 2,
+      "inputIndex": 26,
+    },
+    {
+      "distance": 2,
+      "inputIndex": 32,
+    },
+    {
+      "distance": 2,
+      "inputIndex": 32,
+    },
+  ],
+  [
+    {
+      "distance": 0,
+      "inputIndex": 5,
+    },
+    {
+      "distance": 0,
+      "inputIndex": 31,
+    },
+    {
+      "distance": 0,
+      "inputIndex": 32,
+    },
+    {
+      "distance": 0,
+      "inputIndex": 33,
+    },
+    {
+      "distance": 0,
+      "inputIndex": 34,
+    },
+    {
+      "distance": 1,
+      "inputIndex": 27,
+    },
+    {
+      "distance": 2,
+      "inputIndex": 8,
+    },
+    {
+      "distance": 2,
+      "inputIndex": 8,
+    },
+    {
+      "distance": 2,
+      "inputIndex": 9,
+    },
+    {
+      "distance": 2,
+      "inputIndex": 9,
+    },
+    {
+      "distance": 2,
+      "inputIndex": 15,
+    },
+    {
+      "distance": 2,
+      "inputIndex": 18,
+    },
+    {
+      "distance": 2,
+      "inputIndex": 22,
+    },
+    {
+      "distance": 2,
+      "inputIndex": 24,
+    },
+    {
+      "distance": 2,
+      "inputIndex": 25,
+    },
+    {
+      "distance": 2,
+      "inputIndex": 26,
+    },
+    {
+      "distance": 2,
+      "inputIndex": 32,
+    },
+  ],
+]
+`;

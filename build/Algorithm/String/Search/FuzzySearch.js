@@ -3,8 +3,8 @@ import { levenshtein_distance } from './LevenshteinDistance.js';
 export class FuzzyMatcher {
   mapInputToTargetToDistance = new Map();
   addDistance(input, target) {
-    if (this.mapInputToTargetToDistance.has(input)) {
-      const mapTargetToDistance = this.mapInputToTargetToDistance.get(input);
+    const mapTargetToDistance = this.mapInputToTargetToDistance.get(input);
+    if (mapTargetToDistance) {
       if (!mapTargetToDistance.has(target)) {
         if (input.length <= target.length) {
           mapTargetToDistance.set(target, target.startsWith(input) ? 0 : levenshtein_distance(input, target));
@@ -21,7 +21,9 @@ export class FuzzyMatcher {
   }
   search(inputText, targetText) {
     const inputWordSet = new Set(inputText.split(' '));
-    inputWordSet.forEach((inputWord) => this.addDistance(inputWord, targetText));
+    for (const inputWord of inputWordSet) {
+      this.addDistance(inputWord, targetText);
+    }
     const toFuzzyMatchResult = (inputWord) => ({
       distance: this.getDistance(inputWord, targetText),
       inputWord,
@@ -52,8 +54,8 @@ export class FuzzyMatcher {
     const targetWordSet = new Set(targetText.split(' '));
     const indexToMatchResultMap = new Map();
     function addToMatchResultMap({ inputIndex, distance }) {
-      if (indexToMatchResultMap.has(inputIndex)) {
-        const matchResult = indexToMatchResultMap.get(inputIndex);
+      const matchResult = indexToMatchResultMap.get(inputIndex);
+      if (matchResult) {
         matchResult.count += 1;
         matchResult.distance += distance;
       } else {

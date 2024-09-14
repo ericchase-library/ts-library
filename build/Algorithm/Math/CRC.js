@@ -12,16 +12,18 @@ for (let n = 0; n < 256; n++) {
   }
   crc_table[n] = c;
 }
-
-export class CRC {
-  static Init(bytes) {
+export var CRC;
+((CRC) => {
+  function Init(bytes) {
     return (CRC.Update(4294967295 >>> 0, bytes) ^ (4294967295 >>> 0)) >>> 0;
   }
-  static Update(crc, bytes) {
+  CRC.Init = Init;
+  function Update(crc, bytes) {
     let c = crc >>> 0;
     for (let n = 0; n < bytes.length; n++) {
       c = crc_table[(c ^ bytes[n]) & 255] ^ (c >>> 8);
     }
     return c >>> 0;
   }
-}
+  CRC.Update = Update;
+})((CRC ||= {}));

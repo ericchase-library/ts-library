@@ -23,14 +23,16 @@ export class Watcher {
         }, debounce_interval);
       }
     };
-    this.done = new Promise(async (resolve) => {
+    this.done = (async () => {
       try {
-        for await (const event of watch(path, { recursive, signal: this.controller.signal })) {
+        for await (const event of watch(path, {
+          recursive,
+          signal: this.controller.signal,
+        })) {
           enqueue(event);
         }
       } catch (err) {}
-      resolve();
-    });
+    })();
   }
   abort() {
     this.controller.abort();

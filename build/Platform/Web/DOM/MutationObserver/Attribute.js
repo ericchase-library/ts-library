@@ -5,7 +5,12 @@ export class AttributeObserver {
         this.send(record);
       }
     });
-    this.mutationObserver.observe(source, { attributes: true, attributeFilter: options.attributeFilter, attributeOldValue: options.attributeOldValue ?? true, subtree: options.subtree ?? true });
+    this.mutationObserver.observe(source, {
+      attributes: true,
+      attributeFilter: options.attributeFilter,
+      attributeOldValue: options.attributeOldValue ?? true,
+      subtree: options.subtree ?? true,
+    });
   }
   subscribe(callback) {
     this.subscriptionSet.add(callback);

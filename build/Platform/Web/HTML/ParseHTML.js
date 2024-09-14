@@ -1,4 +1,4 @@
-import { HTMLElement as NodeHTMLParser_HTMLElement, parse } from 'node-html-parser';
+import { parse } from 'node-html-parser';
 export function ParseHTML(html, options = {}) {
   const _options = {
     blockTextElements: {

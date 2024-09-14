@@ -1,48 +1,66 @@
 export class BinaryHeap {
-  isOrdered;
-  constructor(isOrdered = (a, b) => a < b) {
-    this.isOrdered = isOrdered;
+  mustComeBefore;
+  constructor(mustComeBefore = (a, b) => a < b) {
+    this.mustComeBefore = mustComeBefore;
   }
-  get length() {
-    return this.heap.length;
+  clear() {
+    this.buffer.length = 0;
+  }
+  get size() {
+    return this.buffer.length;
   }
   get top() {
-    if (this.heap.length === 0) {
-      return;
-    }
-    return this.heap[0];
+    return this.buffer[0];
   }
   insert(value) {
-    this.heap.push(value);
-    this.siftUp(this.heap.length - 1);
+    this.buffer.push(value);
+    this.siftUp(this.buffer.length - 1);
   }
-  remove() {
+  pop() {
     const top = this.top;
-    const bot = this.heap.pop();
-    if (this.heap.length > 0) {
-      this.heap[0] = bot;
+    if (this.buffer.length > 1) {
+      this.buffer[0] = this.buffer[this.buffer.length - 1];
       this.siftDown(0);
     }
+    this.buffer.pop();
     return top;
   }
-  getLeftChildIndex(index) {
+  toArray() {
+    const temp = new BinaryHeap(this.mustComeBefore);
+    temp.buffer = this.buffer.slice();
+    const items = [];
+    while (temp.size > 0) {
+      items.push(temp.pop());
+    }
+    return items;
+  }
+  static GetLeftChildIndex(index) {
     return index * 2 + 1;
   }
-  getParentIndex(index) {
+  static GetParentIndex(index) {
     return Math.floor((index - 1) / 2);
   }
-  getRightChildIndex(index) {
+  static GetRightChildIndex(index) {
     return index * 2 + 2;
   }
-  siftDown(index) {
-    const leftChildIndex = this.getLeftChildIndex(index);
-    const rightChildIndex = this.getRightChildIndex(index);
-    let orderedIndex = index;
-    if (leftChildIndex < this.heap.length && this.isOrdered(this.heap[leftChildIndex], this.heap[orderedIndex])) {
-      orderedIndex = leftChildIndex;
+  static ToArray(heap) {
+    const temp = new BinaryHeap(heap.mustComeBefore);
+    temp.buffer = heap.buffer.slice();
+    const items = [];
+    while (temp.size > 0) {
+      items.push(temp.pop());
     }
-    if (rightChildIndex < this.heap.length && this.isOrdered(this.heap[rightChildIndex], this.heap[orderedIndex])) {
-      orderedIndex = rightChildIndex;
+    return items;
+  }
+  siftDown(index) {
+    const iL = BinaryHeap.GetLeftChildIndex(index);
+    const iR = BinaryHeap.GetRightChildIndex(index);
+    let orderedIndex = index;
+    if (iL < this.buffer.length && this.mustComeBefore(this.buffer[iL], this.buffer[orderedIndex])) {
+      orderedIndex = iL;
+    }
+    if (iR < this.buffer.length && this.mustComeBefore(this.buffer[iR], this.buffer[orderedIndex])) {
+      orderedIndex = iR;
     }
     if (orderedIndex !== index) {
       this.swap(orderedIndex, index);
@@ -53,21 +71,21 @@ export class BinaryHeap {
     if (index === 0) {
       return;
     }
-    const parentIndex = this.getParentIndex(index);
-    if (!this.isOrdered(this.heap[parentIndex], this.heap[index])) {
-      this.swap(parentIndex, index);
-      this.siftUp(parentIndex);
+    const iP = BinaryHeap.GetParentIndex(index);
+    if (!this.mustComeBefore(this.buffer[iP], this.buffer[index])) {
+      this.swap(iP, index);
+      this.siftUp(iP);
     }
   }
   swap(index1, index2) {
-    [this.heap[index1], this.heap[index2]] = [this.heap[index2], this.heap[index1]];
+    [this.buffer[index1], this.buffer[index2]] = [this.buffer[index2], this.buffer[index1]];
   }
-  heap = [];
+  buffer = [];
 }
 
 export class MaxBinaryHeap extends BinaryHeap {
-  constructor(isOrdered = (a, b) => a < b) {
-    super((a, b) => !isOrdered(a, b) && isOrdered(b, a));
+  constructor(mustComeBefore = (a, b) => a > b) {
+    super(mustComeBefore);
   }
 }
 

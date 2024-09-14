@@ -23,7 +23,7 @@ export async function buildSteps(watch = false) {
   const copiedPaths = await copy({
     outDir: stripDir,
     toCopy: new GlobManager().scan(srcDir, '**/*.ts'),
-    toExclude: new GlobManager().scan(srcDir, '**/*.example.ts', '**/*.test.ts'),
+    toExclude: new GlobManager().scan(srcDir, '**/*.deprecated.ts', '**/*.example.ts', '**/*.test.ts'),
   });
   for (const path of copiedPaths.paths) {
     Log(`copied: ${path}`);

@@ -1,46 +1,51 @@
-export class WebRequestCache {
-  static RequestIdToRequestMap = new Map();
-  static TabIdToRequestMap = new Map();
-  static AddBody(details) {
-    const webRequest = this.RequestIdToRequestMap.get(details.requestId);
+export var WebRequestCache;
+((WebRequestCache) => {
+  WebRequestCache.RequestIdToRequestMap = new Map();
+  WebRequestCache.SubscriptionSet = new Set();
+  WebRequestCache.TabIdToRequestMap = new Map();
+  function AddBody(details) {
+    const webRequest = WebRequestCache.RequestIdToRequestMap.get(details.requestId);
     if (webRequest) {
       webRequest.bodyDetails = details;
     } else {
       const webRequest = { bodyDetails: details };
-      this.RequestIdToRequestMap.set(details.requestId, webRequest);
-      this.TabIdToRequestMap.set(details.tabId, webRequest);
+      WebRequestCache.RequestIdToRequestMap.set(details.requestId, webRequest);
+      WebRequestCache.TabIdToRequestMap.set(details.tabId, webRequest);
     }
   }
-  static AddHeaders(details) {
-    const webRequest = this.RequestIdToRequestMap.get(details.requestId);
+  WebRequestCache.AddBody = AddBody;
+  function AddHeaders(details) {
+    const webRequest = WebRequestCache.RequestIdToRequestMap.get(details.requestId);
     if (webRequest) {
       webRequest.headersDetails = details;
     } else {
       const webRequest = { headersDetails: details };
-      this.RequestIdToRequestMap.set(details.requestId, webRequest);
-      this.TabIdToRequestMap.set(details.tabId, webRequest);
+      WebRequestCache.RequestIdToRequestMap.set(details.requestId, webRequest);
+      WebRequestCache.TabIdToRequestMap.set(details.tabId, webRequest);
     }
-    this.Notify();
+    WebRequestCache.Notify();
   }
-  static SubscriptionSet = new Set();
-  static Subscribe(callback) {
-    this.SubscriptionSet.add(callback);
-    if (callback()?.abort === true) {
-      this.SubscriptionSet.delete(callback);
-      return () => {};
-    }
-    return () => {
-      this.SubscriptionSet.delete(callback);
-    };
-  }
-  static Notify() {
-    for (const callback of this.SubscriptionSet) {
+  WebRequestCache.AddHeaders = AddHeaders;
+  function Notify() {
+    for (const callback of WebRequestCache.SubscriptionSet) {
       if (callback()?.abort === true) {
-        this.SubscriptionSet.delete(callback);
+        WebRequestCache.SubscriptionSet.delete(callback);
       }
     }
   }
-}
+  WebRequestCache.Notify = Notify;
+  function Subscribe(callback) {
+    WebRequestCache.SubscriptionSet.add(callback);
+    if (callback()?.abort === true) {
+      WebRequestCache.SubscriptionSet.delete(callback);
+      return () => {};
+    }
+    return () => {
+      WebRequestCache.SubscriptionSet.delete(callback);
+    };
+  }
+  WebRequestCache.Subscribe = Subscribe;
+})((WebRequestCache ||= {}));
 export async function RebuildAndSendRequest(webRequest) {
   const { bodyDetails, headersDetails } = webRequest;
   const requestUrl = bodyDetails?.url ?? headersDetails?.url;

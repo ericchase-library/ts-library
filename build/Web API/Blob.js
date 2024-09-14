@@ -15,13 +15,9 @@ export function Compat_Blob(blob) {
         return blob.bytes() ?? undefined;
       }
       if (HasMethod(blob, 'arrayBuffer')) {
-        return new Promise(async (resolve, reject) => {
-          try {
-            resolve(new Uint8Array(await blob.arrayBuffer()));
-          } catch (error) {
-            reject(resolve);
-          }
-        });
+        return (async () => {
+          return new Uint8Array(await blob.arrayBuffer());
+        })();
       }
     },
     slice() {

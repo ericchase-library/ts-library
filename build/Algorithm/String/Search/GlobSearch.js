@@ -1,4 +1,3 @@
-//! use Bun.Glob instead
 export function GlobSearch(text, query) {
   const parts = query.split('*');
   if (parts[0] !== '' && !text.startsWith(parts[0])) {

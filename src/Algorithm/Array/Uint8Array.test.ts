@@ -107,7 +107,7 @@ describe(U8FromUint32.name, () => {
     [0x0c877f61, U8([0x0c, 0x87, 0x7f, 0x61])],
   ] as const;
   for (const [input, expected] of cases) {
-    test('0x' + input.toString(16).padStart(8, '0'), () => {
+    test(`0x${input.toString(16).padStart(8, '0')}`, () => {
       expect(U8FromUint32(input)).toEqual(expected);
     });
   }

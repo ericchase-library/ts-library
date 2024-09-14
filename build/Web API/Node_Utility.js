@@ -9,20 +9,20 @@ export class CNodeRef {
     }
     this.node = node;
   }
-  as(constructor) {
-    if (this.node instanceof constructor) return this.node;
-    throw new TypeError(`Reference node is not ${constructor}`);
+  as(constructor_ref) {
+    if (this.node instanceof constructor_ref) return this.node;
+    throw new TypeError(`Reference node is not ${constructor_ref}`);
   }
-  is(constructor) {
-    return this.node instanceof constructor;
+  is(constructor_ref) {
+    return this.node instanceof constructor_ref;
   }
-  passAs(constructor, fn) {
-    if (this.node instanceof constructor) {
+  passAs(constructor_ref, fn) {
+    if (this.node instanceof constructor_ref) {
       fn(this.node);
     }
   }
-  tryAs(constructor) {
-    if (this.node instanceof constructor) {
+  tryAs(constructor_ref) {
+    if (this.node instanceof constructor_ref) {
       return this.node;
     }
   }
@@ -39,13 +39,13 @@ export class CNodeRef {
     return this.as(HTMLElement).getAttribute(qualifiedName);
   }
   setAttribute(qualifiedName, value) {
-    return this.as(HTMLElement).setAttribute(qualifiedName, value);
+    this.as(HTMLElement).setAttribute(qualifiedName, value);
   }
   getStyleProperty(property) {
     return this.as(HTMLElement).style.getPropertyValue(property);
   }
   setStyleProperty(property, value, priority) {
-    return this.as(HTMLElement).style.setProperty(property, value, priority);
+    this.as(HTMLElement).style.setProperty(property, value, priority);
   }
 }
 export function NodeRef(node) {
@@ -67,12 +67,12 @@ export class CNodeListRef extends Array {
       } catch (_) {}
     }
   }
-  as(constructor) {
-    return this.filter((ref) => ref.is(constructor)).map((ref) => ref.as(constructor));
+  as(constructor_ref) {
+    return this.filter((ref) => ref.is(constructor_ref)).map((ref) => ref.as(constructor_ref));
   }
-  passEachAs(constructor, fn) {
+  passEachAs(constructor_ref, fn) {
     for (const ref of this) {
-      ref.passAs(constructor, fn);
+      ref.passAs(constructor_ref, fn);
     }
   }
 }
