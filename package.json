@@ -1,16 +1,18 @@
 {
   "dependencies": {},
+  "devDependencies": {
+    "@biomejs/biome": "latest",
+    "@types/bun": "latest",
+    "@types/chrome": "latest",
+    "@types/node": "latest",
+    "node-html-parser": "latest"
+  },
   "scripts": {
     "build": "bun ./tools/build.ts",
     "dev": "bun ./tools/dev.ts",
-    "format-debug": "prettier . --debug-check",
-    "format": "prettier . --write"
-  },
-  "devDependencies": {
-    "@types/bun": "^1.1.9",
-    "@types/chrome": "^0.0.270",
-    "@types/node": "^22.5.4",
-    "node-html-parser": "^6.1.13",
-    "prettier": "^3.3.3"
+    "format-debug": "biome format --files-ignore-unknown true --verbose .",
+    "format-silent": "biome format --files-ignore-unknown true --write .",
+    "format": "biome format --files-ignore-unknown true --write --verbose .",
+    "lint": "biome lint --error-on-warnings --write ."
   }
 }

@@ -4,7 +4,7 @@ import { ConsoleError } from '../src/Utility/Console.js';
 import { buildClear, buildSteps } from './build.js';
 
 const builder = new Debouncer(async () => {
-  await buildSteps();
+  await buildSteps(true);
 }, 100);
 
 await buildClear();

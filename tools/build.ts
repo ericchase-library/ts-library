@@ -18,15 +18,15 @@ const buildDir = NormalizePath('build');
 const stripDir = NormalizePath('src-stripped');
 const srcDir = NormalizePath('src');
 
-export async function buildSteps() {
-  // Copy
+export async function buildSteps(watch = false) {
+  // Copy Stripped
   const copiedPaths = await copy({
     outDir: stripDir,
     toCopy: new GlobManager().scan(srcDir, '**/*.ts'),
     toExclude: new GlobManager().scan(srcDir, '**/*.example.ts', '**/*.test.ts'),
   });
   for (const path of copiedPaths.paths) {
-    Log('copied: ' + path);
+    Log(`copied: ${path}`);
   }
   // Compile
   const compiledPaths = await compile({
@@ -34,7 +34,7 @@ export async function buildSteps() {
     toCompile: new GlobManager().scan(stripDir, '**/*.ts'),
   });
   for (const path of compiledPaths.paths) {
-    Log('compiled: ' + path);
+    Log(`compiled: ${path}`);
   }
 }
 
@@ -46,8 +46,9 @@ export async function buildClear() {
 
 if (Bun.argv[1] === __filename) {
   await Run('bun update');
+  await Run('bun run format-silent');
   await buildClear();
   await buildSteps();
-  await Run('bun run format');
+  await Run('bun run format-silent');
   await Run('bun test');
 }

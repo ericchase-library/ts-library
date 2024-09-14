@@ -18,8 +18,8 @@ const dest = {
 
 const { files } = await FilterDirectoryTree({
   path: src.dir, //
-  include: ['*' + src.ext],
-  exclude: ['*' + src.exclude],
+  include: [`*${src.ext}`],
+  exclude: [`*${src.exclude}`],
 });
 
 const success: string[] = [];
