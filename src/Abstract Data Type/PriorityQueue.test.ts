@@ -1,313 +1,309 @@
-import { nChooseRPermutations } from '../Algorithm/Math/Combinatorics.js';
-import { MaxPriorityQueue, MinPriorityQueue, type IPriorityQueue } from './PriorityQueue.js';
-
 import { describe, expect, test } from 'bun:test';
-
-function queueToArray<T>(queue: IPriorityQueue<T>) {
-  const items: T[] = [];
-  while (queue.length) {
-    items.push(queue.remove()!);
-  }
-  return items;
-}
-
-function buildBasicTests(
-  Queue: new () => IPriorityQueue<number>, //
-  count: number,
-  expectedMapper: (expected: number[]) => number[] = (expected) => expected,
-) {
-  const queue = new Queue();
-  const numbers: number[] = [...new Array(count).keys()];
-  const expected = expectedMapper([...numbers]);
-  for (const [key, permutation] of nChooseRPermutations(numbers, count).entries()) {
-    test(`${key + 1}: ${permutation.join(',')}`, () => {
-      for (const p of permutation) {
-        queue.insert(p);
-      }
-      expect(queueToArray(queue)).toStrictEqual(expected);
-    });
-  }
-}
+import { nChooseRPermutations } from '../Algorithm/Math/Combinatorics.js';
+import { MaxPriorityQueue, MinPriorityQueue, PriorityQueue } from './PriorityQueue.js';
 
 describe('MinPriorityQueue', () => {
   const Queue = MinPriorityQueue;
-  let queue: IPriorityQueue<number>;
-
+  type DataType = { priority: number; data: string };
+  const Comparator = (a: DataType, b: DataType) => a.priority < b.priority;
   test('0 Items', () => {
-    queue = new Queue();
+    const queue = new Queue<number>();
     expect(queue.top).toBeUndefined();
-    expect(queueToArray(queue)).toStrictEqual([]);
-    expect(queue.remove()).toBeUndefined();
+    expect(queue.toArray()).toEqual([]);
+    expect(queue.pop()).toBeUndefined();
   });
   test('1 Item', () => {
-    queue = new Queue();
-    queue.insert(1);
-    expect(queueToArray(queue)).toStrictEqual([1]);
+    const queue = new Queue<DataType>();
+    queue.insert({ priority: 0, data: '0' });
+    expect(queue.toArray()).toEqual([{ priority: 0, data: '0' }]);
   });
   describe('2 Items', () => {
-    test('1,2', () => {
-      queue = new Queue();
-      queue.insert(1);
-      queue.insert(2);
-      expect(queueToArray(queue)).toStrictEqual([1, 2]);
+    test('different priorities', () => {
+      const queue = new Queue<DataType>(Comparator);
+      queue.insert({ priority: 0, data: '0' });
+      queue.insert({ priority: 1, data: '1' });
+      expect(queue.toArray()).toEqual([
+        { priority: 0, data: '0' },
+        { priority: 1, data: '1' },
+      ]);
     });
-    test('2,1', () => {
-      queue = new Queue();
-      queue.insert(2);
-      queue.insert(1);
-      expect(queueToArray(queue)).toStrictEqual([1, 2]);
+    test('different priorities, reverse', () => {
+      const queue = new Queue<DataType>(Comparator);
+      queue.insert({ priority: 1, data: '1' });
+      queue.insert({ priority: 0, data: '0' });
+      expect(queue.toArray()).toEqual([
+        { priority: 0, data: '0' },
+        { priority: 1, data: '1' },
+      ]);
+    });
+    test('same priority', () => {
+      const queue = new Queue<DataType>(Comparator);
+      queue.insert({ priority: 0, data: '0' });
+      queue.insert({ priority: 0, data: '1' });
+      expect(queue.toArray()).toEqual([
+        { priority: 0, data: '0' },
+        { priority: 0, data: '1' },
+      ]);
+    });
+    test('same priority, reverse', () => {
+      const queue = new Queue<DataType>(Comparator);
+      queue.insert({ priority: 0, data: '1' });
+      queue.insert({ priority: 0, data: '0' });
+      expect(queue.toArray()).toEqual([
+        { priority: 0, data: '1' },
+        { priority: 0, data: '0' },
+      ]);
     });
   });
   describe('3 Items', () => {
-    buildBasicTests(Queue, 3);
-  });
-  describe('4 Items', () => {
-    buildBasicTests(Queue, 4);
-  });
-  describe('Duplicate Items', () => {
-    test('1,2,2,3', () => {
-      queue = new Queue();
-      queue.insert(1);
-      queue.insert(2);
-      queue.insert(2);
-      queue.insert(3);
-      expect(queueToArray(queue)).toStrictEqual([1, 2, 2, 3]);
+    describe('different priorities', () => {
+      const permutations = nChooseRPermutations([0, 1, 2], 3);
+      for (const permutation of permutations) {
+        test(`${permutation}`, () => {
+          const queue = new Queue<DataType>(Comparator);
+          const objects = [
+            { priority: 0, data: '0' }, //
+            { priority: 1, data: '1' },
+            { priority: 2, data: '2' },
+          ];
+          queue.insert(objects[permutation[0]]);
+          queue.insert(objects[permutation[1]]);
+          queue.insert(objects[permutation[2]]);
+          expect(queue.toArray()).toEqual([
+            { priority: 0, data: '0' },
+            { priority: 1, data: '1' },
+            { priority: 2, data: '2' },
+          ]);
+        });
+      }
     });
-    test('2,1,3,2', () => {
-      queue = new Queue();
-      queue.insert(2);
-      queue.insert(1);
-      queue.insert(3);
-      queue.insert(2);
-      expect(queueToArray(queue)).toStrictEqual([1, 2, 2, 3]);
+    describe('same priority', () => {
+      const permutations = nChooseRPermutations([0, 1, 2], 3);
+      for (const permutation of permutations) {
+        test(`${permutation}`, () => {
+          const queue = new Queue<DataType>(Comparator);
+          const objects = [
+            { priority: 0, data: '0' }, //
+            { priority: 0, data: '1' },
+            { priority: 0, data: '2' },
+          ];
+          queue.insert(objects[permutation[0]]);
+          queue.insert(objects[permutation[1]]);
+          queue.insert(objects[permutation[2]]);
+          expect(queue.toArray()).toEqual([
+            objects[permutation[0]], //
+            objects[permutation[1]],
+            objects[permutation[2]],
+          ]);
+        });
+      }
     });
   });
 });
 
 describe('MaxPriorityQueue', () => {
   const Queue = MaxPriorityQueue;
-  let queue: IPriorityQueue<number>;
-
+  type DataType = { priority: number; data: string };
+  const Comparator = (a: DataType, b: DataType) => a.priority > b.priority;
   test('0 Items', () => {
-    queue = new Queue();
+    const queue = new Queue<number>();
     expect(queue.top).toBeUndefined();
-    expect(queueToArray(queue)).toStrictEqual([]);
-    expect(queue.remove()).toBeUndefined();
+    expect(queue.toArray()).toEqual([]);
+    expect(queue.pop()).toBeUndefined();
   });
   test('1 Item', () => {
-    queue = new Queue();
-    queue.insert(1);
-    expect(queueToArray(queue)).toStrictEqual([1]);
+    const queue = new Queue<DataType>();
+    queue.insert({ priority: 0, data: '0' });
+    expect(queue.toArray()).toEqual([{ priority: 0, data: '0' }]);
   });
   describe('2 Items', () => {
-    test('1,2', () => {
-      queue = new Queue();
-      queue.insert(1);
-      queue.insert(2);
-      expect(queueToArray(queue)).toStrictEqual([2, 1]);
+    test('different priorities', () => {
+      const queue = new Queue<DataType>(Comparator);
+      queue.insert({ priority: 0, data: '0' });
+      queue.insert({ priority: 1, data: '1' });
+      expect(queue.toArray()).toEqual([
+        { priority: 1, data: '1' },
+        { priority: 0, data: '0' },
+      ]);
     });
-    test('2,1', () => {
-      queue = new Queue();
-      queue.insert(2);
-      queue.insert(1);
-      expect(queueToArray(queue)).toStrictEqual([2, 1]);
+    test('different priorities, reverse', () => {
+      const queue = new Queue<DataType>(Comparator);
+      queue.insert({ priority: 1, data: '1' });
+      queue.insert({ priority: 0, data: '0' });
+      expect(queue.toArray()).toEqual([
+        { priority: 1, data: '1' },
+        { priority: 0, data: '0' },
+      ]);
+    });
+    test('same priority', () => {
+      const queue = new Queue<DataType>(Comparator);
+      queue.insert({ priority: 0, data: '0' });
+      queue.insert({ priority: 0, data: '1' });
+      expect(queue.toArray()).toEqual([
+        { priority: 0, data: '0' },
+        { priority: 0, data: '1' },
+      ]);
+    });
+    test('same priority, reverse', () => {
+      const queue = new Queue<DataType>(Comparator);
+      queue.insert({ priority: 0, data: '1' });
+      queue.insert({ priority: 0, data: '0' });
+      expect(queue.toArray()).toEqual([
+        { priority: 0, data: '1' },
+        { priority: 0, data: '0' },
+      ]);
     });
   });
   describe('3 Items', () => {
-    buildBasicTests(Queue, 3, (_) => _.reverse());
-  });
-  describe('4 Items', () => {
-    buildBasicTests(Queue, 4, (_) => _.reverse());
-  });
-  describe('Duplicate Items', () => {
-    test('1,2,2,3', () => {
-      queue = new MinPriorityQueue();
-      queue.insert(1);
-      queue.insert(2);
-      queue.insert(2);
-      queue.insert(3);
-      expect(queueToArray(queue)).toStrictEqual([1, 2, 2, 3]);
-    });
-    test('2,1,3,2', () => {
-      queue = new MinPriorityQueue();
-      queue.insert(2);
-      queue.insert(1);
-      queue.insert(3);
-      queue.insert(2);
-      expect(queueToArray(queue)).toStrictEqual([1, 2, 2, 3]);
-    });
-  });
-});
-
-function buildComplexTests(
-  Queue: new (isOrdered: (a: { v: number }, b: { v: number }) => boolean) => IPriorityQueue<{ v: number }>, //
-  isOrdered: (a: { v: number }, b: { v: number }) => boolean,
-  count: number,
-  expectedMapper: (expected: { v: number }[]) => { v: number }[] = (expected) => expected,
-) {
-  const queue = new Queue(isOrdered);
-  const objects: { v: number }[] = [...new Array(count).keys()].map((_) => ({
-    v: _,
-  }));
-  const expected = expectedMapper([...objects]);
-  for (const [key, permutation] of nChooseRPermutations(objects, count).entries()) {
-    test(`${key + 1}: ${permutation.join(',')}`, () => {
-      for (const p of permutation) {
-        queue.insert(p);
+    describe('different priorities', () => {
+      const permutations = nChooseRPermutations([0, 1, 2], 3);
+      for (const permutation of permutations) {
+        test(`${permutation}`, () => {
+          const queue = new Queue<DataType>(Comparator);
+          const objects = [
+            { priority: 0, data: '0' }, //
+            { priority: 1, data: '1' },
+            { priority: 2, data: '2' },
+          ];
+          queue.insert(objects[permutation[0]]);
+          queue.insert(objects[permutation[1]]);
+          queue.insert(objects[permutation[2]]);
+          expect(queue.toArray()).toEqual([
+            { priority: 2, data: '2' },
+            { priority: 1, data: '1' },
+            { priority: 0, data: '0' },
+          ]);
+        });
       }
-      expect(queueToArray(queue)).toStrictEqual(expected);
     });
-  }
-}
-
-describe('MinPriorityQueue | Complex Object', () => {
-  const Queue = MinPriorityQueue;
-  let queue: IPriorityQueue<{ v: number }>;
-  function isOrdered(a: { v: number }, b: { v: number }): boolean {
-    return a.v < b.v;
-  }
-
-  test('0 Items', () => {
-    queue = new Queue(isOrdered);
-    expect(queue.top).toBeUndefined();
-    expect(queueToArray(queue)).toStrictEqual([]);
-    expect(queue.remove()).toBeUndefined();
-  });
-  test('1 Item', () => {
-    queue = new Queue(isOrdered);
-    queue.insert({ v: 1 });
-    expect(queue.top).toStrictEqual({ v: 1 });
-    expect(queueToArray(queue)).toStrictEqual([{ v: 1 }]);
-  });
-  describe('2 Items', () => {
-    test('1,2', () => {
-      queue = new Queue(isOrdered);
-      queue.insert({ v: 1 });
-      queue.insert({ v: 2 });
-      expect(queueToArray(queue)).toStrictEqual([{ v: 1 }, { v: 2 }]);
-    });
-    test('2,1', () => {
-      queue = new Queue(isOrdered);
-      queue.insert({ v: 2 });
-      queue.insert({ v: 1 });
-      expect(queueToArray(queue)).toStrictEqual([{ v: 1 }, { v: 2 }]);
-    });
-  });
-  describe('3 Items', () => {
-    buildComplexTests(Queue, isOrdered, 3);
-  });
-  describe('4 Items', () => {
-    buildComplexTests(Queue, isOrdered, 4);
-  });
-  describe('Duplicate Items', () => {
-    interface Complex {
-      k: number;
-      v: number;
-    }
-    function isOrdered(a: { v: number }, b: { v: number }): boolean {
-      return a.v < b.v;
-    }
-    test('1,2,2,3', () => {
-      let queue = new MinPriorityQueue<Complex>(isOrdered);
-      queue.insert({ k: 0, v: 1 });
-      queue.insert({ k: 1, v: 2 });
-      queue.insert({ k: 2, v: 2 });
-      queue.insert({ k: 3, v: 3 });
-      expect(queueToArray(queue)).toStrictEqual([
-        { k: 0, v: 1 },
-        { k: 1, v: 2 },
-        { k: 2, v: 2 },
-        { k: 3, v: 3 },
-      ]);
-    });
-    test('2,1,3,2', () => {
-      let queue = new MinPriorityQueue<Complex>(isOrdered);
-      queue.insert({ k: 0, v: 2 });
-      queue.insert({ k: 1, v: 1 });
-      queue.insert({ k: 2, v: 3 });
-      queue.insert({ k: 3, v: 2 });
-      expect(queueToArray(queue)).toStrictEqual([
-        { k: 1, v: 1 },
-        { k: 0, v: 2 },
-        { k: 3, v: 2 },
-        { k: 2, v: 3 },
-      ]);
+    describe('same priority', () => {
+      const permutations = nChooseRPermutations([0, 1, 2], 3);
+      for (const permutation of permutations) {
+        test(`${permutation}`, () => {
+          const queue = new Queue<DataType>(Comparator);
+          const objects = [
+            { priority: 0, data: '0' }, //
+            { priority: 0, data: '1' },
+            { priority: 0, data: '2' },
+          ];
+          queue.insert(objects[permutation[0]]);
+          queue.insert(objects[permutation[1]]);
+          queue.insert(objects[permutation[2]]);
+          expect(queue.toArray()).toEqual([
+            objects[permutation[0]], //
+            objects[permutation[1]],
+            objects[permutation[2]],
+          ]);
+        });
+      }
     });
   });
 });
 
-describe('MaxPriorityQueue | Complex Object', () => {
-  const Queue = MaxPriorityQueue;
-  let queue: IPriorityQueue<{ v: number }>;
-  function isOrdered(a: { v: number }, b: { v: number }): boolean {
-    return a.v < b.v;
-  }
+// https://github.com/datastructures-js/priority-queue
+//
+// The MIT License (MIT)
+//
+// Copyright (c) 2020 Eyas Ranjous <eyas.ranjous@gmail.com>
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+describe('PriorityQueue', () => {
+  const numComparator = (a: { id: number }, b: { id: number }) => a.id < b.id;
+  const numValues = [
+    { id: 50 }, //
+    { id: 80 },
+    { id: 30 },
+    { id: 90 },
+    { id: 60 },
+    { id: 40 },
+    { id: 20 },
+  ];
+  const charComparator = (a: { id: string }, b: { id: string }) => a.id > b.id;
+  const charValues = [
+    { id: 'm' }, //
+    { id: 'x' },
+    { id: 'f' },
+    { id: 'b' },
+    { id: 'z' },
+    { id: 'k' },
+    { id: 'c' },
+  ];
 
-  test('0 Items', () => {
-    queue = new Queue(isOrdered);
-    expect(queue.top).toBeUndefined();
-    expect(queueToArray(queue)).toStrictEqual([]);
-    expect(queue.remove()).toBeUndefined();
-  });
-  test('1 Item', () => {
-    queue = new Queue(isOrdered);
-    queue.insert({ v: 1 });
-    expect(queue.top).toStrictEqual({ v: 1 });
-    expect(queueToArray(queue)).toStrictEqual([{ v: 1 }]);
-  });
-  describe('2 Items', () => {
-    test('1,2', () => {
-      queue = new Queue(isOrdered);
-      queue.insert({ v: 1 });
-      queue.insert({ v: 2 });
-      expect(queueToArray(queue)).toStrictEqual([{ v: 2 }, { v: 1 }]);
+  describe('PriorityQueue with min logic', () => {
+    const minQ = new MinPriorityQueue(numComparator);
+    test('insert', () => {
+      for (const value of numValues) {
+        minQ.insert(value);
+      }
     });
-    test('2,1', () => {
-      queue = new Queue(isOrdered);
-      queue.insert({ v: 2 });
-      queue.insert({ v: 1 });
-      expect(queueToArray(queue)).toStrictEqual([{ v: 2 }, { v: 1 }]);
+    test('toArray', () => {
+      expect(minQ.toArray()).toEqual(numValues.slice().sort((a, b) => a.id - b.id));
+    });
+    test('top', () => {
+      expect(minQ.top).toEqual({ id: 20 });
+    });
+    test('size', () => {
+      expect(minQ.size).toBe(7);
+    });
+    test('isEmpty', () => {
+      expect(minQ.size === 0).toBe(false);
+    });
+    test('pop', () => {
+      expect(minQ.pop()).toEqual({ id: 20 });
+      expect(minQ.pop()).toEqual({ id: 30 });
+      expect(minQ.pop()).toEqual({ id: 40 });
+      expect(minQ.pop()).toEqual({ id: 50 });
+      expect(minQ.pop()).toEqual({ id: 60 });
+      expect(minQ.pop()).toEqual({ id: 80 });
+      expect(minQ.pop()).toEqual({ id: 90 });
+      expect(minQ.size === 0).toBe(true);
     });
   });
-  describe('3 Items', () => {
-    buildComplexTests(Queue, isOrdered, 3, (_) => _.reverse());
-  });
-  describe('4 Items', () => {
-    buildComplexTests(Queue, isOrdered, 4, (_) => _.reverse());
-  });
-  describe('Duplicate Items', () => {
-    interface Complex {
-      k: number;
-      v: number;
-    }
-    function isOrdered(a: { v: number }, b: { v: number }): boolean {
-      return a.v < b.v;
-    }
-    test('1,2,2,3', () => {
-      let queue = new MaxPriorityQueue<Complex>(isOrdered);
-      queue.insert({ k: 0, v: 1 });
-      queue.insert({ k: 1, v: 2 });
-      queue.insert({ k: 2, v: 2 });
-      queue.insert({ k: 3, v: 3 });
-      expect(queueToArray(queue)).toStrictEqual([
-        { k: 3, v: 3 },
-        { k: 1, v: 2 },
-        { k: 2, v: 2 },
-        { k: 0, v: 1 },
-      ]);
+
+  describe('PriorityQueue with max logic', () => {
+    const maxQ = new PriorityQueue(charComparator);
+    test('insert', () => {
+      for (const value of charValues) {
+        maxQ.insert(value);
+      }
     });
-    test('2,1,3,2', () => {
-      let queue = new MaxPriorityQueue<Complex>(isOrdered);
-      queue.insert({ k: 0, v: 2 });
-      queue.insert({ k: 1, v: 1 });
-      queue.insert({ k: 2, v: 3 });
-      queue.insert({ k: 3, v: 2 });
-      expect(queueToArray(queue)).toStrictEqual([
-        { k: 2, v: 3 },
-        { k: 0, v: 2 },
-        { k: 3, v: 2 },
-        { k: 1, v: 1 },
-      ]);
+    test('toArray', () => {
+      expect(maxQ.toArray()).toEqual(charValues.slice().sort((a, b) => (a.id > b.id ? -1 : 1)));
+    });
+    test('top', () => {
+      expect(maxQ.top).toEqual({ id: 'z' });
+    });
+    test('size', () => {
+      expect(maxQ.size).toBe(7);
+    });
+    test('isEmpty', () => {
+      expect(maxQ.size === 0).toEqual(false);
+    });
+    test('pop', () => {
+      expect(maxQ.pop()).toEqual({ id: 'z' });
+      expect(maxQ.pop()).toEqual({ id: 'x' });
+      expect(maxQ.pop()).toEqual({ id: 'm' });
+      expect(maxQ.pop()).toEqual({ id: 'k' });
+      expect(maxQ.pop()).toEqual({ id: 'f' });
+      expect(maxQ.pop()).toEqual({ id: 'c' });
+      expect(maxQ.pop()).toEqual({ id: 'b' });
+      expect(maxQ.size === 0).toEqual(true);
     });
   });
 });
