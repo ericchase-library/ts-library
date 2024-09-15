@@ -79,3 +79,6 @@ export class CNodeListRef extends Array {
 export function NodeListRef(nodes) {
   return new CNodeListRef(nodes);
 }
+export function SelectElements(...selectors) {
+  return NodeListRef(document.querySelectorAll(selectors.join(',')));
+}
