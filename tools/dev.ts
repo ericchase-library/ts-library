@@ -1,13 +1,14 @@
 import { Debouncer } from '../src/Algorithm/Debounce.js';
 import { Watcher } from '../src/Platform/Node/Watch.js';
 import { ConsoleError } from '../src/Utility/Console.js';
-import { buildClear, buildSteps } from './build.js';
+import { buildStep_Clean, buildStep_Compile, buildStep_CopyStripped } from './build.js';
 
 const builder = new Debouncer(async () => {
-  await buildSteps(true);
+  await buildStep_CopyStripped();
+  await buildStep_Compile();
 }, 100);
 
-await buildClear();
+await buildStep_Clean();
 await builder.run();
 
 try {
