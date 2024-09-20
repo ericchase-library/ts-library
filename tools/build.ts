@@ -7,7 +7,6 @@ import { ConsoleLog } from '../src/Utility/Console.js';
 import { compile, copy } from './lib/build.js';
 import { CacheClear } from './lib/cache.js';
 
-// User Values
 const build_dir = new Path('build');
 const src_dir = new Path('src');
 const stripped_dir = new Path('src-stripped');
@@ -18,14 +17,14 @@ export async function buildStep_Clean() {
   await CleanDirectory(stripped_dir.path);
 }
 
-export async function buildStep_CopyStripped() {
+export async function buildStep_Copy() {
   const copied_paths = await copy({
     out_dir: stripped_dir,
     to_copy: new GlobManager().scan(src_dir, '**/*.ts'),
     to_exclude: new GlobManager().scan(src_dir, '**/*.deprecated.ts', '**/*.example.ts', '**/*.test.ts'),
   });
   for (const path of copied_paths.paths) {
-    Log(`copied: ${path}`);
+    onLog(`Copy: ${path}`);
   }
 }
 
@@ -35,22 +34,22 @@ export async function buildStep_Compile() {
     to_compile: new GlobManager().scan(stripped_dir, '**/*.ts'),
   });
   for (const path of compiled_paths.paths) {
-    Log(`compiled: ${path}`);
+    onLog(`Compile: ${path}`);
   }
 }
 
-export const onLog = new Broadcast<void>();
-export function Log(data: string) {
+export const on_log = new Broadcast<void>();
+export function onLog(data: string) {
   ConsoleLog(`${new Date().toLocaleTimeString()} > ${data}`);
-  onLog.send();
+  on_log.send();
 }
 
 if (Bun.argv[1] === __filename) {
   await Run('bun update');
-  await Run('bun run format-silent');
+  await Run('bun run format silent');
   await buildStep_Clean();
-  await buildStep_CopyStripped();
+  await buildStep_Copy();
   await buildStep_Compile();
-  await Run('bun run format-silent');
+  await Run('bun run format');
   await Run('bun test');
 }

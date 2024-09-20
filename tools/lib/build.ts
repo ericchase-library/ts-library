@@ -1,11 +1,10 @@
 import type { Subprocess } from 'bun';
-
 import { AsyncLineReader } from '../../src/Algorithm/Stream/AsyncReader.js';
 import { Broadcast } from '../../src/Design Pattern/Observer/Broadcast.js';
 import { CopyFile } from '../../src/Platform/Bun/Fs.js';
 import type { GlobManager } from '../../src/Platform/Bun/Glob.js';
-import { Path, PathGroupSet, type PathGroup } from '../../src/Platform/Node/Path.js';
-import { ParseHTML, type NodeHTMLParser } from '../../src/Platform/Web/HTML/ParseHTML.js';
+import { type PathGroup, Path, PathGroupSet } from '../../src/Platform/Node/Path.js';
+import { type NodeHTMLParser, ParseHTML } from '../../src/Platform/Web/HTML/ParseHTML.js';
 import { CacheIsModified } from './cache.js';
 
 // watching multiple files results in building each file when a change occurs
@@ -33,12 +32,7 @@ export class BuildRunner {
       }
     });
   }
-  abort() {
-    for (const [_, process] of this.subprocess_map) {
-      process.kill();
-    }
-  }
-  build({ entry, external_imports = ['*.module.js'], out_dir = new Path('out'), sourcemap_mode = 'linked', watch = false }: BuildParams): Subprocess<'ignore', 'pipe', 'inherit'> | undefined {
+  add({ entry, external_imports = ['*.module.js'], out_dir = new Path('out'), sourcemap_mode = 'linked', watch = false }: BuildParams): Subprocess<'ignore', 'pipe', 'inherit'> | undefined {
     if (this.subprocess_map.has(entry.path)) {
       return;
     }
@@ -64,8 +58,11 @@ export class BuildRunner {
     })();
     return process;
   }
-  watch({ entry, external_imports = ['*.module.js'], out_dir = new Path('out'), sourcemap_mode = 'linked' }: BuildParams): Subprocess<'ignore', 'pipe', 'inherit'> | undefined {
-    return this.build({ entry, external_imports, out_dir, sourcemap_mode, watch: true });
+  killAll() {
+    for (const [_, process] of this.subprocess_map) {
+      process.kill();
+    }
+    this.subprocess_map.clear();
   }
 }
 
