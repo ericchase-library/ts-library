@@ -17,6 +17,15 @@ export function* ArrayGetBytes(buffer: ArrayBufferLike): Generator<number> {
   }
 }
 
+export function ArrayShuffle<T>(items: T[]) {
+  let i = items.length - 1;
+  for (let j = 0; j < items.length; j++) {
+    let r = Math.floor(Math.random() * i);
+    [items[i], items[r]] = [items[r], items[i]];
+  }
+  return items;
+}
+
 export function ArraySplit<T>(items: T[], count: number): T[][] {
   if (count > items.length) {
     return [items.slice()];

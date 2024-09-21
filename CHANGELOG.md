@@ -1,3 +1,25 @@
+## 2024-09-21
+
+- update packages
+- update biome config
+  - set linter "noDoubleEquals" to "off"
+
+**src/Algorithm/Array**
+
+- add `ArrayShuffle`
+- use performant loops in some U8 functions
+
+**src/Algorithm/Math**
+
+- use BigInt in `Factorial` function
+  - add test cases
+- remove `SelfCartesianProduct`
+  - use `nChooseRCombinations(..., 2)` instead
+- rewrite `ConsecutiveCartesianProduct` as `nCartesianProduct` with performant logic
+  - this performs Cartesian product on multiple arrays
+- rewrite each Combinatoric function with performant logic
+  - fix up test cases
+
 ## 2024-09-19
 
 - update packages

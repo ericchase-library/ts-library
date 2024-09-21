@@ -49,6 +49,7 @@
       },
       "suspicious": {
         "noConfusingVoidType": "off",
+        "noDoubleEquals": "off",
         "noExplicitAny": "off"
       }
     }

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { ArrayEquals, ArrayGetBytes, ArraySplit } from './Array.js';
+import { ArrayEquals, ArrayGetBytes, ArrayShuffle, ArraySplit } from './Array.js';
 import { U8, U8Clamped } from './Uint8Array.js';
 
 describe(ArrayEquals.name, () => {
@@ -37,6 +37,51 @@ describe(ArrayGetBytes.name, () => {
   });
   test('[0x78563412]', () => {
     expect([...ArrayGetBytes(Uint32Array.from([0x78563412]).buffer)]).toEqual([0x12, 0x34, 0x56, 0x78]);
+  });
+});
+
+describe(ArrayShuffle.name, () => {
+  test('[]', () => {
+    expect(ArrayShuffle([])).toEqual([]);
+  });
+  test('[1]', () => {
+    expect(ArrayShuffle([1])).toEqual([1]);
+  });
+  test('[1, 2]', () => {
+    const possible = [
+      [1, 2],
+      [2, 1],
+    ];
+    expect(possible).toContainEqual(ArrayShuffle([1, 2]));
+    expect(possible).toContainEqual(ArrayShuffle([1, 2]));
+    expect(possible).toContainEqual(ArrayShuffle([1, 2]));
+    expect(possible).toContainEqual(ArrayShuffle([1, 2]));
+    expect(possible).toContainEqual(ArrayShuffle([1, 2]));
+  });
+  test('[1, 2, 3]', () => {
+    const possible = [
+      [1, 2, 3],
+      [1, 3, 2],
+      [2, 1, 3],
+      [2, 3, 1],
+      [3, 1, 2],
+      [3, 2, 1],
+    ];
+    expect(possible).toContainEqual(ArrayShuffle([1, 2, 3]));
+    expect(possible).toContainEqual(ArrayShuffle([1, 2, 3]));
+    expect(possible).toContainEqual(ArrayShuffle([1, 2, 3]));
+    expect(possible).toContainEqual(ArrayShuffle([1, 2, 3]));
+    expect(possible).toContainEqual(ArrayShuffle([1, 2, 3]));
+    expect(possible).toContainEqual(ArrayShuffle([1, 2, 3]));
+    expect(possible).toContainEqual(ArrayShuffle([1, 2, 3]));
+    expect(possible).toContainEqual(ArrayShuffle([1, 2, 3]));
+    expect(possible).toContainEqual(ArrayShuffle([1, 2, 3]));
+    expect(possible).toContainEqual(ArrayShuffle([1, 2, 3]));
+    expect(possible).toContainEqual(ArrayShuffle([1, 2, 3]));
+    expect(possible).toContainEqual(ArrayShuffle([1, 2, 3]));
+    expect(possible).toContainEqual(ArrayShuffle([1, 2, 3]));
+    expect(possible).toContainEqual(ArrayShuffle([1, 2, 3]));
+    expect(possible).toContainEqual(ArrayShuffle([1, 2, 3]));
   });
 });
 

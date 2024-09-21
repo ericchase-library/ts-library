@@ -15,6 +15,14 @@ export function* ArrayGetBytes(buffer) {
     yield view.getUint8(i) >>> 0;
   }
 }
+export function ArrayShuffle(items) {
+  let i = items.length - 1;
+  for (let j = 0; j < items.length; j++) {
+    let r = Math.floor(Math.random() * i);
+    [items[i], items[r]] = [items[r], items[i]];
+  }
+  return items;
+}
 export function ArraySplit(items, count) {
   if (count > items.length) {
     return [items.slice()];

@@ -65,13 +65,23 @@ export function U8TakeEnd(bytes, count) {
   return [new Uint8Array(), bytes.slice()];
 }
 export function U8ToASCII(bytes) {
-  return Array.from(bytes)
-    .map((byte) => String.fromCharCode(byte >>> 0))
-    .join('');
+  let ascii = '';
+  for (const byte of bytes) {
+    ascii += String.fromCharCode(byte >>> 0);
+  }
+  return ascii;
 }
 export function U8ToDecimal(bytes) {
-  return Array.from(bytes).map((byte) => (byte >>> 0).toString(10));
+  const decimal = new Array(bytes.byteLength);
+  for (let i = 0; i < bytes.byteLength; i += 1) {
+    decimal[i] = (bytes[i] >>> 0).toString(10);
+  }
+  return decimal;
 }
 export function U8ToHex(bytes) {
-  return Array.from(bytes).map((byte) => (byte >>> 0).toString(16).padStart(2, '0'));
+  const hex = new Array(bytes.byteLength);
+  for (let i = 0; i < bytes.byteLength; i += 1) {
+    hex[i] = (bytes[i] >>> 0).toString(16).padStart(2, '0');
+  }
+  return hex;
 }

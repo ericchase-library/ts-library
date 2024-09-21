@@ -10,7 +10,7 @@ function TestPermutations(
   const heap = new Heap();
   const numbers: number[] = [...new Array(count).keys()];
   const expected = expectedMapper([...numbers]);
-  for (const [key, permutation] of nChooseRPermutations(numbers, count).entries()) {
+  for (const [key, permutation] of [...nChooseRPermutations(numbers, count)].entries()) {
     test(`${key + 1}: ${permutation.join(',')}`, () => {
       heap.clear();
       for (const p of permutation) {
