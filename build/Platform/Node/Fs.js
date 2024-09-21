@@ -8,6 +8,9 @@ export async function DeleteFile(path) {
 export async function ReadFile(path) {
   return await node_fs.readFile(path, { encoding: 'utf8' });
 }
+export async function RenameFile(from, to) {
+  await node_fs.rename(from, to);
+}
 export async function WriteFile(path, text) {
   await node_fs.writeFile(path, text, { encoding: 'utf8' });
 }

@@ -11,6 +11,10 @@ export async function ReadFile(path: string) {
   return await node_fs.readFile(path, { encoding: 'utf8' });
 }
 
+export async function RenameFile(from: string, to: string) {
+  await node_fs.rename(from, to);
+}
+
 export async function WriteFile(path: string, text: string) {
   await node_fs.writeFile(path, text, { encoding: 'utf8' });
 }
