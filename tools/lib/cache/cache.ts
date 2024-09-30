@@ -1,12 +1,12 @@
 import { Database } from 'bun:sqlite';
-import { CreateDirectory } from '../../../src/Platform/Node/Fs.js';
-import { Path } from '../../../src/Platform/Node/Path.js';
+import { CreateDirectory } from '../../../src/lib/ericchase/Platform/Node/Fs.js';
+import { Path } from '../../../src/lib/ericchase/Platform/Node/Path.js';
 
 export const cache_dir = new Path('./tools/cache');
 
 CreateDirectory(cache_dir.path);
 
-export const cache_db = new Database(cache_dir.join('cache.db').path, { create: true, strict: true });
+export const cache_db = new Database(cache_dir.appendSegment('cache.db').path, { create: true, strict: true });
 
 type SQLQueryBindings = Record<string, string | bigint | NodeJS.TypedArray | number | boolean | null>;
 export function CreateGetQuery<ReturnType, Bindings extends SQLQueryBindings>(return_type: new (...args: any[]) => ReturnType, query: string, bindings?: Bindings) {

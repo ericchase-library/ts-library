@@ -1,11 +1,11 @@
-import { JSONGet } from '../src/Algorithm/JSON.js';
-import { GlobScanner } from '../src/Platform/Bun/Glob.js';
-import { Path } from '../src/Platform/Node/Path.js';
-import { StdinRawModeReader } from '../src/Platform/Node/Process.js';
-import { KEYS, Shell } from '../src/Platform/Node/Shell.js';
-import { ConsoleLog } from '../src/Utility/Console.js';
-import type { Menu } from '../src/Utility/Menu.js';
-import { ShellMenu } from '../src/Utility/ShellMenu.js';
+import { JSONGet } from '../src/lib/ericchase/Algorithm/JSON.js';
+import { GlobScanner } from '../src/lib/ericchase/Platform/Bun/Glob.js';
+import { Path } from '../src/lib/ericchase/Platform/Node/Path.js';
+import { StdinRawModeReader } from '../src/lib/ericchase/Platform/Node/Process.js';
+import { KEYS, Shell } from '../src/lib/ericchase/Platform/Node/Shell.js';
+import { ConsoleLog } from '../src/lib/ericchase/Utility/Console.js';
+import type { Menu } from '../src/lib/ericchase/Utility/Menu.js';
+import { ShellMenu } from '../src/lib/ericchase/Utility/ShellMenu.js';
 
 const menu_oldfile: Menu = {
   name: 'Main',
@@ -22,7 +22,7 @@ const menu_newfile: Menu = {
 let oldfile = '';
 let newfile = '';
 
-for (const path_group of new GlobScanner().scan(new Path(__dirname).join('./exports'), '*.json').path_groups) {
+for (const path_group of new GlobScanner().scan(new Path(__dirname).appendSegment('./exports'), '*.json').path_groups) {
   menu_oldfile.items.push({
     name: path_group.base,
     action: () => {

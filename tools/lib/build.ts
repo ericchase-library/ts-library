@@ -1,13 +1,15 @@
-import { nCartesianProduct } from '../../src/Algorithm/Math/CartesianProduct.js';
-import { AsyncLineReader } from '../../src/Algorithm/Stream.js';
-import { Broadcast } from '../../src/Design Pattern/Observer/Broadcast.js';
-import { type SpawnerSubprocess, Spawn } from '../../src/Platform/Bun/Child Process.js';
-import type { GlobScanner } from '../../src/Platform/Bun/Glob.js';
-import { type NodeHTMLParser, ParseHTML } from '../../src/Platform/Node/HTML Processor/ParseHTML.js';
-import { type Path, type PathGroup, PathGroupSet } from '../../src/Platform/Node/Path.js';
-import { ConsoleError, ConsoleErrorToLines } from '../../src/Utility/Console.js';
-import { TrimLines } from '../../src/Utility/String.js';
+import { nCartesianProduct } from '../../src/lib/ericchase/Algorithm/Math/CartesianProduct.js';
+import { AsyncLineReader } from '../../src/lib/ericchase/Algorithm/Stream.js';
+import { Broadcast } from '../../src/lib/ericchase/Design Pattern/Observer/Broadcast.js';
+import { type SpawnerSubprocess, Spawn } from '../../src/lib/ericchase/Platform/Bun/Child Process.js';
+import type { GlobScanner } from '../../src/lib/ericchase/Platform/Bun/Glob.js';
+import { ParseHTML } from '../../src/lib/ericchase/Platform/Node/HTML Processor/ParseHTML.js';
+import { type Path, type PathGroup, PathGroupSet } from '../../src/lib/ericchase/Platform/Node/Path.js';
+import { ConsoleError, ConsoleErrorToLines } from '../../src/lib/ericchase/Utility/Console.js';
+import { TrimLines } from '../../src/lib/ericchase/Utility/String.js';
 import { Cache_IsFileModified } from './cache/FileStatsCache.js';
+import type { FilePreprocessor } from './preprocessors/FilePreprocessor.js';
+import type { HTMLPreprocessor } from './preprocessors/HTMLPreprocessor.js';
 
 // watching multiple files results in building each file when a change occurs
 // in any. confirmed on windows via modification dates. this isn't the desired
@@ -132,10 +134,6 @@ export async function compile({ out_dir, to_compile, to_exclude }: CompileParams
   return processed_paths;
 }
 
-export interface FilePreprocessor {
-  path_match: (path: string) => boolean;
-  preprocess: (content: string) => Promise<{ content: string }>;
-}
 interface CopyParams {
   out_dirs: Path[];
   preprocessors?: FilePreprocessor[];
@@ -150,7 +148,7 @@ export async function copy({ out_dirs, preprocessors = [], to_copy, to_exclude }
       let content = await Bun.file(path_group.path).text();
       for (const preprocessor of preprocessors) {
         try {
-          if (preprocessor.path_match(path_group.path)) {
+          if (preprocessor.pathMatches(path_group.path)) {
             const result = await preprocessor.preprocess(content);
             content = result.content;
           }
@@ -167,9 +165,6 @@ export async function copy({ out_dirs, preprocessors = [], to_copy, to_exclude }
   return processed_paths;
 }
 
-export interface HTMLPreprocessor {
-  preprocess: (root: NodeHTMLParser.HTMLElement, html: string, path_group: PathGroup) => Promise<void>;
-}
 interface ProcessHTMLParams {
   out_dir: Path;
   preprocessors: HTMLPreprocessor[];

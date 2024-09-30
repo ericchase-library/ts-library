@@ -1,5 +1,5 @@
-import { ConsoleError } from '../../../src/Utility/Console.js';
-import { TaskRepeater } from '../../../src/Utility/TaskRepeater.js';
+import { ConsoleError } from '../../../src/lib/ericchase/Utility/Console.js';
+import { TaskRepeater } from '../../../src/lib/ericchase/Utility/TaskRepeater.js';
 import { cache_db, CreateAllQuery, CreateGetQuery, CreateRunQuery, QueryError, QueryExistsResult, type QueryResult } from './cache.js';
 
 const TAG = 'tag';

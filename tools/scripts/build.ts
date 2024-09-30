@@ -1,9 +1,10 @@
-import { Broadcast } from '../../src/Design Pattern/Observer/Broadcast.js';
-import { RunSync } from '../../src/Platform/Bun/Child Process.js';
-import { GlobScanner } from '../../src/Platform/Bun/Glob.js';
-import { CleanDirectory } from '../../src/Platform/Node/Fs.js';
-import { Path, ResolvePath } from '../../src/Platform/Node/Path.js';
-import { ConsoleLog, ConsoleNewline } from '../../src/Utility/Console.js';
+import { Broadcast } from '../../src/lib/ericchase/Design Pattern/Observer/Broadcast.js';
+import { RunSync } from '../../src/lib/ericchase/Platform/Bun/Child Process.js';
+import { GlobScanner } from '../../src/lib/ericchase/Platform/Bun/Glob.js';
+import { CleanDirectory } from '../../src/lib/ericchase/Platform/Node/Fs.js';
+import { Path, ResolvePath } from '../../src/lib/ericchase/Platform/Node/Path.js';
+import { ConsoleLog, ConsoleNewline } from '../../src/lib/ericchase/Utility/Console.js';
+
 import { command_map } from '../dev.js';
 import { BuildRunner, compile, copy, IntoPatterns } from '../lib/build.js';
 import { Cache_FileStats_Lock, Cache_FileStats_Reset, Cache_FileStats_Unlock } from '../lib/cache/FileStatsCache.js';
@@ -48,7 +49,7 @@ export async function buildStep_Compile() {
     to_compile: new GlobScanner().scan(stripped_dir, ...source_patterns),
   });
   for (const path of compiled_paths.paths) {
-    onLog(`compile: ${path}`);
+    onLog(`Compiled: ${path}`);
   }
   if (build_mode.watch === false) {
     onLog(`${[...compiled_paths.paths].length} files compiled.`);
@@ -58,22 +59,23 @@ export async function buildStep_Compile() {
 // step: copy
 export async function buildStep_Copy() {
   ConsoleLog('Build Step: Copy');
-  const copied_paths = await copy({
+  const src_copied_paths = await copy({
     out_dirs: [stripped_dir],
     to_copy: new GlobScanner().scan(src_dir, ...source_patterns),
     to_exclude: new GlobScanner().scan(src_dir, ...exclusion_patterns_for_stripped_dir),
   });
-  for (const path of copied_paths.paths) {
-    onLog(`copy: ${path}`);
+  for (const path of src_copied_paths.paths) {
+    onLog(`Copied: ${path}`);
   }
   if (build_mode.watch === false) {
-    onLog(`${[...copied_paths.paths].length} files copied.`);
+    onLog(`${[...src_copied_paths.paths].length} files copied.`);
   }
 }
 
 // step: save exports
 export async function buildStep_SaveExports() {
-  const dir = ResolvePath(stripped_dir.path);
+  ConsoleLog('Build Step: Save Exports');
+  const dir = ResolvePath(stripped_dir.appendSegment('lib/ericchase').path);
   const entries = (await Array.fromAsync(new Bun.Glob('**/*.ts').scan({ cwd: dir, absolute: true, dot: true }))).sort();
   const transpiler = new Bun.Transpiler({ loader: 'tsx' });
   const output: Record<string, any> = {};

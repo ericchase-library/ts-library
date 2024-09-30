@@ -1,11 +1,13 @@
-import { JSONGet } from '../src/Algorithm/JSON.js';
-import { RunSync } from '../src/Platform/Bun/Child Process.js';
-import { Path } from '../src/Platform/Node/Path.js';
-import { StdinRawModeReader } from '../src/Platform/Node/Process.js';
-import { KEYS } from '../src/Platform/Node/Shell.js';
-import { ConsoleError, GetConsoleMark } from '../src/Utility/Console.js';
-import { PrepareHelpMessage } from '../src/Utility/Help.js';
+import { JSONGet } from '../src/lib/ericchase/Algorithm/JSON.js';
+import { RunSync } from '../src/lib/ericchase/Platform/Bun/Child Process.js';
+import { Path } from '../src/lib/ericchase/Platform/Node/Path.js';
+import { StdinRawModeReader } from '../src/lib/ericchase/Platform/Node/Process.js';
+import { KEYS } from '../src/lib/ericchase/Platform/Node/Shell.js';
+import { ConsoleError, GetConsoleMark } from '../src/lib/ericchase/Utility/Console.js';
+import { PrepareMessage } from '../src/lib/ericchase/Utility/PrepareMessage.js';
 import { TryLock } from './lib/cache/LockCache.js';
+
+export const scripts_dir = new Path('./tools/scripts/');
 
 export const command_map = {
   build: 'build.ts',
@@ -18,8 +20,6 @@ export const command_map = {
 if (Bun.argv[1] === __filename) {
   const command = Bun.argv.at(2);
   const command_args = Bun.argv.slice(3);
-
-  const scripts_dir = new Path('./tools/scripts/');
 
   if (command === undefined || command.trim() === 'watch') {
     const stdin = new StdinRawModeReader();
@@ -39,7 +39,7 @@ if (Bun.argv[1] === __filename) {
     TryLock(command_map.dev);
 
     function run_watcher() {
-      return Bun.spawn(['bun', scripts_dir.join(command_map.watch).path], { stdin: 'pipe', stdout: 'inherit' });
+      return Bun.spawn(['bun', scripts_dir.appendSegment(command_map.watch).path], { stdin: 'pipe', stdout: 'inherit' });
     }
 
     let watcher_process = run_watcher();
@@ -93,7 +93,7 @@ if (Bun.argv[1] === __filename) {
   } else {
     const script = JSONGet(command_map, command);
     if (script) {
-      RunSync.Bun(scripts_dir.join(script).path, ...command_args);
+      RunSync.Bun(scripts_dir.appendSegment(script).path, ...command_args);
     } else {
       ConsoleError(`Invalid Command > ${command}`);
     }
@@ -111,7 +111,7 @@ function printHelp() {
     SIGINT [Ctrl-C] Will Force Quit.
   `;
   if (console_mark.updated) {
-    ConsoleError(PrepareHelpMessage(help, 4, 1));
+    ConsoleError(PrepareMessage(help, 4, 1, 1));
     console_mark = GetConsoleMark();
   }
 }

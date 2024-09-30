@@ -1,8 +1,8 @@
-import { StdinTextReader } from '../../src/Platform/Node/Process.js';
-import { KEYS } from '../../src/Platform/Node/Shell.js';
-import { Watcher } from '../../src/Platform/Node/Watch.js';
-import { ConsoleError } from '../../src/Utility/Console.js';
-import { Debouncer } from '../../src/Utility/Debounce.js';
+import { StdinTextReader } from '../../src/lib/ericchase/Platform/Node/Process.js';
+import { KEYS } from '../../src/lib/ericchase/Platform/Node/Shell.js';
+import { Watcher } from '../../src/lib/ericchase/Platform/Node/Watch.js';
+import { ConsoleError } from '../../src/lib/ericchase/Utility/Console.js';
+import { Debouncer } from '../../src/lib/ericchase/Utility/Debounce.js';
 import { command_map } from '../dev.js';
 import { TryLockEach } from '../lib/cache/LockCache.js';
 import { build_mode, buildStep_Clean, buildStep_Compile, buildStep_Copy, src_dir } from './build.js';

@@ -1,8 +1,8 @@
-import { nCartesianProduct } from '../../src/Algorithm/Math/CartesianProduct.js';
-import { MoveFile } from '../../src/Platform/Bun/Fs.js';
-import { GlobScanner } from '../../src/Platform/Bun/Glob.js';
-import { Path } from '../../src/Platform/Node/Path.js';
-import { ConsoleLog } from '../../src/Utility/Console.js';
+import { nCartesianProduct } from '../../src/lib/ericchase/Algorithm/Math/CartesianProduct.js';
+import { MoveFile } from '../../src/lib/ericchase/Platform/Bun/Fs.js';
+import { GlobScanner } from '../../src/lib/ericchase/Platform/Bun/Glob.js';
+import { Path } from '../../src/lib/ericchase/Platform/Node/Path.js';
+import { ConsoleLog } from '../../src/lib/ericchase/Utility/Console.js';
 import { src_dir } from './build.js';
 
 // user config

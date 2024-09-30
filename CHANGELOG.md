@@ -243,14 +243,14 @@
 + Utility/GeneratorArray.ts
   + GeneratorArray
 
-+ Utility/Help.ts
-  + PrepareHelpMessage
-
 + Utility/Menu.ts
   + IsMenu
   + IsMenuItem
   + MenuNavigator
   + ParseMenu
+
++ Utility/PrepareMessage.ts
+  + PrepareMessage
 
 + Utility/ShellMenu.ts
   + ShellMenu
