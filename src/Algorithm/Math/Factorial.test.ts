@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 
-import { ArrayShuffle } from '../Array/Array.js';
+import { ArrayShuffle } from '../Array.js';
 import { Factorial } from './Factorial.js';
 
 const tests: [string, () => void][] = [

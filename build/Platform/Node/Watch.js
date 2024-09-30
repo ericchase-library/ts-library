@@ -1,4 +1,4 @@
-import { watch } from 'node:fs/promises';
+import node_fs from 'node:fs';
 
 export class Watcher {
   debounce_interval;
@@ -11,7 +11,7 @@ export class Watcher {
       events.push(event);
       if (calling === false) {
         clearTimeout(timer);
-        timer = setTimeout(async () => {
+        timer = setTimeout(() => {
           if (calling === false) {
             calling = true;
             clearTimeout(timer);
@@ -25,7 +25,7 @@ export class Watcher {
     };
     this.done = (async () => {
       try {
-        for await (const event of watch(path, {
+        for await (const event of node_fs.promises.watch(path, {
           recursive,
           signal: this.controller.signal,
         })) {

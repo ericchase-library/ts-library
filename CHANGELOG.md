@@ -1,3 +1,282 @@
+## 2024-09-29
+
+- move modules around for better folder structures
+- deprecate the Cxx modules
+- update .gitignore, package.json, tsconfig.json
+
+**src**
+
+- add more utilities
+  - JSON utility functions
+  - new Handler class
+  - file running functions (needs better api)
+  - stdin readers
+  - menu and shell menu classes
+  - PrepareHelpMessage function
+  - assertion functions
+  - string manipulation functions
+  - console utility functions
+  - GeneratorArray class
+
+**tools**
+
+- complete overhaul of the dev system
+  - fix handling of the file modification cache
+  - add locking system to prevent running different build scripts at the same time
+  - add capability to interact with dev script, (`q` to quit and `r` to restart watcher, `b` for full rebuild)
+  - many bug fixes
+
+> **all module changes**
+
+```
++ Algorithm/Array.ts
+  + ArrayAreEqual
+  + ArrayBufferToBytes
+  + ArrayChunks
+  + ArrayEndpoints
+  + ArrayShuffle
+  + ArraySplit
+
+- Algorithm/Debounce.ts
+  - Debouncer
+
++ Algorithm/JSON.ts
+  + JSONGet
+  + JSONStringifyAll
+
++ Algorithm/Math.ts
+  + Midpoint
+
+- Algorithm/Sleep.ts
+  - Sleep
+
++ Algorithm/Stream.ts
+  + AsyncLineReader
+  + AsyncReader
+  + U8StreamCompare
+  + U8StreamReadAll
+  + U8StreamReadSome
+  + U8StreamReader
+
++ Algorithm/Uint32Array.ts
+  + Uint32ToHex
+
++ Algorithm/Uint8Array.ts
+  + U8
+  + U8Clamped
+  + U8Concat
+  + U8Copy
+  + U8FromString
+  + U8FromUint32
+  + U8Split
+  + U8Take
+  + U8TakeEnd
+  + U8ToASCII
+  + U8ToDecimal
+  + U8ToHex
+  + U8ToLines
+  + U8ToString
+
+- Algorithm/Array/Array.ts
+  - ArrayEquals
+  - ArrayGetBytes
+  - ArrayShuffle
+  - ArraySplit
+
+- Algorithm/Array/Chunk.ts
+  - GenerateChunkSlices
+  - GenerateChunks
+
+- Algorithm/Array/Comparison.ts
+  - AreEqual
+
+- Algorithm/Array/Endpoints.ts
+  - Endpoints
+
+= Algorithm/Array/SlidingWindow.ts
+  - GenerateSlidingWindowFilter
+  + SlidingWindow
+  + SlidingWindowFilter
+
+- Algorithm/Array/Uint32Array.ts
+  - Uint32ToHex
+
+- Algorithm/Array/Uint8Array.ts
+  - U8
+  - U8Clamped
+  - U8Concat
+  - U8Copy
+  - U8FromString
+  - U8FromUint32
+  - U8Split
+  - U8Take
+  - U8TakeEnd
+  - U8ToASCII
+  - U8ToDecimal
+  - U8ToHex
+
++ Algorithm/JSON/Analyze.ts
+  + JSONAnalyze
+
+= Algorithm/JSON/Merge.ts
+  - MergeJSON
+  + JSONMerge
+
+- Algorithm/Math/Midpoint.ts
+  - midpoint
+
+- Algorithm/Stream/AsyncReader.ts
+  - AsyncLineReader
+  - AsyncReader
+
+- Algorithm/Stream/Compare.ts
+  - U8StreamCompare
+  - U8StreamReader
+
+- Algorithm/Stream/ReadAll.ts
+  - U8StreamReadAll
+
+- Algorithm/Stream/ReadSome.ts
+  - U8StreamReadSome
+
+- Algorithm/String/Convert/Case.ts
+  - ToSnakeCase
+
+- Algorithm/String/Search/GlobSearch.ts
+  - GlobSearch
+
++ Algorithm/String/Search/WildcardMatcher.ts
+  + MatchAny
+
++ Design Pattern/Handler.ts
+  + HandlerCaller
+  + HandlerSet
+
++ Design Pattern/Chain of Responsibility/ChainedHandler.ts
+  + ChainedHandlerCaller
+
+- Platform/Browser/Extension/Config.ts
+  - Config
+  - GetSemanticVersion
+  - IncrementVersionMajor
+  - IncrementVersionMinor
+  - IncrementVersionPatch
+
++ Platform/Bun/Child Process.ts
+  + Run
+  + RunSync
+  + Spawn
+  + SpawnSync
+
++ Platform/Bun/Fs.ts
+  + MoveFile
+
+= Platform/Bun/Glob.ts
+  - GlobManager
+  + GlobScanner
+
+- Platform/Bun/Process.ts
+  - Run
+  - RunQuiet
+
+- Platform/Cxx/LSD.ts
+  - FilterDirectoryListing
+  - FilterDirectoryTree
+  - IterateLSD
+  - LSD
+  - PathKind
+
+- Platform/Cxx/Watch.ts
+  - Watch
+
++ Platform/Node/Path.ts
+  + ResolvePath
+  + SanitizePath
+
+= Platform/Node/Process.ts
+  - PipeStdio
+  - Run
+  + StdinByteReader
+  + StdinRawModeReader
+  + StdinReader
+  + StdinTextReader
+
++ Platform/Node/Shell.ts
+  + KEYS
+  + Shell
+
++ Platform/Node/HTML Processor/ParseHTML.ts
+  + ParseHTML
+
++ Platform/Node/HTML Processor/TemplateProcessor.ts
+  + LoadHtmlFile
+  + LoadIncludeFile
+  + ProcessTemplateFile
+  + ProcessTemplateNode
+  + RegisterIncludeSource
+  + SaveHtmlFile
+
+- Platform/Web/HTML/ParseHTML.ts
+  - ParseHTML
+
+- Platform/Web/HTML/TemplateProcessor.ts
+  - LoadHtmlFile
+  - LoadIncludeFile
+  - ProcessTemplateFile
+  - ProcessTemplateNode
+  - RegisterIncludeSource
+  - SaveHtmlFile
+
++ Utility/Assert.ts
+  + AssertEqual
+  + AssertNotEqual
+
++ Utility/Console.ts
+  + ConsoleErrorToLines
+  + ConsoleLogToLines
+  + ConsoleNewline
+  + GetConsoleMark
+
++ Utility/Debounce.ts
+  + Debouncer
+
++ Utility/GeneratorArray.ts
+  + GeneratorArray
+
++ Utility/Help.ts
+  + PrepareHelpMessage
+
++ Utility/Menu.ts
+  + IsMenu
+  + IsMenuItem
+  + MenuNavigator
+  + ParseMenu
+
++ Utility/ShellMenu.ts
+  + ShellMenu
+
++ Utility/Sleep.ts
+  + Sleep
+
++ Utility/String.ts
+  + GetLeftMarginSize
+  + LineIsOnlyWhiteSpace
+  + RemoveWhiteSpaceOnlyLinesFromTopAndBottom
+  + Split
+  + SplitLines
+  + SplitMultipleSpaces
+  + SplitMultipleWhiteSpace
+  + ToSnakeCase
+  + TrimLines
+
++ Utility/TaskRepeater.ts
+  + TaskRepeater
+
++ Utility/TextCodec.ts
+  + DecodeText
+  + EncodeText
+```
+
 ## 2024-09-21
 
 - update packages

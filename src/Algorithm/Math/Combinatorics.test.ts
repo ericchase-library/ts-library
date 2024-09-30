@@ -399,8 +399,8 @@ describe('Combinations', () => {
 describe('2-Combinations', () => {
   // The 2-Combination is what I formerly referred as the SelfCartesianProduct:
   // export function* SelfCartesianProduct<T extends readonly unknown[]>(array: T): Generator<[T[number], T[number]], void, unknown> {
-  //   for (let i = 0; i < array.length; ++i) {
-  //     for (let j = i + 1; j < array.length; ++j) {
+  //   for (let i = 0; i < array.length; i++) {
+  //     for (let j = i + 1; j < array.length; j++) {
   //       yield [array[i], array[j]];
   //     }
   //   }

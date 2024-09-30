@@ -8,6 +8,12 @@ export function NormalizePath(path) {
 export function ParsePath(path) {
   return node_path.parse(path);
 }
+export function ResolvePath(path) {
+  return node_path.resolve(path);
+}
+export function SanitizePath(path) {
+  return path.replace(/[^a-z0-9\.\_\-]/gi, '_').toLowerCase();
+}
 export const PathSeparator = node_path.sep;
 
 export class Path {
@@ -25,7 +31,7 @@ export class Path {
     this.ext = ext;
     this.path = node_path.join(dir, base);
   }
-  static Build({ dir = '', base = '' }) {
+  static build({ dir = '', base = '' }) {
     if (dir.length === 0) {
       return new Path(base);
     }
@@ -34,7 +40,7 @@ export class Path {
     }
     return new Path(`${dir}/${base}`);
   }
-  static From(pathOrString) {
+  static from(pathOrString) {
     if (typeof pathOrString === 'string') {
       return new Path(pathOrString);
     }
@@ -44,14 +50,17 @@ export class Path {
   get standard_path() {
     return this.path.split(node_path.sep).join('/');
   }
+  join(pathOrString) {
+    return new Path(node_path.join(this.path, Path.from(pathOrString).path));
+  }
   newDir(new_dir) {
-    return Path.Build({ dir: new_dir, base: this.base });
+    return Path.build({ dir: new_dir, base: this.base });
   }
   newRoot(new_root) {
     return this.newDir(new_root + this.dir.slice(this.root.length));
   }
   newBase(new_base) {
-    return Path.Build({ dir: this.dir, base: new_base });
+    return Path.build({ dir: this.dir, base: new_base });
   }
   newName(new_name) {
     if (new_name.length === 0) {
@@ -116,7 +125,7 @@ export class PathGroup {
     this.ext = relative_path.ext;
     this.path = node_path.join(this.origin_path.path, this.relative_path.path);
   }
-  static Build({ origin_path = '', relative_path = '' }) {
+  static build({ origin_path = '', relative_path = '' }) {
     return new PathGroup(new Path(origin_path), new Path(relative_path));
   }
   path;
@@ -124,7 +133,7 @@ export class PathGroup {
     return this.path.split(node_path.sep).join('/');
   }
   newOrigin(new_origin_path) {
-    return new PathGroup(Path.From(new_origin_path), this.relative_path);
+    return new PathGroup(Path.from(new_origin_path), this.relative_path);
   }
   newDir(new_dir) {
     return new PathGroup(this.origin_path, this.relative_path.newDir(new_dir));

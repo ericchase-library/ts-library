@@ -16,7 +16,7 @@ export function* nChooseRCombinations(choices, r, repetitions = false) {
   if (repetitions === true) {
     const out = new Array(r).fill(choices[0]);
     const indices = new Array(r).fill(0);
-    for (let c = typeof count === 'bigint' ? 0n : 0; c < count; ++c) {
+    for (let c = typeof count === 'bigint' ? 0n : 0; c < count; c++) {
       yield out.slice();
       let i = r - 1;
       for (let j = 0; j < r; j++, i--) {
@@ -34,7 +34,7 @@ export function* nChooseRCombinations(choices, r, repetitions = false) {
   } else {
     const out = choices.slice(0, r);
     const indices = [...out.keys()];
-    for (let c = typeof count === 'bigint' ? 0n : 0; c < count; ++c) {
+    for (let c = typeof count === 'bigint' ? 0n : 0; c < count; c++) {
       yield out.slice();
       let i = r - 1;
       for (let j = 0; j < r; j++, i--) {
@@ -56,7 +56,7 @@ export function* nChooseRPermutations(choices, r, repetitions = false) {
   if (repetitions === true) {
     const out = new Array(r).fill(choices[0]);
     const indices = new Array(r).fill(0);
-    for (let c = typeof count === 'bigint' ? 0n : 0; c < count; ++c) {
+    for (let c = typeof count === 'bigint' ? 0n : 0; c < count; c++) {
       yield out.slice();
       let i = r - 1;
       for (let j = 0; j < r; j++, i--) {
@@ -76,7 +76,7 @@ export function* nChooseRPermutations(choices, r, repetitions = false) {
     for (let i = 0; i < r; i++) {
       imap[i] = 1;
     }
-    for (let c = typeof count === 'bigint' ? 0n : 0; c < count; ++c) {
+    for (let c = typeof count === 'bigint' ? 0n : 0; c < count; c++) {
       yield out.slice();
       let i = r - 1;
       for (let j = 0; j < r; j++, i--) {

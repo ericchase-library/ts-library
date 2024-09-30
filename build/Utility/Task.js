@@ -1,13 +1,13 @@
 export class LazyTask {
-  fn;
-  results;
-  constructor(fn) {
-    this.fn = fn;
+  $task;
+  $result;
+  constructor($task) {
+    this.$task = $task;
   }
-  get get() {
-    if (!this.results) {
-      this.results = this.fn();
+  get result() {
+    if (!this.$result) {
+      this.$result = this.$task();
     }
-    return this.results;
+    return this.$result;
   }
 }

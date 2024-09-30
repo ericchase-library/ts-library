@@ -426,6 +426,9 @@ describe(`new ${Path.name}('aaa/bbb/ccc.ddd')`, () => {
   test('standardPath', () => {
     expect(path.standard_path).toBe('aaa/bbb/ccc.ddd');
   });
+  test('join', () => {
+    expect(path.join('extended/path').path).toBe(node_path.normalize('aaa/bbb/ccc.ddd/extended/path'));
+  });
   test('newDir', () => {
     {
       const new_path = path.newDir('');
@@ -750,13 +753,13 @@ describe(`new ${PathGroup.name}('aaa', 'bbb/ccc.ddd')`, () => {
 
 describe(`new ${PathGroupSet.name}()`, () => {
   const group = new PathGroupSet();
-  group.add(PathGroup.Build({ origin_path: 'aaa' }));
-  group.add(PathGroup.Build({ origin_path: 'aaa', relative_path: 'bbb' }));
-  group.add(PathGroup.Build({ origin_path: 'aaa', relative_path: 'bbb/ccc' }));
-  group.add(PathGroup.Build({ origin_path: 'aaa', relative_path: 'bbb/ccc.ddd' }));
-  group.add(PathGroup.Build({ relative_path: 'bbb/ccc.ddd' }));
+  group.add(PathGroup.build({ origin_path: 'aaa' }));
+  group.add(PathGroup.build({ origin_path: 'aaa', relative_path: 'bbb' }));
+  group.add(PathGroup.build({ origin_path: 'aaa', relative_path: 'bbb/ccc' }));
+  group.add(PathGroup.build({ origin_path: 'aaa', relative_path: 'bbb/ccc.ddd' }));
+  group.add(PathGroup.build({ relative_path: 'bbb/ccc.ddd' }));
   test('paths', () => {
-    expect(Array.from(group.paths)).toEqual([
+    expect([...group.paths]).toEqual([
       node_path.normalize('aaa'), //
       node_path.normalize('aaa/bbb'),
       node_path.normalize('aaa/bbb/ccc'),
@@ -768,14 +771,14 @@ describe(`new ${PathGroupSet.name}()`, () => {
 
 describe(`${PathGroupSet.name}(group.pathGroupMap)`, () => {
   const group = new PathGroupSet();
-  group.add(PathGroup.Build({ origin_path: 'aaa' }));
-  group.add(PathGroup.Build({ origin_path: 'aaa', relative_path: 'bbb' }));
-  group.add(PathGroup.Build({ origin_path: 'aaa', relative_path: 'bbb/ccc' }));
-  group.add(PathGroup.Build({ origin_path: 'aaa', relative_path: 'bbb/ccc.ddd' }));
-  group.add(PathGroup.Build({ relative_path: 'bbb/ccc.ddd' }));
+  group.add(PathGroup.build({ origin_path: 'aaa' }));
+  group.add(PathGroup.build({ origin_path: 'aaa', relative_path: 'bbb' }));
+  group.add(PathGroup.build({ origin_path: 'aaa', relative_path: 'bbb/ccc' }));
+  group.add(PathGroup.build({ origin_path: 'aaa', relative_path: 'bbb/ccc.ddd' }));
+  group.add(PathGroup.build({ relative_path: 'bbb/ccc.ddd' }));
   const group2 = new PathGroupSet(group.path_group_map);
   test('paths', () => {
-    expect(Array.from(group2.paths)).toEqual([
+    expect([...group2.paths]).toEqual([
       node_path.normalize('aaa'), //
       node_path.normalize('aaa/bbb'),
       node_path.normalize('aaa/bbb/ccc'),

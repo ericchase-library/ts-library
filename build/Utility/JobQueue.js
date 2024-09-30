@@ -96,3 +96,4 @@ export class JobQueue {
     }
   }
 }
+new JobQueue(0);

@@ -5,11 +5,11 @@ export function* Zip(...b) {
     while (d < a.length) {
       const e = a[d].next();
       if ('done' in e && e.done) {
-        ++f;
+        f++;
         a[d] = l;
       }
       h.push('value' in e ? e.value : undefined);
-      ++d;
+      d++;
     }
     return h;
   }
@@ -33,7 +33,7 @@ export function* Zip(...b) {
         }
       }
     }
-    ++f;
+    f++;
     return l;
   });
   let k = g(c);

@@ -46,7 +46,7 @@ export var WebRequestCache;
   }
   WebRequestCache.Subscribe = Subscribe;
 })((WebRequestCache ||= {}));
-export async function RebuildAndSendRequest(webRequest) {
+export function RebuildAndSendRequest(webRequest) {
   const { bodyDetails, headersDetails } = webRequest;
   const requestUrl = bodyDetails?.url ?? headersDetails?.url;
   if (requestUrl) {
