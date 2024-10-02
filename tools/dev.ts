@@ -13,7 +13,7 @@ export const command_map = {
   format: new Path('tools/lib/format.ts').path,
   watch: new Path('tools/scripts/watch.ts').path,
   // library specific
-  move: 'move-deprecated.ts',
+  move: new Path('tools/scripts/move-deprecated.ts').path,
 };
 
 if (Bun.argv[1] === __filename) {

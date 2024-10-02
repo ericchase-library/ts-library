@@ -97,7 +97,7 @@ export async function buildStep_SaveExports() {
 export const on_log = new Broadcast<void>();
 export function onLog(data: string) {
   if (build_mode.silent === false) {
-    ConsoleLogWithDate(`> ${data}`);
+    ConsoleLogWithDate(data);
     on_log.send();
   }
 }
@@ -111,17 +111,15 @@ if (Bun.argv[1] === __filename) {
   RunSync.BunRun('format', 'silent');
   TryLock(command_map.format);
 
+  ConsoleNewline();
   if (Cache_FileStats_Lock()) {
-    ConsoleNewline();
     await buildStep_Clean();
-    ConsoleNewline();
     await buildStep_Copy();
-    ConsoleNewline();
     await buildStep_Compile();
-    ConsoleNewline();
     await buildStep_SaveExports();
   }
   Cache_FileStats_Unlock();
+  ConsoleNewline();
 
   Cache_Unlock(command_map.format);
   RunSync.BunRun('format');
