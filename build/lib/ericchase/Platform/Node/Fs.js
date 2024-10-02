@@ -1,5 +1,5 @@
 import node_fs from 'node:fs';
-import { Path, PathGroup } from './Path.js';
+import { Path } from './Path.js';
 export async function DeleteFile(path) {
   await node_fs.promises.unlink(path.toString());
 }
