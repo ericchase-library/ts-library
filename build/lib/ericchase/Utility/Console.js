@@ -19,8 +19,18 @@ export function ConsoleError(...items) {
   Console.newline_count = 0;
   updateMarks();
 }
+export function ConsoleErrorWithDate(...items) {
+  console['error'](`[${new Date().toLocaleTimeString()}]`, ...items);
+  Console.newline_count = 0;
+  updateMarks();
+}
 export function ConsoleLog(...items) {
   console['log'](...items);
+  Console.newline_count = 0;
+  updateMarks();
+}
+export function ConsoleLogWithDate(...items) {
+  console['log'](`[${new Date().toLocaleTimeString()}]`, ...items);
   Console.newline_count = 0;
   updateMarks();
 }

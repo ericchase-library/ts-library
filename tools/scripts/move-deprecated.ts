@@ -16,7 +16,7 @@ const deprecated_dir = new Path('deprecated'); // build files will appear here
 const deprecated_patterns = [...nCartesianProduct(['**/*'], deprecated_suffixes, extensions)].map((arr) => arr.join(''));
 
 for (const path_group of new GlobScanner().scan(src_dir, ...deprecated_patterns).path_groups) {
-  if ((await MoveFile({ from: path_group.path, to: path_group.newOrigin(deprecated_dir).path })) === true) {
+  if ((await MoveFile({ from: path_group, to: path_group.newOrigin(deprecated_dir) })) === true) {
     ConsoleLog(`move: ${path_group.path}`);
   }
 }

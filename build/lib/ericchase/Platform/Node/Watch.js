@@ -25,7 +25,7 @@ export class Watcher {
     };
     this.done = (async () => {
       try {
-        for await (const event of node_fs.promises.watch(path, {
+        for await (const event of node_fs.promises.watch(path.path, {
           recursive,
           signal: this.controller.signal,
         })) {

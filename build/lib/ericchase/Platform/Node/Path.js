@@ -1,19 +1,19 @@
-import { default as node_path } from 'node:path';
+import node_path from 'node:path';
 import { PrepareMessage } from '../../Utility/PrepareMessage.js';
 export function JoinPaths(...paths) {
-  return node_path.join(...paths);
+  return node_path.join(...paths.map((path) => path.path));
 }
 export function NormalizePath(path) {
-  return node_path.normalize(path);
+  return node_path.normalize(path.path);
 }
 export function ParsePath(path) {
-  return node_path.parse(path);
+  return node_path.parse(path.path);
 }
 export function ResolvePath(path) {
-  return node_path.resolve(path);
+  return node_path.resolve(path.path);
 }
 export function SanitizePath(path) {
-  return path.replace(/[^a-z0-9\.\_\-]/gi, '_').toLowerCase();
+  return path.path.replace(/[^a-z0-9\.\_\-]/gi, '_').toLowerCase();
 }
 export const PathSeparator = node_path.sep;
 
@@ -36,22 +36,25 @@ export class Path {
     this.$standard_path = this.path.split(node_path.sep).join('/');
   }
   static build({ dir = '', base = '' }) {
-    if (dir.length === 0) {
-      return new Path(base);
-    }
-    if (base.length === 0) {
-      return new Path(dir);
-    }
-    return new Path(`${dir}/${base}`);
+    return new Path(dir).appendSegment(base);
   }
   static from(pathOrString) {
     if (typeof pathOrString === 'string') {
       return new Path(pathOrString);
     }
+    if (pathOrString instanceof PathGroup) {
+      return new Path(pathOrString.path);
+    }
     return pathOrString;
   }
   get path() {
     return this.$path;
+  }
+  get resolve() {
+    return node_path.resolve(this.path);
+  }
+  get sanitize() {
+    return this.path.replace(/[^a-z0-9\.\_\-]/gi, '_').toLowerCase();
   }
   get standard_path() {
     return this.$standard_path;
@@ -100,6 +103,9 @@ export class Path {
     }
     return this.newBase(`${this.name}.${new_ext}`);
   }
+  toString() {
+    return this.path;
+  }
 }
 
 export class PathSet {
@@ -110,11 +116,13 @@ export class PathSet {
   get paths() {
     return this.pathIterator();
   }
-  add(path) {
+  add(pathOrString) {
+    const path = Path.from(pathOrString);
     this.path_map.set(path.path, path);
     return this;
   }
-  has(path) {
+  has(pathOrString) {
+    const path = Path.from(pathOrString);
     return this.path_map.has(path.path);
   }
   *pathIterator() {
@@ -126,30 +134,30 @@ export class PathSet {
 
 export class PathGroup {
   origin_path;
-  relative_path;
-  origin;
+  origin_dir;
   root;
-  dir;
-  base;
-  name;
-  ext;
+  relative_path;
+  relative_dir;
+  relative_base;
+  relative_name;
+  relative_ext;
   $path;
   $standard_path;
   constructor(origin_path, relative_path) {
-    this.origin_path = origin_path;
-    this.relative_path = relative_path;
-    this.relative_path = relative_path.newRoot('');
-    this.origin = origin_path.path;
-    this.root = origin_path.root;
-    this.dir = relative_path.dir;
-    this.base = relative_path.base;
-    this.name = relative_path.name;
-    this.ext = relative_path.ext;
-    this.$path = node_path.join(this.origin_path.path, this.relative_path.path);
-    this.$standard_path = this.$path.split(node_path.sep).join('/');
+    this.origin_path = Path.from(origin_path);
+    this.relative_path = Path.from(relative_path).newRoot('');
+    this.origin_dir = this.origin_path.path;
+    const final_path = Path.from(this.origin_path).appendSegment(this.relative_path);
+    this.$path = final_path.path;
+    this.$standard_path = final_path.standard_path;
+    this.root = final_path.root;
+    this.relative_dir = final_path.dir;
+    this.relative_base = final_path.base;
+    this.relative_name = final_path.name;
+    this.relative_ext = final_path.ext;
   }
   static build({ origin_path = '', relative_path = '' }) {
-    return new PathGroup(new Path(origin_path), new Path(relative_path));
+    return new PathGroup(origin_path, relative_path);
   }
   get path() {
     return this.$path;
@@ -158,19 +166,25 @@ export class PathGroup {
     return this.$standard_path;
   }
   newOrigin(new_origin_path) {
-    return new PathGroup(Path.from(new_origin_path), this.relative_path);
+    return new PathGroup(new_origin_path, this.relative_path);
   }
-  newDir(new_dir) {
+  newRelative(new_relative_path) {
+    return new PathGroup(this.origin_path, new_relative_path);
+  }
+  newRelativeDir(new_dir) {
     return new PathGroup(this.origin_path, this.relative_path.newDir(new_dir));
   }
-  newBase(new_base) {
+  newRelativeBase(new_base) {
     return new PathGroup(this.origin_path, this.relative_path.newBase(new_base));
   }
-  newName(new_name) {
+  newRelativeName(new_name) {
     return new PathGroup(this.origin_path, this.relative_path.newName(new_name));
   }
-  newExt(new_ext) {
+  newRelativeExt(new_ext) {
     return new PathGroup(this.origin_path, this.relative_path.newExt(new_ext));
+  }
+  toString() {
+    return this.path;
   }
 }
 

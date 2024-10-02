@@ -1,6 +1,6 @@
 import { JSONGet } from '../src/lib/ericchase/Algorithm/JSON.js';
 import { GlobScanner } from '../src/lib/ericchase/Platform/Bun/Glob.js';
-import { Path } from '../src/lib/ericchase/Platform/Node/Path.js';
+import { Path, type PathGroup } from '../src/lib/ericchase/Platform/Node/Path.js';
 import { StdinRawModeReader } from '../src/lib/ericchase/Platform/Node/Process.js';
 import { KEYS, Shell } from '../src/lib/ericchase/Platform/Node/Shell.js';
 import { ConsoleLog } from '../src/lib/ericchase/Utility/Console.js';
@@ -19,20 +19,20 @@ const menu_newfile: Menu = {
   items: [],
 };
 
-let oldfile = '';
-let newfile = '';
+let oldfile: Path | PathGroup = new Path();
+let newfile: Path | PathGroup = new Path();
 
 for (const path_group of new GlobScanner().scan(new Path(__dirname).appendSegment('./exports'), '*.json').path_groups) {
   menu_oldfile.items.push({
-    name: path_group.base,
+    name: path_group.relative_base,
     action: () => {
-      oldfile = path_group.path;
+      oldfile = path_group;
     },
   });
   menu_newfile.items.push({
-    name: path_group.base,
+    name: path_group.relative_base,
     action: () => {
-      newfile = path_group.path;
+      newfile = path_group;
     },
   });
 }
@@ -91,9 +91,9 @@ stdin.addHandler(async (text) => {
 
 Shell.HideCursor();
 
-async function analyzeExports(oldpath: string, newpath: string) {
-  const oldexports = JSON.parse(await Bun.file(oldpath).text());
-  const newexports = JSON.parse(await Bun.file(newpath).text());
+async function analyzeExports(oldpath: Path | PathGroup, newpath: Path | PathGroup) {
+  const oldexports = JSON.parse(await Bun.file(oldpath.path).text());
+  const newexports = JSON.parse(await Bun.file(newpath.path).text());
 
   const output: Record<string, any> = {};
 

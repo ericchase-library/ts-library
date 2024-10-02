@@ -634,35 +634,35 @@ describe(`new ${PathGroup.name}('aaa', 'bbb/ccc.ddd')`, () => {
   });
   test('newDir', () => {
     {
-      const new_group = pathGroup.newDir('');
+      const new_group = pathGroup.newRelativeDir('');
       expect(new_group.origin_path.path).toBe('aaa');
       expect(new_group.relative_path.path).toBe(node_path.normalize('ccc.ddd'));
       expect(new_group.path).toBe(node_path.normalize('aaa/ccc.ddd'));
       expect(new_group.standard_path).toBe('aaa/ccc.ddd');
     }
     {
-      const new_group = pathGroup.newDir('zzz');
+      const new_group = pathGroup.newRelativeDir('zzz');
       expect(new_group.origin_path.path).toBe('aaa');
       expect(new_group.relative_path.path).toBe(node_path.normalize('zzz/ccc.ddd'));
       expect(new_group.path).toBe(node_path.normalize('aaa/zzz/ccc.ddd'));
       expect(new_group.standard_path).toBe('aaa/zzz/ccc.ddd');
     }
     {
-      const new_group = pathGroup.newDir('zzz/yyy');
+      const new_group = pathGroup.newRelativeDir('zzz/yyy');
       expect(new_group.origin_path.path).toBe('aaa');
       expect(new_group.relative_path.path).toBe(node_path.normalize('zzz/yyy/ccc.ddd'));
       expect(new_group.path).toBe(node_path.normalize('aaa/zzz/yyy/ccc.ddd'));
       expect(new_group.standard_path).toBe('aaa/zzz/yyy/ccc.ddd');
     }
     {
-      const new_group = pathGroup.newDir('/zzz');
+      const new_group = pathGroup.newRelativeDir('/zzz');
       expect(new_group.origin_path.path).toBe('aaa');
       expect(new_group.relative_path.path).toBe(node_path.normalize('zzz/ccc.ddd'));
       expect(new_group.path).toBe(node_path.normalize('aaa/zzz/ccc.ddd'));
       expect(new_group.standard_path).toBe('aaa/zzz/ccc.ddd');
     }
     {
-      const new_group = pathGroup.newDir('c:\\zzz');
+      const new_group = pathGroup.newRelativeDir('c:\\zzz');
       expect(new_group.origin_path.path).toBe('aaa');
       expect(new_group.relative_path.path).toBe(node_path.normalize('zzz/ccc.ddd'));
       expect(new_group.path).toBe(node_path.normalize('aaa/zzz/ccc.ddd'));
@@ -672,21 +672,21 @@ describe(`new ${PathGroup.name}('aaa', 'bbb/ccc.ddd')`, () => {
   test('newBase', () => {
     {
       // removing the base results in extracting a new base from dir
-      const new_group = pathGroup.newBase('');
+      const new_group = pathGroup.newRelativeBase('');
       expect(new_group.origin_path.path).toBe('aaa');
       expect(new_group.relative_path.path).toBe(node_path.normalize('bbb'));
       expect(new_group.path).toBe(node_path.normalize('aaa/bbb'));
       expect(new_group.standard_path).toBe('aaa/bbb');
     }
     {
-      const new_group = pathGroup.newBase('zzz');
+      const new_group = pathGroup.newRelativeBase('zzz');
       expect(new_group.origin_path.path).toBe('aaa');
       expect(new_group.relative_path.path).toBe(node_path.normalize('bbb/zzz'));
       expect(new_group.path).toBe(node_path.normalize('aaa/bbb/zzz'));
       expect(new_group.standard_path).toBe('aaa/bbb/zzz');
     }
     {
-      const new_group = pathGroup.newBase('zzz.zzz');
+      const new_group = pathGroup.newRelativeBase('zzz.zzz');
       expect(new_group.origin_path.path).toBe('aaa');
       expect(new_group.relative_path.path).toBe(node_path.normalize('bbb/zzz.zzz'));
       expect(new_group.path).toBe(node_path.normalize('aaa/bbb/zzz.zzz'));
@@ -694,23 +694,23 @@ describe(`new ${PathGroup.name}('aaa', 'bbb/ccc.ddd')`, () => {
     }
   });
   test('newName', () => {
-    expect(() => pathGroup.newName('')).toThrow();
+    expect(() => pathGroup.newRelativeName('')).toThrow();
     {
-      const new_group = pathGroup.newName('.');
+      const new_group = pathGroup.newRelativeName('.');
       expect(new_group.origin_path.path).toBe('aaa');
       expect(new_group.relative_path.path).toBe(node_path.normalize('bbb/..ddd'));
       expect(new_group.path).toBe(node_path.normalize('aaa/bbb/..ddd'));
       expect(new_group.standard_path).toBe('aaa/bbb/..ddd');
     }
     {
-      const new_group = pathGroup.newName('zzz');
+      const new_group = pathGroup.newRelativeName('zzz');
       expect(new_group.origin_path.path).toBe('aaa');
       expect(new_group.relative_path.path).toBe(node_path.normalize('bbb/zzz.ddd'));
       expect(new_group.path).toBe(node_path.normalize('aaa/bbb/zzz.ddd'));
       expect(new_group.standard_path).toBe('aaa/bbb/zzz.ddd');
     }
     {
-      const new_group = pathGroup.newName('.zzz');
+      const new_group = pathGroup.newRelativeName('.zzz');
       expect(new_group.origin_path.path).toBe('aaa');
       expect(new_group.relative_path.path).toBe(node_path.normalize('bbb/.zzz.ddd'));
       expect(new_group.path).toBe(node_path.normalize('aaa/bbb/.zzz.ddd'));
@@ -719,41 +719,41 @@ describe(`new ${PathGroup.name}('aaa', 'bbb/ccc.ddd')`, () => {
   });
   test('newExt', () => {
     {
-      const new_group = pathGroup.newExt('');
+      const new_group = pathGroup.newRelativeExt('');
       expect(new_group.origin_path.path).toBe('aaa');
       expect(new_group.relative_path.path).toBe(node_path.normalize('bbb/ccc'));
       expect(new_group.path).toBe(node_path.normalize('aaa/bbb/ccc'));
       expect(new_group.standard_path).toBe('aaa/bbb/ccc');
     }
     {
-      const new_group = pathGroup.newExt('.');
+      const new_group = pathGroup.newRelativeExt('.');
       expect(new_group.origin_path.path).toBe('aaa');
       expect(new_group.relative_path.path).toBe(node_path.normalize('bbb/ccc.'));
       expect(new_group.path).toBe(node_path.normalize('aaa/bbb/ccc.'));
       expect(new_group.standard_path).toBe('aaa/bbb/ccc.');
     }
     {
-      const new_group = pathGroup.newExt('zzz');
+      const new_group = pathGroup.newRelativeExt('zzz');
       expect(new_group.origin_path.path).toBe('aaa');
       expect(new_group.relative_path.path).toBe(node_path.normalize('bbb/ccc.zzz'));
       expect(new_group.path).toBe(node_path.normalize('aaa/bbb/ccc.zzz'));
       expect(new_group.standard_path).toBe('aaa/bbb/ccc.zzz');
     }
     {
-      const new_group = pathGroup.newExt('.zzz');
+      const new_group = pathGroup.newRelativeExt('.zzz');
       expect(new_group.origin_path.path).toBe('aaa');
       expect(new_group.relative_path.path).toBe(node_path.normalize('bbb/ccc.zzz'));
       expect(new_group.path).toBe(node_path.normalize('aaa/bbb/ccc.zzz'));
       expect(new_group.standard_path).toBe('aaa/bbb/ccc.zzz');
     }
-    expect(() => pathGroup.newExt('..zzz')).toThrow();
-    expect(() => pathGroup.newExt('yyy.zzz')).toThrow();
+    expect(() => pathGroup.newRelativeExt('..zzz')).toThrow();
+    expect(() => pathGroup.newRelativeExt('yyy.zzz')).toThrow();
   });
 });
 
 describe(`new ${PathGroupSet.name}()`, () => {
   const group = new PathGroupSet();
-  group.add(PathGroup.build({ origin_path: 'aaa' }));
+  group.add(PathGroup.build({ origin_path: 'aaa', relative_path: '' }));
   group.add(PathGroup.build({ origin_path: 'aaa', relative_path: 'bbb' }));
   group.add(PathGroup.build({ origin_path: 'aaa', relative_path: 'bbb/ccc' }));
   group.add(PathGroup.build({ origin_path: 'aaa', relative_path: 'bbb/ccc.ddd' }));

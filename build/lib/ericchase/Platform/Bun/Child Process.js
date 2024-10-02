@@ -1,6 +1,6 @@
-import { ConsoleLog } from '../../Utility/Console.js';
+import { ConsoleLogWithDate } from '../../Utility/Console.js';
 function logRunnerHeader(cmds) {
-  ConsoleLog(`[${new Date().toLocaleTimeString()}] > ${cmds.map((s) => (s.includes(' ') ? `"${s}"` : s)).join(' ')}`);
+  ConsoleLogWithDate(`> ${cmds.map((s) => (s.includes(' ') ? `"${s}"` : s)).join(' ')}`);
 }
 function parseCommand(args) {
   if (args.flags.has('BunRun')) {

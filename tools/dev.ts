@@ -7,14 +7,13 @@ import { ConsoleError, GetConsoleMark } from '../src/lib/ericchase/Utility/Conso
 import { PrepareMessage } from '../src/lib/ericchase/Utility/PrepareMessage.js';
 import { TryLock } from './lib/cache/LockCache.js';
 
-export const scripts_dir = new Path('./tools/scripts/');
-
 export const command_map = {
-  build: 'build.ts',
-  dev: 'dev.ts',
-  format: 'format.ts',
+  build: new Path('tools/scripts/build.ts').path,
+  dev: new Path('tools/scripts/dev.ts').path,
+  format: new Path('tools/lib/format.ts').path,
+  watch: new Path('tools/scripts/watch.ts').path,
+  // library specific
   move: 'move-deprecated.ts',
-  watch: 'watch.ts',
 };
 
 if (Bun.argv[1] === __filename) {
@@ -39,7 +38,7 @@ if (Bun.argv[1] === __filename) {
     TryLock(command_map.dev);
 
     function run_watcher() {
-      return Bun.spawn(['bun', scripts_dir.appendSegment(command_map.watch).path], { stdin: 'pipe', stdout: 'inherit' });
+      return Bun.spawn(['bun', command_map.watch], { stdin: 'pipe', stdout: 'inherit' });
     }
 
     let watcher_process = run_watcher();
@@ -93,7 +92,7 @@ if (Bun.argv[1] === __filename) {
   } else {
     const script = JSONGet(command_map, command);
     if (script) {
-      RunSync.Bun(scripts_dir.appendSegment(script).path, ...command_args);
+      RunSync.Bun(script, ...command_args);
     } else {
       ConsoleError(`Invalid Command > ${command}`);
     }
