@@ -1,53 +1,50 @@
-var Console;
-((Console) => {
-  Console.newline_count = 0;
-  Console.marks = new Set();
-})((Console ||= {}));
-function updateMarks() {
-  for (const mark of Console.marks) {
-    Console.marks.delete(mark);
-    mark.updated = true;
-  }
-}
-export function GetConsoleMark() {
-  const mark = { updated: false };
-  Console.marks.add(mark);
-  return mark;
+import { UpdateMarkerManager } from './UpdateMarker.js';
+const marker_manager = new UpdateMarkerManager({ newline_count: 0 });
+export function GetConsoleMarker() {
+  return marker_manager.getNewMarker();
 }
 export function ConsoleError(...items) {
   console['error'](...items);
-  Console.newline_count = 0;
-  updateMarks();
+  marker_manager.extra.newline_count = 0;
+  marker_manager.updateMarkers();
 }
 export function ConsoleErrorWithDate(...items) {
   console['error'](`[${new Date().toLocaleTimeString()}]`, ...items);
-  Console.newline_count = 0;
-  updateMarks();
+  marker_manager.extra.newline_count = 0;
+  marker_manager.updateMarkers();
 }
 export function ConsoleLog(...items) {
   console['log'](...items);
-  Console.newline_count = 0;
-  updateMarks();
+  marker_manager.extra.newline_count = 0;
+  marker_manager.updateMarkers();
 }
 export function ConsoleLogWithDate(...items) {
   console['log'](`[${new Date().toLocaleTimeString()}]`, ...items);
-  Console.newline_count = 0;
-  updateMarks();
+  marker_manager.extra.newline_count = 0;
+  marker_manager.updateMarkers();
 }
 export function ConsoleNewline(ensure_count = 1) {
-  for (let i = Console.newline_count; i < ensure_count; i++) {
+  for (let i = marker_manager.extra.newline_count; i < ensure_count; i++) {
     console['log']();
-    Console.newline_count++;
+    marker_manager.extra.newline_count++;
   }
-  updateMarks();
+  marker_manager.updateMarkers();
 }
 export function ConsoleLogToLines(items) {
-  for (const item of items) {
-    ConsoleLog(item);
+  if (typeof items === 'string') {
+    ConsoleLog(items);
+  } else {
+    for (const item of items) {
+      ConsoleLog(item);
+    }
   }
 }
 export function ConsoleErrorToLines(items) {
-  for (const item of items) {
-    ConsoleError(item);
+  if (typeof items === 'string') {
+    ConsoleError(items);
+  } else {
+    for (const item of items) {
+      ConsoleError(item);
+    }
   }
 }

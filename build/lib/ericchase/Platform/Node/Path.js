@@ -12,8 +12,8 @@ export function ParsePath(path) {
 export function ResolvePath(path) {
   return node_path.resolve(path.path);
 }
-export function SanitizePath(path) {
-  return path.path.replace(/[^a-z0-9\.\_\-]/gi, '_').toLowerCase();
+export function SanitizeFileName(name) {
+  return name.replace(/[^a-z0-9\.\_\-]/gi, '_').toLowerCase();
 }
 export const PathSeparator = node_path.sep;
 
@@ -52,9 +52,6 @@ export class Path {
   }
   get resolve() {
     return node_path.resolve(this.path);
-  }
-  get sanitize() {
-    return this.path.replace(/[^a-z0-9\.\_\-]/gi, '_').toLowerCase();
   }
   get standard_path() {
     return this.$standard_path;

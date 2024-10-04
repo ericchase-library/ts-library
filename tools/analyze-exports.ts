@@ -37,6 +37,9 @@ for (const path_group of new GlobScanner().scan(new Path(__dirname).appendSegmen
   });
 }
 
+menu_oldfile.items.reverse();
+menu_newfile.items.reverse();
+
 menu_oldfile.items.push({
   name: 'Quit',
   action: () => {

@@ -1,6 +1,6 @@
 const textDecoder = new TextDecoder();
 const textEncoder = new TextEncoder();
-export function DecodeText(buffer) {
+export function DecodeBytes(buffer) {
   return textDecoder.decode(buffer);
 }
 export function EncodeText(text) {

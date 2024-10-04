@@ -1,3 +1,93 @@
+## 2024-10-04
+
+- add more test cases
+- add tests for public and private apis of library
+
+**src**
+
+/Platform/Node/Path.ts
+
+- rename SanitizePath to SanitizeFileName
+  - this function should be used on file names, not entire paths
+
+/Utility/Assert.ts
+
+- add assert functions for `typeof` checks
+
+/Utility/Console.ts
+
+- update console functions to use the new UpdateMarker utility classes
+  - see below
+
+/Utility/Debounce.ts
+
+- remove the `Debouncer` class in favor of `Debounce` and `ImmediateDebounce` functions
+  - these functions don't return values from their inner function. if you want to handle return values, setup a variable for storing the values instead of returning them from the inner function.
+  - these functions can handle synchronous and asynchronous inner functions. `Debounce` always defers, so its call is always asynchronous. `ImmediateDebounce` may synchronously call the inner function. see test cases for examples
+
+/Utility/Defer.ts
+
+- add helper function Defer
+  - see example in Debounce functions where this is being used
+
+/Utility/HelpMessage.ts
+
+- add utility class to handle help message debouncing for shell programs
+
+/Utility/UpdateMarker.ts
+
+- add utility classes for arbitrary update tracking
+  - check the `updated` property of markers returned from `getNewMarker`
+  - see Console.ts for example
+  - if you want to subscribe to an observable, use the Store or Handler design patterns instead
+
+**tools**
+
+- update tools to use new Debounce functions
+- rename hot_reload.ts to hotreload.ts
+
+> **all module changes**
+
+```
+= Platform/Node/Path.ts
+  - SanitizePath
+  + SanitizeFileName
+
++ Utility/Assert.ts
+  + AssertBigint
+  + AssertBoolean
+  + AssertFunction
+  + AssertNumber
+  + AssertObject
+  + AssertString
+  + AssertSymbol
+  + AssertUndefined
+
+= Utility/Console.ts
+  - GetConsoleMark
+  + GetConsoleMarker
+
+= Utility/Debounce.ts
+  - Debouncer
+  + Debounce
+  + ImmediateDebounce
+  + LeadingEdgeDebounce
+
++ Utility/Defer.ts
+  + Defer
+
++ Utility/HelpMessage.ts
+  + HelpMessage
+
+= Utility/TextCodec.ts
+  - DecodeText
+  + DecodeBytes
+
++ Utility/UpdateMarker.ts
+  + UpdateMarker
+  + UpdateMarkerManager
+```
+
 ## 2024-10-02
 
 **src**
