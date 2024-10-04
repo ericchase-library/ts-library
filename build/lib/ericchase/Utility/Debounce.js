@@ -2,7 +2,7 @@ import { Defer } from './Defer.js';
 export function Debounce(fn, delay_ms) {
   let deferred = Defer();
   let timeout;
-  return async function (...args) {
+  return async (...args) => {
     clearTimeout(timeout);
     timeout = setTimeout(async () => {
       try {
@@ -19,7 +19,7 @@ export function Debounce(fn, delay_ms) {
 export function ImmediateDebounce(fn, delay_ms) {
   let deferred = Defer();
   let timeout;
-  return function (...args) {
+  return (...args) => {
     if (timeout === undefined) {
       (async () => {
         try {
