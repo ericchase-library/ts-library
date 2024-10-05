@@ -96,13 +96,11 @@ function spawnerChainSync(flags = new Set<SpawnerFlag>()) {
 // Bun.spawn Functions
 function runner(args: { cmds: string[]; flags: Set<RunnerFlag> }) {
   const { cmds, mode } = parseRunnerFlags(args);
-  const process = Bun.spawn(cmds, { stdin: 'inherit', stdout: mode, stderr: mode });
-  return { exited: process.exited, kill: process.kill.bind(process) };
+  return Bun.spawn(cmds, { stdin: 'inherit', stdout: mode, stderr: mode });
 }
 function runnerSync(args: { cmds: string[]; flags: Set<RunnerFlag> }) {
   const { cmds, mode } = parseRunnerFlags(args);
-  const { exitCode } = Bun.spawnSync(cmds, { stdin: 'inherit', stdout: mode, stderr: mode });
-  return { exitCode };
+  return Bun.spawnSync(cmds, { stdin: 'inherit', stdout: mode, stderr: mode });
 }
 function spawner(args: { cmds: string[]; flags: Set<SpawnerFlag> }) {
   const { cmds } = parseSpawnerFlags(args);
@@ -116,7 +114,7 @@ function spawnerSync(args: { cmds: string[]; flags: Set<SpawnerFlag> }) {
 export type SpawnerSubprocess = Subprocess<'pipe', 'pipe', 'pipe'>;
 export type SpawnerSyncSubprocess = SyncSubprocess<'pipe', 'pipe'>;
 
-export const Run = runnerChain() as FlagChain<{ exited: Promise<number>; kill: (exitCode?: number | NodeJS.Signals) => void }>;
-export const RunSync = runnerChainSync() as FlagChain<{ exitCode: number }>;
+export const Run = runnerChain() as FlagChain<Subprocess<'inherit', 'inherit' | 'ignore', 'inherit' | 'ignore'>>;
+export const RunSync = runnerChainSync() as FlagChain<SyncSubprocess<'inherit' | 'ignore', 'inherit' | 'ignore'>>;
 export const Spawn = spawnerChain() as FlagChain<Subprocess<'pipe', 'pipe', 'pipe'>>;
 export const SpawnSync = spawnerChainSync() as FlagChain<SyncSubprocess<'pipe', 'pipe'>>;

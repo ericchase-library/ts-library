@@ -59,13 +59,11 @@ function spawnerChainSync(flags = new Set()) {
 }
 function runner(args) {
   const { cmds, mode } = parseRunnerFlags(args);
-  const process = Bun.spawn(cmds, { stdin: 'inherit', stdout: mode, stderr: mode });
-  return { exited: process.exited, kill: process.kill.bind(process) };
+  return Bun.spawn(cmds, { stdin: 'inherit', stdout: mode, stderr: mode });
 }
 function runnerSync(args) {
   const { cmds, mode } = parseRunnerFlags(args);
-  const { exitCode } = Bun.spawnSync(cmds, { stdin: 'inherit', stdout: mode, stderr: mode });
-  return { exitCode };
+  return Bun.spawnSync(cmds, { stdin: 'inherit', stdout: mode, stderr: mode });
 }
 function spawner(args) {
   const { cmds } = parseSpawnerFlags(args);
