@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { UpdateMarker, UpdateMarkerManager } from './UpdateMarker.js';
+import { DataSetMarker, DataSetMarkerManager, UpdateMarker, UpdateMarkerManager } from './UpdateMarker.js';
 
 describe(UpdateMarker.name, () => {
   const manager = new UpdateMarkerManager();
@@ -21,7 +21,6 @@ describe(UpdateMarkerManager.name, () => {
   const manager = new UpdateMarkerManager();
   test('constructor', () => {
     expect(manager.$marks.size).toBe(0);
-    expect(manager.extra).toBeUndefined();
   });
   test(manager.getNewMarker.name, () => {
     expect(manager.getNewMarker()).toEqual(new UpdateMarker(manager));
@@ -41,41 +40,45 @@ describe(UpdateMarkerManager.name, () => {
   });
 });
 
-describe(`${UpdateMarker.name} with Extra`, () => {
-  const manager = new UpdateMarkerManager<{ counter: number }>();
+describe(DataSetMarker.name, () => {
+  const manager = new DataSetMarkerManager<string>();
   const marker = manager.getNewMarker();
   test('constructor', () => {
-    expect(marker.updated).toBeFalse();
+    expect(marker.dataset).toBeEmpty();
     expect(marker.$manager).toBe(manager);
   });
   test(marker.reset.name, () => {
-    expect(marker.updated).toBeFalse();
-    manager.updateMarkers();
-    expect(marker.updated).toBeTrue();
+    expect(marker.dataset).toBeEmpty();
+    manager.updateMarkers('a');
+    expect(marker.dataset.size).toBe(1);
+    expect(marker.dataset).toContain('a');
     marker.reset();
-    expect(marker.updated).toBeFalse();
+    expect(marker.dataset).toBeEmpty();
   });
 });
 
-describe(`${UpdateMarkerManager.name} with Extra`, () => {
-  const manager = new UpdateMarkerManager<{ counter: number }>({ counter: 0 });
-  test('{ counter: number = 0 }', () => {
+describe(DataSetMarkerManager.name, () => {
+  const manager = new DataSetMarkerManager<string>();
+  test('constructor', () => {
     expect(manager.$marks.size).toBe(0);
-    expect(manager.extra).toEqual({ counter: 0 });
   });
-  test('increment counter', () => {
-    manager.extra.counter++;
-    expect(manager.extra).toEqual({ counter: 1 });
+  test(manager.getNewMarker.name, () => {
+    expect(manager.getNewMarker()).toEqual(new DataSetMarker(manager));
   });
-  test("methods don't alter counter", () => {
-    expect(manager.extra).toEqual({ counter: 1 });
+  test(manager.resetMarker.name, () => {
     const marker = manager.getNewMarker();
-    expect(manager.extra).toEqual({ counter: 1 });
-    manager.resetMarker(marker);
-    expect(manager.extra).toEqual({ counter: 1 });
-    manager.updateMarkers();
-    expect(manager.extra).toEqual({ counter: 1 });
+    expect(marker.dataset).toBeEmpty();
+    manager.updateMarkers('a');
+    expect(marker.dataset.size).toBe(1);
+    expect(marker.dataset).toContain('a');
     marker.reset();
-    expect(manager.extra).toEqual({ counter: 1 });
+    expect(marker.dataset).toBeEmpty();
+  });
+  test(manager.updateMarkers.name, () => {
+    const marker = manager.getNewMarker();
+    expect(marker.dataset).toBeEmpty();
+    manager.updateMarkers('a');
+    expect(marker.dataset.size).toBe(1);
+    expect(marker.dataset).toContain('a');
   });
 });

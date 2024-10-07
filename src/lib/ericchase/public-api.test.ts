@@ -3,7 +3,7 @@ import { AssertBigint, AssertBoolean, AssertEqual, AssertFunction, AssertNotEqua
 import { ConsoleError, ConsoleErrorToLines, ConsoleErrorWithDate, ConsoleLog, ConsoleLogToLines, ConsoleLogWithDate, ConsoleNewline, GetConsoleMarker } from './Utility/Console.js';
 import { Debounce, ImmediateDebounce } from './Utility/Debounce.js';
 import { HasMethod, HasProperty } from './Utility/Guard.js';
-import { UpdateMarker, UpdateMarkerManager } from './Utility/UpdateMarker.js';
+import { DataSetMarker, DataSetMarkerManager, UpdateMarker, UpdateMarkerManager } from './Utility/UpdateMarker.js';
 
 import * as debounce_js from './Utility/Debounce.js';
 
@@ -105,8 +105,33 @@ describe('Public API', () => {
         test('UpdateMarkerManager (class)', () => {
           expect(UpdateMarkerManager.name).toBe('UpdateMarkerManager');
         });
-        test('extra', () => {
-          expect('extra' in manager).toBeTrue();
+        test('getNewMarker', () => {
+          expect(manager.getNewMarker.name).toBe('getNewMarker');
+        });
+        test('resetMarker', () => {
+          expect(manager.resetMarker.name).toBe('resetMarker');
+        });
+        test('updateMarkers', () => {
+          expect(manager.updateMarkers.name).toBe('updateMarkers');
+        });
+      });
+      describe(DataSetMarker.name, () => {
+        const manager = new DataSetMarkerManager();
+        const marker = manager.getNewMarker();
+        test('DataSetMarker (class)', () => {
+          expect(DataSetMarker.name).toBe('DataSetMarker');
+        });
+        test('dataset', () => {
+          expect('dataset' in marker).toBeTrue();
+        });
+        test('reset', () => {
+          expect(marker.reset.name).toBe('reset');
+        });
+      });
+      describe(DataSetMarkerManager.name, () => {
+        const manager = new DataSetMarkerManager();
+        test('DataSetMarkerManager (class)', () => {
+          expect(DataSetMarkerManager.name).toBe('DataSetMarkerManager');
         });
         test('getNewMarker', () => {
           expect(manager.getNewMarker.name).toBe('getNewMarker');
