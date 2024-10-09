@@ -1,5 +1,17 @@
 import { HandlerCaller } from '../Design Pattern/Handler.js';
 import { SplitLines } from './String.js';
+
+class CMenu {
+  id;
+  description;
+  items;
+}
+
+class CMenuItem {
+  id;
+  description;
+  action;
+}
 export function IsMenu(item) {
   return 'name' in item && 'items' in item && 'action' in item === false;
 }

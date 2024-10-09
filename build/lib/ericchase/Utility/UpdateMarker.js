@@ -11,7 +11,6 @@ export class UpdateMarker {
 
 export class UpdateMarkerManager {
   $marks = new Set();
-  constructor() {}
   getNewMarker() {
     const marker = new UpdateMarker(this);
     this.$marks.add(marker);
@@ -42,7 +41,6 @@ export class DataSetMarker {
 
 export class DataSetMarkerManager {
   $marks = new Set();
-  constructor() {}
   getNewMarker() {
     const marker = new DataSetMarker(this);
     this.$marks.add(marker);
