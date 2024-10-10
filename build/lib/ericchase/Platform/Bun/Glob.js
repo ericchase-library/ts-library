@@ -90,7 +90,7 @@ export class GlobScanner {
   }
   scanDot(origin_path, ...patterns) {
     for (const pattern of patterns) {
-      this.glob_group_map.set(GlobScanner.GetKey(origin_path, pattern), GlobScanner.Scan(origin_path, pattern));
+      this.glob_group_map.set(GlobScanner.GetKey(origin_path, pattern), GlobScanner.Scan(origin_path, pattern, true));
     }
     return this;
   }

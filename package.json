@@ -2,7 +2,7 @@
   "dependencies": {},
   "devDependencies": {
     "@biomejs/biome": "^1.9.3",
-    "@types/bun": "^1.1.10",
+    "@types/bun": "^1.1.11",
     "@types/chrome": "^0.0.271",
     "@types/node": "^22.7.5",
     "node-html-parser": "^6.1.13",
