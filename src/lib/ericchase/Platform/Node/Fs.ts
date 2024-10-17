@@ -1,4 +1,5 @@
 import node_fs from 'node:fs';
+
 import { Path, type PathGroup } from './Path.js';
 
 export async function DeleteFile(path: Path | PathGroup | URL) {

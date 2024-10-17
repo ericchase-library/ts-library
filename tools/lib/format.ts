@@ -1,7 +1,7 @@
-import { RunSync } from '../../src/lib/ericchase/Platform/Bun/Child Process.js';
-import { command_map } from '../dev.js';
-import { Cache_FileStats_Lock, Cache_FileStats_Unlock } from './cache/FileStatsCache.js';
-import { TryLock } from './cache/LockCache.js';
+import { RunSync } from 'lib/ericchase/Platform/Bun/Child Process.js';
+import { command_map } from 'tools/dev.js';
+import { Cache_FileStats_Lock, Cache_FileStats_Unlock } from 'tools/lib/cache/FileStatsCache.js';
+import { TryLock } from 'tools/lib/cache/LockCache.js';
 
 TryLock(command_map.format);
 

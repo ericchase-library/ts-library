@@ -1,12 +1,12 @@
-import { JSONGet } from '../src/lib/ericchase/Algorithm/JSON.js';
-import { RunSync } from '../src/lib/ericchase/Platform/Bun/Child Process.js';
-import { Path } from '../src/lib/ericchase/Platform/Node/Path.js';
-import { StdinRawModeReader } from '../src/lib/ericchase/Platform/Node/Process.js';
-import { KEYS } from '../src/lib/ericchase/Platform/Node/Shell.js';
-import { ConsoleError } from '../src/lib/ericchase/Utility/Console.js';
-import { HelpMessage } from '../src/lib/ericchase/Utility/HelpMessage.js';
-import { PrepareMessage } from '../src/lib/ericchase/Utility/PrepareMessage.js';
-import { TryLock } from './lib/cache/LockCache.js';
+import { JSONGet } from 'lib/ericchase/Algorithm/JSON.js';
+import { RunSync } from 'lib/ericchase/Platform/Bun/Child Process.js';
+import { Path } from 'lib/ericchase/Platform/Node/Path.js';
+import { StdinRawModeReader } from 'lib/ericchase/Platform/Node/Process.js';
+import { KEYS } from 'lib/ericchase/Platform/Node/Shell.js';
+import { ConsoleError } from 'lib/ericchase/Utility/Console.js';
+import { HelpMessage } from 'lib/ericchase/Utility/HelpMessage.js';
+import { PrepareMessage } from 'lib/ericchase/Utility/PrepareMessage.js';
+import { TryLock } from 'tools/lib/cache/LockCache.js';
 
 export const command_map = {
   build: new Path('tools/scripts/build.ts').path,
@@ -38,10 +38,10 @@ if (Bun.argv[1] === __filename) {
     stdin.addHandler(async (text) => {
       if (text === KEYS.SIGINT) {
         await stdin.stop();
-        watcher_process.stdin.write(`${KEYS.SIGINT}`);
+        watcher_process?.stdin.write(`${KEYS.SIGINT}`);
         await Bun.sleep(25);
-        watcher_process.kill();
-        await watcher_process.exited;
+        watcher_process?.kill();
+        await watcher_process?.exited;
         process.exit();
       }
     });
@@ -87,16 +87,14 @@ if (Bun.argv[1] === __filename) {
           watcher_process = run_watcher();
           break;
         }
-        default: {
+        // Passthrough Keys
+        // case 'h': // Toggle Hot Reloading
+        //   watcher_process.stdin.write(text);
+        //   break;
+        default:
           help.print();
           break;
-        }
       }
-    });
-
-    // CLI: Send Remaining Keys Through
-    stdin.addHandler((text) => {
-      watcher_process.stdin.write(text);
     });
 
     stdin.start();

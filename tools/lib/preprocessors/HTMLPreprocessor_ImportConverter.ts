@@ -1,6 +1,6 @@
-import type { NodeHTMLParser } from '../../../src/lib/ericchase/Platform/Node/HTML Processor/ParseHTML.js';
-import { Path } from '../../../src/lib/ericchase/Platform/Node/Path.js';
-import type { HTMLPreprocessor } from './HTMLPreprocessor.js';
+import type { NodeHTMLParser } from 'lib/ericchase/Platform/Node/HTML Processor/ParseHTML.js';
+import { Path } from 'lib/ericchase/Platform/Node/Path.js';
+import type { HTMLPreprocessor } from 'tools/lib/preprocessors/HTMLPreprocessor.js';
 
 export class ImportConverterPreprocessor implements HTMLPreprocessor {
   extension_pairs: (readonly [string, string])[];

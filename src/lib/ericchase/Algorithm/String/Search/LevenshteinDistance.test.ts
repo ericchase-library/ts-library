@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+
 import { levenshtein_distance } from './LevenshteinDistance.js';
 
 describe('LevenshteinDistance', () => {

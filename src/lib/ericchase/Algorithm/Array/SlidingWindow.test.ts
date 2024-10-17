@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+
 import { SlidingWindow } from './SlidingWindow.js';
 
 describe(SlidingWindow.name, () => {

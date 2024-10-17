@@ -1,7 +1,7 @@
-import { KEYS } from '../../src/lib/ericchase/Platform/Node/Shell.js';
-import { ConsoleError, ConsoleLog } from '../../src/lib/ericchase/Utility/Console.js';
-import { Debounce } from '../../src/lib/ericchase/Utility/Debounce.js';
-import { on_log } from '../scripts/build.js';
+import { KEYS } from 'lib/ericchase/Platform/Node/Shell.js';
+import { ConsoleError, ConsoleLog } from 'lib/ericchase/Utility/Console.js';
+import { Debounce } from 'lib/ericchase/Utility/Debounce.js';
+import { on_log } from 'tools/scripts/build.js';
 
 export class HotReloader {
   $host: string;

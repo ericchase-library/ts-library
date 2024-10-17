@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+
 import { ArrayAreEqual, ArrayBufferToBytes, ArrayChunks, ArrayShuffle, ArraySplit } from './Array.js';
 import { U8, U8Clamped } from './Uint8Array.js';
 

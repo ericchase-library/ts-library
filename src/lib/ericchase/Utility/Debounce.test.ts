@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+
 import { Debounce, ImmediateDebounce } from './Debounce.js';
 
 describe(Debounce.name, async () => {

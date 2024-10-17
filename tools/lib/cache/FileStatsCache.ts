@@ -1,8 +1,9 @@
 import node_fs from 'node:fs';
-import type { Path, PathGroup } from '../../../src/lib/ericchase/Platform/Node/Path.js';
-import { DataSetMarkerManager } from '../../../src/lib/ericchase/Utility/UpdateMarker.js';
-import { cache_db, CreateAllQuery, CreateGetQuery, CreateRunQuery, QueryError, QueryExistsResult, type QueryResult } from './cache.js';
-import { Cache_Lock, Cache_Unlock } from './LockCache.js';
+
+import type { Path, PathGroup } from 'lib/ericchase/Platform/Node/Path.js';
+import { DataSetMarkerManager } from 'lib/ericchase/Utility/UpdateMarker.js';
+import { cache_db, CreateAllQuery, CreateGetQuery, CreateRunQuery, QueryError, QueryExistsResult, type QueryResult } from 'tools/lib/cache/cache.js';
+import { Cache_Lock, Cache_Unlock } from 'tools/lib/cache/LockCache.js';
 
 const PATH = 'path';
 const MTIMEMS = 'mtimeMs';

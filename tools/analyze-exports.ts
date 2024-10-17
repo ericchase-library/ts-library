@@ -1,11 +1,11 @@
-import { JSONGet } from '../src/lib/ericchase/Algorithm/JSON.js';
-import { GlobScanner } from '../src/lib/ericchase/Platform/Bun/Glob.js';
-import { Path, type PathGroup } from '../src/lib/ericchase/Platform/Node/Path.js';
-import { StdinRawModeReader } from '../src/lib/ericchase/Platform/Node/Process.js';
-import { KEYS, Shell } from '../src/lib/ericchase/Platform/Node/Shell.js';
-import { ConsoleLog } from '../src/lib/ericchase/Utility/Console.js';
-import type { Menu } from '../src/lib/ericchase/Utility/Menu.js';
-import { ShellMenu } from '../src/lib/ericchase/Utility/ShellMenu.js';
+import { JSONGet } from 'lib/ericchase/Algorithm/JSON.js';
+import { GlobScanner } from 'lib/ericchase/Platform/Bun/Glob.js';
+import { Path, type PathGroup } from 'lib/ericchase/Platform/Node/Path.js';
+import { StdinRawModeReader } from 'lib/ericchase/Platform/Node/Process.js';
+import { KEYS, Shell } from 'lib/ericchase/Platform/Node/Shell.js';
+import { ConsoleLog } from 'lib/ericchase/Utility/Console.js';
+import type { Menu } from 'lib/ericchase/Utility/Menu.js';
+import { ShellMenu } from 'lib/ericchase/Utility/ShellMenu.js';
 
 const menu_oldfile: Menu = {
   name: 'Main',
@@ -24,13 +24,13 @@ let newfile: Path | PathGroup = new Path();
 
 for (const path_group of new GlobScanner().scan(new Path(__dirname).appendSegment('./exports'), '*.json').path_groups) {
   menu_oldfile.items.push({
-    name: path_group.relative_base,
+    name: path_group.relative_path.base,
     action: () => {
       oldfile = path_group;
     },
   });
   menu_newfile.items.push({
-    name: path_group.relative_base,
+    name: path_group.relative_path.base,
     action: () => {
       newfile = path_group;
     },
@@ -148,4 +148,6 @@ async function analyzeExports(oldpath: Path | PathGroup, newpath: Path | PathGro
     }
     ConsoleLog();
   }
+
+  process.exit();
 }

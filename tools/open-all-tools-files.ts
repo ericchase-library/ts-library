@@ -1,6 +1,6 @@
 // does exactly what the name sounds like
 
-import { type SpawnerSubprocess, Spawn } from '../src/lib/ericchase/Platform/Bun/Child Process.js';
+import { type SpawnerSubprocess, Spawn } from 'lib/ericchase/Platform/Bun/Child Process.js';
 
 const entries = await Array.fromAsync(
   new Bun.Glob('**/*.ts') //

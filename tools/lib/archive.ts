@@ -1,10 +1,11 @@
-import fs from 'node:fs';
-import { U8ToLines, U8ToString } from '../../src/lib/ericchase/Algorithm/Uint8Array.js';
-import { SpawnSync } from '../../src/lib/ericchase/Platform/Bun/Child Process.js';
-import { CreateDirectory } from '../../src/lib/ericchase/Platform/Node/Fs.js';
-import type { Path } from '../../src/lib/ericchase/Platform/Node/Path.js';
-import { ConsoleError } from '../../src/lib/ericchase/Utility/Console.js';
-import { onLog } from '../scripts/build.js';
+import node_fs from 'node:fs';
+
+import { U8ToLines, U8ToString } from 'lib/ericchase/Algorithm/Uint8Array.js';
+import { SpawnSync } from 'lib/ericchase/Platform/Bun/Child Process.js';
+import { CreateDirectory } from 'lib/ericchase/Platform/Node/Fs.js';
+import type { Path } from 'lib/ericchase/Platform/Node/Path.js';
+import { ConsoleError } from 'lib/ericchase/Utility/Console.js';
+import { onLog } from 'tools/scripts/build.js';
 
 export function has7z() {
   try {
@@ -39,7 +40,7 @@ export async function archive({ in_dir, out_path }: ArchiveParams) {
     const Archiver = await import('archiver');
     await CreateDirectory(out_path, true);
     return new Promise<void>((resolve) => {
-      const output_stream = fs.createWriteStream(out_path.path);
+      const output_stream = node_fs.createWriteStream(out_path.path);
       const archiver = Archiver.create('zip', {
         zlib: { level: 9 }, // Sets the compression level.
       });

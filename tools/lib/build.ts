@@ -1,20 +1,19 @@
-import { nCartesianProduct } from '../../src/lib/ericchase/Algorithm/Math/CartesianProduct.js';
-import { AsyncLineReader } from '../../src/lib/ericchase/Algorithm/Stream.js';
-import { Broadcast } from '../../src/lib/ericchase/Design Pattern/Observer/Broadcast.js';
-import { type SpawnerSubprocess, Spawn } from '../../src/lib/ericchase/Platform/Bun/Child Process.js';
-import type { GlobScanner } from '../../src/lib/ericchase/Platform/Bun/Glob.js';
-import { ParseHTML } from '../../src/lib/ericchase/Platform/Node/HTML Processor/ParseHTML.js';
-import { type Path, type PathGroup, PathGroupSet } from '../../src/lib/ericchase/Platform/Node/Path.js';
-import { ConsoleError, ConsoleErrorToLines } from '../../src/lib/ericchase/Utility/Console.js';
-import { TrimLines } from '../../src/lib/ericchase/Utility/String.js';
-import { Cache_IsFileModified } from './cache/FileStatsCache.js';
-import type { FilePreprocessor } from './preprocessors/FilePreprocessor.js';
-import type { HTMLPreprocessor } from './preprocessors/HTMLPreprocessor.js';
+import { nCartesianProduct } from 'lib/ericchase/Algorithm/Math/CartesianProduct.js';
+import { AsyncLineReader } from 'lib/ericchase/Algorithm/Stream.js';
+import { Broadcast } from 'lib/ericchase/Design Pattern/Observer/Broadcast.js';
+import type { SpawnerSubprocess } from 'lib/ericchase/Platform/Bun/Child Process.js';
+import type { GlobScanner } from 'lib/ericchase/Platform/Bun/Glob.js';
+import { ParseHTML } from 'lib/ericchase/Platform/Node/HTML Processor/ParseHTML.js';
+import { type Path, type PathGroup, PathGroupSet } from 'lib/ericchase/Platform/Node/Path.js';
+import { ConsoleError, ConsoleErrorToLines } from 'lib/ericchase/Utility/Console.js';
+import { TrimLines } from 'lib/ericchase/Utility/String.js';
+import { Cache_IsFileModified } from 'tools/lib/cache/FileStatsCache.js';
+import type { FilePreprocessor } from 'tools/lib/preprocessors/FilePreprocessor.js';
+import type { HTMLPreprocessor } from 'tools/lib/preprocessors/HTMLPreprocessor.js';
 
 // watching multiple files results in building each file when a change occurs
 // in any. confirmed on windows via modification dates. this isn't the desired
 // result. as an alternative, we can run separate builds for each target file.
-// subprocesses.push(Bun.spawn(['bun', 'build', ...toBundle.paths, '--outdir', 'out/', '--external', '*.module.js', '--watch'], { stdout: 'pipe', stderr: 'inherit' }));
 interface BuildParams {
   entrypoint: PathGroup;
   outdir: Path;
@@ -34,7 +33,7 @@ export class BuildRunner {
     if (this.subprocess_map.has(entrypoint.path)) {
       return;
     }
-    const args = ['build', '--entrypoints', entrypoint.path, '--outdir', entrypoint.newOrigin(outdir).newRelativeBase('').path];
+    const args = ['bun', 'build', '--entrypoints', entrypoint.path, '--outdir', entrypoint.newOrigin(outdir).newRelativeBase('').path];
     args.push('--target', target);
     args.push('--format', format);
     args.push(`--sourcemap=${sourcemap}`);
@@ -56,7 +55,7 @@ export class BuildRunner {
     if (watch === true) {
       args.push('--watch', '--no-clear-screen');
     }
-    const child_process = Spawn.Bun(...args);
+    const child_process = Bun.spawn(args, { env: { NODE_ENV: 'production' }, stdin: 'pipe', stdout: 'pipe', stderr: 'pipe' });
     this.subprocess_map.set(entrypoint.path, child_process);
     const stderrReader = AsyncLineReader(child_process.stderr);
     const stdoutReader = AsyncLineReader(child_process.stdout);
@@ -155,7 +154,7 @@ export async function copy({ out_dirs, preprocessors = [], to_copy, to_exclude }
       for (const preprocessor of preprocessors) {
         try {
           if (preprocessor.pathMatches(path_group)) {
-            const result = await preprocessor.preprocess(bytes);
+            const result = await preprocessor.preprocess(bytes, path_group);
             bytes = result.bytes;
           }
         } catch (error) {

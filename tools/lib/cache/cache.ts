@@ -1,6 +1,7 @@
 import { Database } from 'bun:sqlite';
-import { CreateDirectory } from '../../../src/lib/ericchase/Platform/Node/Fs.js';
-import { Path } from '../../../src/lib/ericchase/Platform/Node/Path.js';
+
+import { CreateDirectory } from 'lib/ericchase/Platform/Node/Fs.js';
+import { Path } from 'lib/ericchase/Platform/Node/Path.js';
 
 export const cache_dir = new Path('./tools/cache');
 

@@ -1,9 +1,9 @@
-import { nCartesianProduct } from '../../src/lib/ericchase/Algorithm/Math/CartesianProduct.js';
-import { MoveFile } from '../../src/lib/ericchase/Platform/Bun/Fs.js';
-import { GlobScanner } from '../../src/lib/ericchase/Platform/Bun/Glob.js';
-import { Path } from '../../src/lib/ericchase/Platform/Node/Path.js';
-import { ConsoleLog } from '../../src/lib/ericchase/Utility/Console.js';
-import { src_dir } from './build.js';
+import { nCartesianProduct } from 'lib/ericchase/Algorithm/Math/CartesianProduct.js';
+import { MoveFile } from 'lib/ericchase/Platform/Bun/Fs.js';
+import { GlobScanner } from 'lib/ericchase/Platform/Bun/Glob.js';
+import { Path } from 'lib/ericchase/Platform/Node/Path.js';
+import { ConsoleLog } from 'lib/ericchase/Utility/Console.js';
+import { src_dir } from 'tools/scripts/build.js';
 
 // user config
 const extensions = ['.ts']; // files to be bundled ie. `name.******.ts

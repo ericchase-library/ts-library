@@ -1,14 +1,13 @@
-import { Broadcast } from '../../src/lib/ericchase/Design Pattern/Observer/Broadcast.js';
-import { RunSync } from '../../src/lib/ericchase/Platform/Bun/Child Process.js';
-import { GlobScanner } from '../../src/lib/ericchase/Platform/Bun/Glob.js';
-import { CleanDirectory } from '../../src/lib/ericchase/Platform/Node/Fs.js';
-import { Path } from '../../src/lib/ericchase/Platform/Node/Path.js';
-import { ConsoleLogWithDate, ConsoleNewline } from '../../src/lib/ericchase/Utility/Console.js';
-
-import { command_map } from '../dev.js';
-import { BuildRunner, compile, copy, IntoPatterns } from '../lib/build.js';
-import { Cache_FileStats_Lock, Cache_FileStats_Reset, Cache_FileStats_Unlock } from '../lib/cache/FileStatsCache.js';
-import { Cache_Unlock, TryLock, TryLockEach } from '../lib/cache/LockCache.js';
+import { Broadcast } from 'lib/ericchase/Design Pattern/Observer/Broadcast.js';
+import { RunSync } from 'lib/ericchase/Platform/Bun/Child Process.js';
+import { GlobScanner } from 'lib/ericchase/Platform/Bun/Glob.js';
+import { CleanDirectory } from 'lib/ericchase/Platform/Node/Fs.js';
+import { Path } from 'lib/ericchase/Platform/Node/Path.js';
+import { ConsoleLogWithDate, ConsoleNewline } from 'lib/ericchase/Utility/Console.js';
+import { command_map } from 'tools/dev.js';
+import { BuildRunner, compile, copy, IntoPatterns } from 'tools/lib/build.js';
+import { Cache_FileStats_Lock, Cache_FileStats_Reset, Cache_FileStats_Unlock } from 'tools/lib/cache/FileStatsCache.js';
+import { Cache_Unlock, TryLock, TryLockEach } from 'tools/lib/cache/LockCache.js';
 
 // user config
 const source_extensions = ['.ts']; // extensions for source files for building

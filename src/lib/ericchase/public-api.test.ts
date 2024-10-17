@@ -1,11 +1,12 @@
 import { describe, expect, test } from 'bun:test';
+
 import { AssertBigint, AssertBoolean, AssertEqual, AssertFunction, AssertNotEqual, AssertNumber, AssertObject, AssertString, AssertSymbol, AssertUndefined } from './Utility/Assert.js';
 import { ConsoleError, ConsoleErrorToLines, ConsoleErrorWithDate, ConsoleLog, ConsoleLogToLines, ConsoleLogWithDate, ConsoleNewline, GetConsoleMarker } from './Utility/Console.js';
 import { Debounce, ImmediateDebounce } from './Utility/Debounce.js';
 import { HasMethod, HasProperty } from './Utility/Guard.js';
 import { DataSetMarker, DataSetMarkerManager, UpdateMarker, UpdateMarkerManager } from './Utility/UpdateMarker.js';
 
-import * as debounce_js from './Utility/Debounce.js';
+import * as import_debounce from './Utility/Debounce.js';
 
 describe('Public API', () => {
   describe('Utility', () => {
@@ -75,7 +76,7 @@ describe('Public API', () => {
         expect(ImmediateDebounce.name).toBe('ImmediateDebounce');
       });
       test('LeadingEdgeDebounce', () => {
-        expect('LeadingEdgeDebounce' in debounce_js).toBeTrue();
+        expect('LeadingEdgeDebounce' in import_debounce).toBeTrue();
       });
     });
     describe('Guard.ts', () => {

@@ -12,7 +12,14 @@
     // Best practices
     "noFallthroughCasesInSwitch": true,
     "skipLibCheck": true,
-    "strict": true
+    "strict": true,
+
+    // Import aliases
+    "paths": {
+      "lib/*": ["./src/lib/*"],
+      "src/*": ["./src/*"],
+      "tools/*": ["./tools/*"]
+    }
   },
   "exclude": [
     "node_modules", //

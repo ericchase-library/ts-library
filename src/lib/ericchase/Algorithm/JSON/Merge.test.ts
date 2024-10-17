@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+
 import { JSONMerge } from './Merge.js';
 
 describe(JSONMerge.name, () => {

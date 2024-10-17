@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+
 import { GeneratorArray } from './GeneratorArray.js';
 
 describe('Array', () => {

@@ -131,27 +131,15 @@ export class PathSet {
 
 export class PathGroup {
   origin_path;
-  origin_dir;
-  root;
   relative_path;
-  relative_dir;
-  relative_base;
-  relative_name;
-  relative_ext;
   $path;
   $standard_path;
   constructor(origin_path, relative_path) {
     this.origin_path = Path.from(origin_path);
     this.relative_path = Path.from(relative_path).newRoot('');
-    this.origin_dir = this.origin_path.path;
     const final_path = Path.from(this.origin_path).appendSegment(this.relative_path);
     this.$path = final_path.path;
     this.$standard_path = final_path.standard_path;
-    this.root = final_path.root;
-    this.relative_dir = final_path.dir;
-    this.relative_base = final_path.base;
-    this.relative_name = final_path.name;
-    this.relative_ext = final_path.ext;
   }
   static build({ origin_path = '', relative_path = '' }) {
     return new PathGroup(origin_path, relative_path);

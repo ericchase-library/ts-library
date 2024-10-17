@@ -1,11 +1,11 @@
-import { StdinTextReader } from '../../src/lib/ericchase/Platform/Node/Process.js';
-import { KEYS } from '../../src/lib/ericchase/Platform/Node/Shell.js';
-import { Watcher } from '../../src/lib/ericchase/Platform/Node/Watch.js';
-import { ConsoleError } from '../../src/lib/ericchase/Utility/Console.js';
-import { Debounce } from '../../src/lib/ericchase/Utility/Debounce.js';
-import { command_map } from '../dev.js';
-import { TryLockEach } from '../lib/cache/LockCache.js';
-import { build_mode, buildStep_Clean, buildStep_Compile, buildStep_Copy, src_dir } from './build.js';
+import { StdinTextReader } from 'lib/ericchase/Platform/Node/Process.js';
+import { KEYS } from 'lib/ericchase/Platform/Node/Shell.js';
+import { Watcher } from 'lib/ericchase/Platform/Node/Watch.js';
+import { ConsoleError } from 'lib/ericchase/Utility/Console.js';
+import { Debounce } from 'lib/ericchase/Utility/Debounce.js';
+import { command_map } from 'tools/dev.js';
+import { TryLockEach } from 'tools/lib/cache/LockCache.js';
+import { build_mode, buildStep_Clean, buildStep_Compile, buildStep_Copy, src_dir } from 'tools/scripts/build.js';
 
 TryLockEach([command_map.build, command_map.format, command_map.watch]);
 

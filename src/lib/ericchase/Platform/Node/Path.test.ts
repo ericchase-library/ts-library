@@ -23,7 +23,7 @@ describe(`new ${Path.name}()`, () => {
   test('path', () => {
     expect(path.path).toBe('.');
   });
-  test('standardPath', () => {
+  test('standard_path', () => {
     expect(path.standard_path).toBe('.');
   });
 });
@@ -48,7 +48,7 @@ describe(`new ${Path.name}('ccc.ddd')`, () => {
   test('path', () => {
     expect(path.path).toBe('ccc.ddd');
   });
-  test('standardPath', () => {
+  test('standard_path', () => {
     expect(path.standard_path).toBe('ccc.ddd');
   });
 });
@@ -74,7 +74,7 @@ describe(`new ${Path.name}('bbb/ccc.ddd')`, () => {
     expect(path.path).toBe(node_path.normalize('bbb/ccc.ddd'));
     expect(path.path).toBe(node_path.normalize('bbb\\ccc.ddd'));
   });
-  test('standardPath', () => {
+  test('standard_path', () => {
     expect(path.standard_path).toBe('bbb/ccc.ddd');
   });
   test('newDir', () => {
@@ -248,7 +248,7 @@ describe(`new ${Path.name}('bbb/ccc...ddd')`, () => {
     expect(path.path).toBe(node_path.normalize('bbb/ccc...ddd'));
     expect(path.path).toBe(node_path.normalize('bbb\\ccc...ddd'));
   });
-  test('standardPath', () => {
+  test('standard_path', () => {
     expect(path.standard_path).toBe('bbb/ccc...ddd');
   });
   test('newDir', () => {
@@ -423,7 +423,7 @@ describe(`new ${Path.name}('aaa/bbb/ccc.ddd')`, () => {
     expect(path.path).toBe(node_path.normalize('aaa/bbb/ccc.ddd'));
     expect(path.path).toBe(node_path.normalize('aaa\\bbb\\ccc.ddd'));
   });
-  test('standardPath', () => {
+  test('standard_path', () => {
     expect(path.standard_path).toBe('aaa/bbb/ccc.ddd');
   });
   test('join', () => {
@@ -583,16 +583,16 @@ describe(`new ${PathGroup.name}('aaa', 'bbb/ccc.ddd')`, () => {
   const origin = new Path('aaa');
   const relative = new Path('bbb/ccc.ddd');
   const pathGroup = new PathGroup(origin, relative);
-  test('originPath', () => {
+  test('origin_path', () => {
     expect(pathGroup.origin_path.path).toBe('aaa');
   });
-  test('relativePath', () => {
+  test('relative_path', () => {
     expect(pathGroup.relative_path.path).toBe(node_path.normalize('bbb/ccc.ddd'));
   });
   test('path', () => {
     expect(pathGroup.path).toBe(node_path.normalize('aaa/bbb/ccc.ddd'));
   });
-  test('standardPath', () => {
+  test('standard_path', () => {
     expect(pathGroup.standard_path).toBe('aaa/bbb/ccc.ddd');
   });
   test('newOrigin', () => {

@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+
 import { CRC } from './CRC.js';
 
 const encoder = new TextEncoder();

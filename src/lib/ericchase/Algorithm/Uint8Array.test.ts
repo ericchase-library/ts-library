@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+
 import { U8, U8Clamped, U8Concat, U8Copy, U8FromString, U8FromUint32, U8Split, U8Take, U8TakeEnd, U8ToASCII, U8ToDecimal, U8ToHex } from './Uint8Array.js';
 
 describe(U8.name, () => {

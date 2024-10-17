@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+
 import { DataSetMarker, DataSetMarkerManager, UpdateMarker, UpdateMarkerManager } from './UpdateMarker.js';
 
 describe(UpdateMarker.name, () => {

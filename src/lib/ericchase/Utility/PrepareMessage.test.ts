@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+
 import { PrepareMessage } from './PrepareMessage.js';
 
 describe(PrepareMessage.name, () => {

@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+
 import { FuzzyMatcher, TextProcessor, type IFuzzyMatchListResult } from './FuzzySearch.js';
 
 describe('FuzzyMatcher', () => {

@@ -1,4 +1,5 @@
-import os from 'node:os';
+import node_os from 'node:os';
+
 import { PrepareMessage } from '../../Utility/PrepareMessage.js';
 import { Path, PathGroup, PathGroupSet } from '../Node/Path.js';
 
@@ -10,7 +11,7 @@ export class GlobGroup {
   ) {}
   static build({ origin_path, pattern, dot = false }: { origin_path: Path | PathGroup; pattern: string; dot?: boolean }) {
     const path_group_set = new PathGroupSet();
-    if (os.platform() === 'win32') {
+    if (node_os.platform() === 'win32') {
       if (pattern.startsWith('/') || origin_path.path.startsWith('/')) {
         const message = `
           Paths starting with "/" are invalid on Windows.

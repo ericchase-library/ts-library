@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+
 import { JSONAnalyze } from './Analyze.js';
 
 describe(JSONAnalyze.name, () => {

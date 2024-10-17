@@ -12,14 +12,14 @@ export class FileSystemEntryIterator {
       }
     }
   }
-  *getDirectoryEntry() {
+  *getDirectoryEntries() {
     for (const entry of this.list) {
       if (Compat_FileSystemEntry(entry).isDirectory) {
         yield entry;
       }
     }
   }
-  *getFileEntry() {
+  *getFileEntries() {
     for (const entry of this.list) {
       if (Compat_FileSystemEntry(entry).isFile) {
         yield entry;
@@ -39,7 +39,7 @@ export class FileSystemDirectoryEntryIterator {
       }
     }
   }
-  async *getEntry() {
+  async *getEntries() {
     for (const entry of this.list) {
       const reader = Compat_FileSystemDirectoryEntry(entry).createReader();
       if (reader) {

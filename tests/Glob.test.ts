@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+
 import { GlobScanner } from '../src/lib/ericchase/Platform/Bun/Glob.js';
 import { Path } from '../src/lib/ericchase/Platform/Node/Path.js';
 

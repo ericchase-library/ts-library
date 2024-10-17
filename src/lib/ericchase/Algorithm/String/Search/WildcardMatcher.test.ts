@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+
 import { SlidingWindow } from '../../Array/SlidingWindow.js';
 import { MatchAny } from './WildcardMatcher.js';
 
