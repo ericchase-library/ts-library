@@ -1,3 +1,15 @@
+## 2024-10-17
+
+- fix: bundling `*.module.ts` files had a flaw in that the Bun bundler does not correct import paths for other imported `*.module.ts` files. to work around this, i added the `tools/lib/preprocessors/FilePreprocessor_ImportModuleRemapper.ts` processor and import aliases in `tsconfig.json`. this library project does not bundle anything, so it did not need this fix. this fix is for the template projects, which will need to utilize both the import aliases for `*.module.ts` under `src`, along with the `ImportModuleRemapperPreprocessor` class when copying bundles from `tmp_dir` to `out_dir`
+- remove some unused and buggy properties from the `Path` class. use `origin_path` and `relative_path` instead:
+  - readonly origin_dir: string; // includes root, but not dir
+  - readonly root: string;
+  - readonly relative_dir: string; // does not include root
+  - readonly relative_base: string; // includes name and ext
+  - readonly relative_name: string;
+  - readonly relative_ext: string;
+- renamed the `...Entry` functions in `FileSystemEntryIterator` and `DataTransferItemIterator` classes to `...Entries`
+
 ## 2024-10-04
 
 - add more test cases
