@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import node_path from 'node:path';
 
-import { Path, PathGroup, PathGroupSet } from './Path.js';
+import { Path, PathGroup, PathGroupSet, PathSet } from './Path.js';
 
 describe(`new ${Path.name}()`, () => {
   const path = new Path();
@@ -751,6 +751,27 @@ describe(`new ${PathGroup.name}('aaa', 'bbb/ccc.ddd')`, () => {
   });
 });
 
+describe(`new ${PathSet.name}()`, () => {
+  const group = new PathSet();
+  group.add(Path.build({ dir: 'aaa', base: '' }));
+  group.add(Path.build({ dir: 'aaa', base: 'bbb' }));
+  group.add(Path.build({ dir: 'aaa', base: 'bbb/ccc' }));
+  group.add(Path.build({ dir: 'aaa', base: 'bbb/ccc.ddd' }));
+  group.add(Path.build({ base: 'bbb/ccc.ddd' }));
+  test('paths', () => {
+    expect([...group.paths]).toEqual([
+      node_path.normalize('aaa'), //
+      node_path.normalize('aaa/bbb'),
+      node_path.normalize('aaa/bbb/ccc'),
+      node_path.normalize('aaa/bbb/ccc.ddd'),
+      node_path.normalize('bbb/ccc.ddd'),
+    ]);
+  });
+  test('size', () => {
+    expect(group.size).toBe(5);
+  });
+});
+
 describe(`new ${PathGroupSet.name}()`, () => {
   const group = new PathGroupSet();
   group.add(PathGroup.build({ origin_path: 'aaa', relative_path: '' }));
@@ -766,6 +787,9 @@ describe(`new ${PathGroupSet.name}()`, () => {
       node_path.normalize('aaa/bbb/ccc.ddd'),
       node_path.normalize('bbb/ccc.ddd'),
     ]);
+  });
+  test('size', () => {
+    expect(group.size).toBe(5);
   });
 });
 
@@ -785,5 +809,8 @@ describe(`${PathGroupSet.name}(group.pathGroupMap)`, () => {
       node_path.normalize('aaa/bbb/ccc.ddd'),
       node_path.normalize('bbb/ccc.ddd'),
     ]);
+  });
+  test('size', () => {
+    expect(group.size).toBe(5);
   });
 });

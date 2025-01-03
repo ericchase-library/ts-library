@@ -2,11 +2,11 @@
   "dependencies": {},
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
-    "@types/bun": "^1.1.11",
+    "@types/bun": "^1.1.14",
     "@types/chrome": "^0.0.271",
-    "@types/node": "^22.7.6",
+    "@types/node": "^22.10.5",
     "node-html-parser": "^6.1.13",
-    "prettier": "^3.3.3"
+    "prettier": "^3.4.2"
   },
   "scripts": {
     "build": "bun tools/dev.ts build",

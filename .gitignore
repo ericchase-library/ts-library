@@ -176,4 +176,5 @@ sync.ffs_db
 ## Repo Specific
 ##
 
+.VSCodeCounter
 tools/cache

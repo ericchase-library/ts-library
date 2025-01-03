@@ -9,32 +9,32 @@ function createCodeMap(table) {
   return map;
 }
 const GeneralASCIICodes = createCodeMap(`
-| BEL | \x07 | Terminal bell
-| BS  |  | Backspace
-| HT  | 	 | Horizontal TAB
-| LF  | 
- | Linefeed (newline)
-| VT  |  | Vertical TAB
-| FF  |  | Formfeed (also: New page NP)
-| CR  | \r | Carriage return
-| ESC | \x1B | Escape character
-| DEL |  | Delete character
+| BEL | \u0007 | Terminal bell
+| BS  | \u0008 | Backspace
+| HT  | \u0009 | Horizontal TAB
+| LF  | \u000A | Linefeed (newline)
+| VT  | \u000B | Vertical TAB
+| FF  | \u000C | Formfeed (also: New page NP)
+| CR  | \u000D | Carriage return
+| ESC | \u001B | Escape character
+| DEL | \u007F | Delete character
 `);
 const ESC = GeneralASCIICodes.ESC;
 const CSI = `${ESC}[`;
 const DCS = `${ESC}P`;
 const OSC = `${ESC}]`;
 export const KEYS = {
-  SIGINT: '\x03',
+  // Special
+  SIGINT: '\u0003', // Kill the currently running task in terminal.
   ESC,
   CSI,
   DCS,
   OSC,
   ARROWS: {
-    DOWN: '\x1B[B',
-    LEFT: '\x1B[D',
-    RIGHT: '\x1B[C',
-    UP: '\x1B[A',
+    DOWN: '\u001B[B',
+    LEFT: '\u001B[D',
+    RIGHT: '\u001B[C',
+    UP: '\u001B[A',
   },
 };
 export const Shell = {

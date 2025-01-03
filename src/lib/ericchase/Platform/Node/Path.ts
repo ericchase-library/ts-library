@@ -121,6 +121,9 @@ export class PathSet {
   get paths() {
     return this.pathIterator();
   }
+  get size() {
+    return this.path_map.size;
+  }
   add(pathOrString: Path | PathGroup | string) {
     const path = Path.from(pathOrString);
     this.path_map.set(path.path, path);
@@ -188,6 +191,9 @@ export class PathGroupSet {
   }
   get paths() {
     return this.pathIterator();
+  }
+  get size() {
+    return this.path_group_map.size;
   }
   add(path_group: PathGroup) {
     this.path_group_map.set(path_group.path, path_group);
