@@ -7,7 +7,7 @@
 
     // Bundler mode
     "moduleResolution": "Bundler",
-    "verbatimModuleSyntax": true,
+    "verbatimModuleSyntax": false,
 
     // Best practices
     "noFallthroughCasesInSwitch": true,

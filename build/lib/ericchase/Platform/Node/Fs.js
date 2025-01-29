@@ -17,10 +17,16 @@ export async function CleanDirectory(path) {
   await CreateDirectory(path);
 }
 export async function CreateDirectory(path, is_file = false) {
-  if (path instanceof URL) {
-    await node_fs.promises.mkdir(path, { recursive: true });
-  } else {
-    await node_fs.promises.mkdir(is_file === true ? Path.from(path).dir : path.path, { recursive: true });
+  try {
+    if (path instanceof URL) {
+      await node_fs.promises.mkdir(path, { recursive: true });
+    } else {
+      await node_fs.promises.mkdir(is_file === true ? Path.from(path).dir : path.path, { recursive: true });
+    }
+  } catch (error) {
+    if (error?.code !== 'EEXIST') {
+      throw error;
+    }
   }
 }
 export async function DeleteDirectory(path) {
