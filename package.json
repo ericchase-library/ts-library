@@ -1,0 +1,17 @@
+{
+  "dependencies": {},
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@types/bun": "^1.2.4",
+    "@types/chrome": "^0.0.308",
+    "@types/node": "^22.13.9",
+    "node-html-parser": "^7.0.1",
+    "prettier": "^3.5.3"
+  },
+  "scripts": {
+    "build": "bun tools/build.ts",
+    "lint": "biome lint --error-on-warnings --write .",
+    "serve": "bun --cwd ./dev_server ./tools/start.ts"
+  },
+  "type": "module"
+}

@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    // Enable latest features
+    "module": "ESNext",
+    "moduleDetection": "force",
+    "target": "ESNext",
+
+    // Bundler mode
+    "moduleResolution": "Bundler",
+    "verbatimModuleSyntax": false,
+
+    // Best practices
+    "noFallthroughCasesInSwitch": true,
+    "skipLibCheck": true,
+    "strict": true,
+
+    // Import aliases
+    "paths": {
+      "src/*": ["./src/*"],
+      "tools/*": ["./tools/*"]
+    }
+  },
+  "exclude": [
+    "node_modules",
+    "**/node_modules/*",
+    "out/",
+    "dev_server/"
+    //
+  ]
+}
