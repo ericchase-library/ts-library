@@ -1,17 +1,19 @@
 import { MatchAny } from 'src/lib/ericchase/Algorithm/String/Search/WildcardMatcher.js';
 import { GetRelativePath } from 'src/lib/ericchase/Platform/Node/Path.js';
-import { ProcessorModule } from 'tools/lib/Builder.js';
+import { BuilderInternal, ProcessorModule } from 'tools/lib/Builder-Internal.js';
 import { ProjectFile } from 'tools/lib/ProjectFile.js';
 
 export class Processor_TypeScriptGenericBundlerImportRemapper implements ProcessorModule {
-  async onFilesAdded(files: ProjectFile[]) {
+  async onAdd(builder: BuilderInternal, files: ProjectFile[]) {
     for (const file of files) {
-      if (false === file.relative_path.endsWith('.module.ts')) {
+      if (!file.src_path.endsWith('.module.ts')) {
         continue;
       }
-      file.processor_function_list.push(async (file) => remapBundleImports(file));
+      file.processor_function_list.push(remapBundleImports);
     }
   }
+
+  async onRemove(builder: BuilderInternal, files: ProjectFile[]): Promise<void> {}
 }
 
 async function remapBundleImports(file: ProjectFile) {
@@ -19,7 +21,7 @@ async function remapBundleImports(file: ProjectFile) {
   let find_results = findImportPath(text);
   while (find_results.indexStart !== -1) {
     if (find_results.importPath.startsWith('src/')) {
-      const new_import_path = GetRelativePath(file.relative_path, find_results.importPath.replace('src/', ''));
+      const new_import_path = GetRelativePath(file.src_path.raw, find_results.importPath);
       text = text.slice(0, find_results.indexStart) + new_import_path + text.slice(find_results.indexEnd);
       find_results.indexEnd = find_results.indexStart + new_import_path.length;
     }

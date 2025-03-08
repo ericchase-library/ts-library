@@ -1,21 +1,20 @@
-import { BunProvider } from 'tools/lib/platform/Bun.js';
-import { GenericProvider } from 'tools/lib/platform/generic_provider.js';
+import { Provider } from 'tools/lib/platform/provider.js';
 
-export type AvailableRuntimes = 'bun' | undefined;
+export const UnimplementedProvider = new Provider();
 
-export function getPlatform(runtime: AvailableRuntimes) {
-  let provider = provider_cache.get(runtime);
-  if (provider === undefined) {
+export type AvailableRuntimes = 'bun';
+
+const cache = new Map<AvailableRuntimes, Provider>();
+
+export async function getPlatform(runtime: AvailableRuntimes): Promise<Provider> {
+  if (!cache.has(runtime)) {
     switch (runtime) {
       case 'bun':
-        provider = new BunProvider();
+        cache.set(runtime, (await import('tools/lib/platform/Bun.js')).default);
         break;
       default:
-        throw 'Not Implemented';
+        throw `Runtime "${runtime}" Not Implemented`;
     }
-    provider_cache.set(runtime, provider);
   }
-  return provider;
+  return cache.get(runtime) ?? UnimplementedProvider;
 }
-
-const provider_cache = new Map<AvailableRuntimes, GenericProvider>();

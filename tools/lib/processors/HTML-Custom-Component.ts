@@ -1,25 +1,25 @@
 import { ParseHTML } from 'src/lib/ericchase/Platform/Node/HTML Processor/ParseHTML.js';
-import { Path } from 'src/lib/ericchase/Platform/Node/Path.js';
 import { ConsoleError, ConsoleLog } from 'src/lib/ericchase/Utility/Console.js';
-import { ProcessorFunction, ProcessorModule } from 'tools/lib/Builder.js';
+import { BuilderInternal, ProcessorFunction, ProcessorModule, SimplePath } from 'tools/lib/Builder-Internal.js';
 import { ProjectFile } from 'tools/lib/ProjectFile.js';
 
 export class Processor_HTMLCustomComponent implements ProcessorModule {
   component_map = new Map<string, ProjectFile>();
 
-  async onFilesAdded(files: ProjectFile[]) {
+  async onAdd(builder: BuilderInternal, files: ProjectFile[]): Promise<void> {
+    const component_path = new SimplePath(builder.dir.lib, 'components');
     for (const file of files) {
-      if (false === file.relative_path.endsWith('.html')) {
+      if (file.src_path.ext !== '.html') {
         continue;
       }
-
-      if (file.relative_path.startsWith('lib/components/')) {
-        this.component_map.set(Path.from(file.relative_path).name, file);
+      if (file.src_path.startsWith(component_path)) {
+        this.component_map.set(file.src_path.name, file);
       }
-
       file.processor_function_list.push(this.processSourceFile);
     }
   }
+
+  async onRemove(builder: BuilderInternal, files: ProjectFile[]): Promise<void> {}
 
   // fat arrow function here so that it binds to the class instance automatically
   processSourceFile: ProcessorFunction = async (source_file: ProjectFile) => {

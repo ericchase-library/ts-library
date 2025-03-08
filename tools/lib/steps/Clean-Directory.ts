@@ -1,6 +1,6 @@
 import { CleanDirectory } from 'src/lib/ericchase/Platform/Node/Fs.js';
 import { Path } from 'src/lib/ericchase/Platform/Node/Path.js';
-import { BuildStep } from 'tools/lib/Builder.js';
+import { BuildStep } from 'tools/lib/Builder-Internal.js';
 
 export class Step_CleanDirectory implements BuildStep {
   constructor(readonly paths: Path[]) {}

@@ -16,7 +16,7 @@ export function ConsoleError(...items: any[]) {
 
 export function ConsoleErrorWithDate(...items: any[]) {
   // biome-ignore lint: this let's us search for undesired console[error]s
-  console['error'](`[${new Date().toLocaleTimeString()}]`, ...items);
+  console['error'](`[${new Date().toLocaleString()}]`, ...items);
   newline_count = 0;
   marker_manager.updateMarkers();
 }
@@ -30,7 +30,7 @@ export function ConsoleLog(...items: any[]) {
 
 export function ConsoleLogWithDate(...items: any[]) {
   // biome-ignore lint: this let's us search for undesired console[log]s
-  console['log'](`[${new Date().toLocaleTimeString()}]`, ...items);
+  console['log'](`[${new Date().toLocaleString()}]`, ...items);
   newline_count = 0;
   marker_manager.updateMarkers();
 }

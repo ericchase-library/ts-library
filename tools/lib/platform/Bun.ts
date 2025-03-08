@@ -1,15 +1,8 @@
-import { GenericProvider } from 'tools/lib/platform/generic_provider.js';
+import { Provider } from 'tools/lib/platform/provider.js';
 
-export class BunProvider implements GenericProvider {
-  File = {
-    async bytes(path: string): Promise<Uint8Array> {
-      return await Bun.file(path).bytes();
-    },
-    async text(path: string): Promise<string> {
-      return await Bun.file(path).text();
-    },
-    async write(path: string, input: string | ArrayBufferLike | Blob | NodeJS.TypedArray<ArrayBufferLike>): Promise<void> {
-      await Bun.write(path, input);
-    },
-  };
-}
+const BunProvider = new Provider();
+BunProvider.File.readBytes = async (path) => await Bun.file(path).bytes();
+BunProvider.File.readText = async (path) => await Bun.file(path).text();
+BunProvider.File.write = async (path, data) => await Bun.write(path, data);
+
+export default BunProvider;

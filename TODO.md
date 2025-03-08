@@ -15,7 +15,7 @@ build tools data
 
 - create an object to hold all the data used during the build process
 - let different projects update the data accordingly along with custom user settings
-- revamp the output folder system to incorporate build steps. they could be called `build_phase_0` etc
+- ~~revamp the output folder system to incorporate build steps. they could be called `build_phase_0` etc~~
 
 watch mode
 
@@ -23,15 +23,15 @@ watch mode
 
 processors
 
-- rewrite processor system to allow pre and post processors separately
-- implement system to determine each version of output path for individual files depending on build steps and processors
+- [x] rewrite processor system to allow pre and post processors separately
+- ~~implement system to determine each version of output path for individual files depending on build steps and processors~~
 
 library additions
 
 - Node Fs functions that catch errors and ignore them
 - Bun Fs conversion functions for file.stream to Readable
-- ConsoleLogWithDate | ConsoleErrorWithDate
-  - only outputs time string
+- [x] ConsoleLogWithDate | ConsoleErrorWithDate
+  - [x] only outputs time string
 
 # rejected
 

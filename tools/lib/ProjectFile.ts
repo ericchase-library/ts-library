@@ -1,32 +1,23 @@
-import { Path } from 'src/lib/ericchase/Platform/Node/Path.js';
-import { ProcessorFunction } from 'tools/lib/Builder.js';
-import { ProjectManager } from 'tools/lib/ProjectManager.js';
+import { BuilderInternal, ProcessorFunction, SimplePath } from 'tools/lib/Builder-Internal.js';
 
 export class ProjectFile {
-  readonly relative_path: string;
   readonly isinlib: boolean;
-  out_ext: string;
 
   constructor(
-    public project_manager: ProjectManager,
-    relative_path: string,
+    public builder: BuilderInternal,
+    public src_path: SimplePath,
+    public out_path: SimplePath,
   ) {
-    this.relative_path = Path.from(relative_path).standard_path;
-    this.isinlib = this.relative_path.startsWith('lib/');
-    this.out_ext = Path.from(relative_path).ext;
+    this.isinlib = src_path.startsWith(builder.dir.lib);
   }
 
   addUpstream(upstream_file: ProjectFile) {
     if (upstream_file !== this) {
-      this.project_manager.dependency_graph.addEdge(upstream_file, this);
+      this.builder.dependency_graph.addEdge(upstream_file, this);
     }
   }
 
-  get src_path() {
-    return this.project_manager.src_dir.appendSegment(this.relative_path).path;
-  }
-
-  processor_function_list = new Array<ProcessorFunction>();
+  processor_function_list: ProcessorFunction[] = [];
 
   /** When false, $bytes/$text are no longer from the original file. */
   original = true;
@@ -38,7 +29,7 @@ export class ProjectFile {
   async getBytes(): Promise<Uint8Array> {
     if (this.$bytes === undefined) {
       if (this.$text === undefined) {
-        this.$bytes = await this.project_manager.platform.File.bytes(this.project_manager.src_dir.appendSegment(this.relative_path).path);
+        this.$bytes = await this.builder.platform.File.readBytes(this.src_path.raw);
       } else {
         this.$bytes = new TextEncoder().encode(this.$text);
         this.$text = undefined;
@@ -49,7 +40,7 @@ export class ProjectFile {
   async getText(): Promise<string> {
     if (this.$text === undefined) {
       if (this.$bytes === undefined) {
-        this.$text = await this.project_manager.platform.File.text(this.project_manager.src_dir.appendSegment(this.relative_path).path);
+        this.$text = await this.builder.platform.File.readText(this.src_path.raw);
       } else {
         this.$text = new TextDecoder().decode(this.$bytes);
         this.$bytes = undefined;
@@ -80,10 +71,10 @@ export class ProjectFile {
 
   async write() {
     const data = this.$text !== undefined ? this.$text : await this.getBytes();
-    await this.project_manager.platform.File.write(this.project_manager.out_dir.appendSegment(this.relative_path).newExt(this.out_ext).path, data);
+    await this.builder.platform.File.write(this.out_path.raw, data);
   }
 
   toString() {
-    return this.src_path;
+    return this.src_path.standard;
   }
 }

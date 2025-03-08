@@ -15,7 +15,7 @@ export class DependencyGraph<T> {
   }
 
   removeNode(item: T): void {
-    if (false === this.$map.has(item)) {
+    if (!this.$map.has(item)) {
       throw new Error(`item "${item}" already removed`);
     }
 
@@ -50,7 +50,7 @@ export class DependencyGraph<T> {
       throw new Error(`upstream item "${item_upstream}" does not exist. (downstream item "${item_downstream}")`);
     }
 
-    if (false === node_upstream.downstream_set.has(item_downstream)) {
+    if (!node_upstream.downstream_set.has(item_downstream)) {
       throw new Error(`no edge from upstream item "${item_upstream}" to downstream item "${item_downstream}"`);
     }
 
@@ -67,19 +67,19 @@ export class DependencyGraph<T> {
     const map_copy = new Map(this.$map);
     const node_queue: Node<T>[] = [];
 
-    if (subset !== undefined) {
+    if (subset === undefined || subset.length === 0) {
+      for (const [item, { downstream_set, upstream_count }] of this.$map) {
+        if (upstream_count === 0) {
+          node_queue.push({ item, downstream_set, upstream_count });
+        }
+      }
+    } else {
       for (const item of subset) {
         const { downstream_set, upstream_count } = this.$map.get(item) ?? {};
         if (downstream_set !== undefined && upstream_count !== undefined) {
           if (upstream_count === 0) {
             node_queue.push({ item, downstream_set, upstream_count });
           }
-        }
-      }
-    } else {
-      for (const [item, { downstream_set, upstream_count }] of this.$map) {
-        if (upstream_count === 0) {
-          node_queue.push({ item, downstream_set, upstream_count });
         }
       }
     }

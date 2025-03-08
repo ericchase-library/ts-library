@@ -1,18 +1,19 @@
 import { ParseHTML } from 'src/lib/ericchase/Platform/Node/HTML Processor/ParseHTML.js';
 import { Path } from 'src/lib/ericchase/Platform/Node/Path.js';
-import { ProcessorFunction, ProcessorModule } from 'tools/lib/Builder.js';
+import { BuilderInternal, ProcessorFunction, ProcessorModule } from 'tools/lib/Builder-Internal.js';
 import { ProjectFile } from 'tools/lib/ProjectFile.js';
 
 export class Processor_HTMLImportConverter implements ProcessorModule {
-  async onFilesAdded(files: ProjectFile[]) {
+  async onAdd(builder: BuilderInternal, files: ProjectFile[]) {
     for (const file of files) {
-      if (false === file.relative_path.endsWith('.html')) {
+      if (file.src_path.ext !== '.html') {
         continue;
       }
-
       file.processor_function_list.push(this.processSourceFile);
     }
   }
+
+  async onRemove(builder: BuilderInternal, files: ProjectFile[]): Promise<void> {}
 
   processSourceFile: ProcessorFunction = async (source_file: ProjectFile) => {
     let update_text = false;

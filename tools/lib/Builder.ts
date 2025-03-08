@@ -1,81 +1,77 @@
-import { ConsoleError, ConsoleLogWithDate } from 'src/lib/ericchase/Utility/Console.js';
+import { BuilderInternal, BuildStep, ProcessorModule, SimplePath } from 'tools/lib/Builder-Internal.js';
 import { TryLockEach } from 'tools/lib/cache/LockCache.js';
-import { ProjectFile } from 'tools/lib/ProjectFile.js';
-import { ProjectManager } from 'tools/lib/ProjectManager.js';
+import { AvailableRuntimes, getPlatform, UnimplementedProvider } from 'tools/lib/platform/index.js';
+import { Provider } from 'tools/lib/platform/provider.js';
 
-export interface BuildStep {
-  run: () => Promise<void>;
-}
-export interface ProcessorModule {
-  onFilesAdded: (files: ProjectFile[]) => Promise<void>;
-}
-export type ProcessorFunction = (file: ProjectFile) => Promise<void>;
+/** Builder Defaults */
+// builder.runtime = 'bun';
+// builder.dir.out = 'out';
+// builder.dir.src = 'src';
+// builder.dir.lib = `${builder.dir.src}/lib`;
+// builder.dir.tools = 'tools';
 
 export class Builder {
-  $init_steps: BuildStep[];
-  $post_steps: BuildStep[];
-  $processors: ProcessorModule[];
+  private $internal = new BuilderInternal(this);
 
-  constructor(
-    public project_manager: ProjectManager,
-    { init_steps = [], post_steps = [], processors = [] }: { init_steps?: BuildStep[]; post_steps?: BuildStep[]; processors?: ProcessorModule[] },
-  ) {
-    this.$init_steps = init_steps;
-    this.$post_steps = post_steps;
-    this.$processors = processors;
+  set platform(value: Provider) {
+    this.$internal.platform = value;
+  }
+  get platform() {
+    return this.$internal.platform;
   }
 
-  async start() {
+  set runtime(value: AvailableRuntimes) {
+    this.$internal.runtime = value;
+  }
+  get runtime() {
+    return this.$internal.runtime;
+  }
+
+  dir = (() => {
+    const builder = this;
+    return {
+      get out() {
+        return builder.$internal.dir.out.raw;
+      },
+      set out(value: string) {
+        builder.$internal.dir.out = new SimplePath(value);
+      },
+      get src() {
+        return builder.$internal.dir.src.raw;
+      },
+      set src(value: string) {
+        builder.$internal.dir.src = new SimplePath(value);
+      },
+      get lib() {
+        return builder.$internal.dir.lib.raw;
+      },
+      set lib(value: string) {
+        builder.$internal.dir.lib = new SimplePath(value);
+      },
+      get tools() {
+        return builder.$internal.dir.tools.raw;
+      },
+      set tools(value: string) {
+        builder.$internal.dir.tools = new SimplePath(value);
+      },
+    };
+  })();
+
+  setStartupSteps(steps: BuildStep[]): void {
+    this.$internal.startup_steps = steps;
+  }
+  setProcessorModules(modules: ProcessorModule[]): void {
+    this.$internal.processor_modules = modules;
+  }
+  setCleanupSteps(steps: BuildStep[]): void {
+    this.$internal.cleanup_steps = steps;
+  }
+
+  async start(): Promise<void> {
     TryLockEach(['Build', 'Format']);
-
-    this.project_manager.subscribe('fileAdded', (files) => this.processAddedFiles(files));
-    this.project_manager.subscribe('fileUpdated', (files) => this.processUpdatedFiles(files));
-
-    for (const build_step of this.$init_steps) {
-      ConsoleLogWithDate(build_step.constructor.name);
-      await build_step.run();
+    if (this.platform === UnimplementedProvider) {
+      this.platform = await getPlatform(this.runtime);
     }
-
-    await this.project_manager.start();
-
-    for (const build_step of this.$post_steps) {
-      ConsoleLogWithDate(build_step.constructor.name);
-      await build_step.run();
-    }
-
-    // setup file watchers with debounce
-    // on trigger
-    // add any dependencies for modified file to process queue
-    // add modified file itself to process queue
-
-    // after debounce time
-    // run each processor in processor list on every file in the process queue
-  }
-
-  async processAddedFiles(files: ProjectFile[]) {
-    for (const processor of this.$processors) {
-      await processor.onFilesAdded(files);
-    }
-    for (const file of files) {
-      // mark as modified on first run
-      file.modified = true;
-      for (const processor_function of file.processor_function_list) {
-        await processor_function(file);
-      }
-    }
-    await this.processUpdatedFiles(files);
-  }
-
-  async processUpdatedFiles(files: ProjectFile[]) {
-    const topological_results = this.project_manager.dependency_graph.getTopologicalOrder(files);
-    if (topological_results.has_cycle) {
-      ConsoleError('ERROR: Found cycle in dependency graph:', `${topological_results.cycle_nodes.map((file) => file.relative_path).join(' -> ')}`);
-    } else {
-      for (const file of topological_results.ordered_nodes) {
-        for (const processor_function of file.processor_function_list) {
-          await processor_function(file);
-        }
-      }
-    }
+    await this.$internal.start();
   }
 }

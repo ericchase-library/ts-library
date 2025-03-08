@@ -1,5 +1,5 @@
 import { ConsoleError, ConsoleLog } from 'src/lib/ericchase/Utility/Console.js';
-import { ProcessorModule } from 'tools/lib/Builder.js';
+import { BuilderInternal, ProcessorModule, SimplePath } from 'tools/lib/Builder-Internal.js';
 import { ProjectFile } from 'tools/lib/ProjectFile.js';
 
 type BuildConfig = Pick<Parameters<typeof Bun.build>[0], 'external' | 'sourcemap' | 'target'>;
@@ -22,15 +22,15 @@ export class Processor_TypeScriptGenericBundler implements ProcessorModule {
     };
   }
 
-  async onFilesAdded(files: ProjectFile[]) {
+  async onAdd(builder: BuilderInternal, files: ProjectFile[]) {
     for (const file of files) {
-      if (false === file.relative_path.endsWith('.module.ts')) {
+      if (!file.src_path.endsWith('.module.ts')) {
         continue;
       }
 
-      file.out_ext = '.js';
+      file.out_path.ext = '.js';
       file.processor_function_list.push(async (file) => {
-        this.config.entrypoints = [file.src_path];
+        this.config.entrypoints = [file.src_path.raw];
         const build_results = await Bun.build(this.config);
         if (build_results.success === true) {
           for (const artifact of build_results.outputs) {
@@ -41,7 +41,7 @@ export class Processor_TypeScriptGenericBundler implements ProcessorModule {
                   file.setText(text);
                   for (const [, ...paths] of text.matchAll(/\n?\/\/ src\/(.*)\n?/g)) {
                     for (const path of paths) {
-                      file.addUpstream(file.project_manager.getFile(path));
+                      file.addUpstream(builder.getFile(new SimplePath(path)));
                     }
                   }
                 }
@@ -62,4 +62,6 @@ export class Processor_TypeScriptGenericBundler implements ProcessorModule {
       });
     }
   }
+
+  async onRemove(builder: BuilderInternal, files: ProjectFile[]): Promise<void> {}
 }
