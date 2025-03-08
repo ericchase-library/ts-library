@@ -1,12 +1,8 @@
 import { Builder } from 'tools/lib/Builder.js';
-import { getPlatform } from 'tools/lib/platform/platform.js';
-import { SimplePath } from 'tools/lib/platform/SimplePath.js';
 import { BuildStep_BunInstall } from 'tools/lib/steps/Bun-Install.js';
 import { BuildStep_FSCleanDirectory } from 'tools/lib/steps/FS-CleanDirectory.js';
 import { BuildStep_FSCopy } from 'tools/lib/steps/FS-Copy.js';
 import { BuildStep_IOFormat } from 'tools/lib/steps/IO-Format.js';
-
-await (await getPlatform('bun')).Directory.delete(new SimplePath('out'));
 
 const builder = new Builder();
 
@@ -15,7 +11,8 @@ builder.setStartupSteps([
   BuildStep_IOFormat(),
 
   BuildStep_FSCleanDirectory([
-    '../Project@Template/server/',
+    '../Project@Template/server/src',
+    '../Project@Template/server/tools',
     '../Project@Template/src/lib/ericchase/',
     '../Project@Template/tools/lib/',
     //
