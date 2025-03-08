@@ -11,12 +11,6 @@ export class ProjectFile {
     this.isinlib = src_path.startsWith(builder.dir.lib);
   }
 
-  addUpstream(upstream_file: ProjectFile) {
-    if (upstream_file !== this) {
-      this.builder.dependency_graph.addEdge(upstream_file, this);
-    }
-  }
-
   processor_function_list: ProcessorFunction[] = [];
 
   /** When false, $bytes/$text are no longer from the original file. */

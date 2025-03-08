@@ -4,7 +4,7 @@ import { BuilderInternal, ProcessorFunction, ProcessorModule } from 'tools/lib/B
 import { ProjectFile } from 'tools/lib/ProjectFile.js';
 
 export class Processor_HTMLImportConverter implements ProcessorModule {
-  async onAdd(builder: BuilderInternal, files: ProjectFile[]) {
+  async onAdd(builder: BuilderInternal, files: Set<ProjectFile>) {
     for (const file of files) {
       if (file.src_path.ext !== '.html') {
         continue;
@@ -13,9 +13,9 @@ export class Processor_HTMLImportConverter implements ProcessorModule {
     }
   }
 
-  async onRemove(builder: BuilderInternal, files: ProjectFile[]): Promise<void> {}
+  async onRemove(builder: BuilderInternal, files: Set<ProjectFile>): Promise<void> {}
 
-  processSourceFile: ProcessorFunction = async (source_file: ProjectFile) => {
+  processSourceFile: ProcessorFunction = async (builder: BuilderInternal, source_file: ProjectFile) => {
     let update_text = false;
     const root_element = ParseHTML((await source_file.getText()).trim(), { convert_tagnames_to_lowercase: true, self_close_void_tags: true });
     for (const script_tag of root_element.getElementsByTagName('script')) {

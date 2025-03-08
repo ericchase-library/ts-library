@@ -2,10 +2,10 @@ import { BuilderInternal, ProcessorModule } from 'tools/lib/Builder-Internal.js'
 import { ProjectFile } from 'tools/lib/ProjectFile.js';
 
 export class Processor_IOBasicWriter implements ProcessorModule {
-  async onAdd(builder: BuilderInternal, files: ProjectFile[]): Promise<void> {
+  async onAdd(builder: BuilderInternal, files: Set<ProjectFile>): Promise<void> {
     for (const file of files) {
       if (this.canWrite(file)) {
-        file.processor_function_list.push(async (file) => {
+        file.processor_function_list.push(async (builder, file) => {
           if (file.modified === true) {
             await file.write();
           }
@@ -14,7 +14,7 @@ export class Processor_IOBasicWriter implements ProcessorModule {
     }
   }
 
-  async onRemove(builder: BuilderInternal, files: ProjectFile[]): Promise<void> {}
+  async onRemove(builder: BuilderInternal, files: Set<ProjectFile>): Promise<void> {}
 
   canWrite(file: ProjectFile): boolean {
     // we want to copy all module and script source files

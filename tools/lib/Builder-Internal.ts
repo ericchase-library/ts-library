@@ -1,19 +1,20 @@
 import { default as node_path } from 'node:path';
 import { GlobScanner } from 'src/lib/ericchase/Platform/Bun/Glob.js';
 import { Path } from 'src/lib/ericchase/Platform/Node/Path.js';
-import { ConsoleError, ConsoleLogWithDate } from 'src/lib/ericchase/Utility/Console.js';
+import { ConsoleLogWithDate } from 'src/lib/ericchase/Utility/Console.js';
+import { Defer } from 'src/lib/ericchase/Utility/Defer.js';
+import { Map_GetOrDefault } from 'src/lib/ericchase/Utility/Map.js';
 import { Builder } from 'tools/lib/Builder.js';
-import { DependencyGraph } from 'tools/lib/DependencyGraph.js';
 import { AvailableRuntimes, UnimplementedProvider } from 'tools/lib/platform/index.js';
 import { ProjectFile } from 'tools/lib/ProjectFile.js';
 
 export interface BuildStep {
   run: () => Promise<void>;
 }
-export type ProcessorFunction = (file: ProjectFile) => Promise<void>;
+export type ProcessorFunction = (builder: BuilderInternal, file: ProjectFile) => Promise<void>;
 export interface ProcessorModule {
-  onAdd: (builder: BuilderInternal, files: ProjectFile[]) => Promise<void>;
-  onRemove: (builder: BuilderInternal, files: ProjectFile[]) => Promise<void>;
+  onAdd: (builder: BuilderInternal, files: Set<ProjectFile>) => Promise<void>;
+  onRemove: (builder: BuilderInternal, files: Set<ProjectFile>) => Promise<void>;
 }
 export class SimplePath {
   parts: string[] = [];
@@ -87,62 +88,76 @@ export class BuilderInternal {
     tools: new SimplePath('tools'),
   };
 
-  // Build Steps and Processor Modules
+  // Build Steps & Processor Modules
 
   startup_steps: BuildStep[] = [];
   processor_modules: ProcessorModule[] = [];
   cleanup_steps: BuildStep[] = [];
 
-  // Files
+  // Dependencies
 
-  dependency_graph = new DependencyGraph<ProjectFile>();
-  map_file_to_path: Map<ProjectFile, string> = new Map();
-  map_path_to_file: Map<string, ProjectFile> = new Map();
-  get files(): ProjectFile[] {
-    return Array.from(this.map_file_to_path.keys());
+  map_upstream_to_downstream = new Map<ProjectFile, Set<ProjectFile>>();
+  map_downstream_to_upstream = new Map<ProjectFile, Set<ProjectFile>>();
+  addDependency(upstream: ProjectFile, downstream: ProjectFile) {
+    if (this.map_downstream_to_upstream.get(upstream)?.has(downstream)) {
+      throw new Error(`dependency cycle between upstream "${upstream.src_path.standard}" and downstream "${downstream.src_path.standard}"`);
+    }
+    Map_GetOrDefault(this.map_upstream_to_downstream, upstream, () => new Set<ProjectFile>()).add(downstream);
+    Map_GetOrDefault(this.map_downstream_to_upstream, downstream, () => new Set<ProjectFile>()).add(upstream);
   }
-  get paths(): SimplePath[] {
-    return Array.from(this.map_path_to_file.keys()).map((path) => new SimplePath(path));
+  removeDependency(upstream: ProjectFile, downstream: ProjectFile) {
+    Map_GetOrDefault(this.map_upstream_to_downstream, upstream, () => new Set<ProjectFile>()).delete(downstream);
+    Map_GetOrDefault(this.map_downstream_to_upstream, downstream, () => new Set<ProjectFile>()).delete(upstream);
+  }
+
+  // Files & Paths
+
+  set_files = new Set<ProjectFile>();
+  map_path_to_file = new Map<string, ProjectFile>();
+
+  get files(): Set<ProjectFile> {
+    return new Set<ProjectFile>(this.set_files);
+  }
+  get paths(): Set<SimplePath> {
+    return new Set<SimplePath>(Array.from(this.map_path_to_file.keys()).map((path) => new SimplePath(path)));
   }
   hasFile(project_file: ProjectFile): boolean {
-    return this.map_file_to_path.has(project_file);
-  }
-  getFile(src_path: SimplePath): ProjectFile {
-    const { standard } = src_path;
-    const project_file = this.map_path_to_file.get(standard);
-    if (project_file === undefined) {
-      throw new Error(`file "${standard}" does not exist`);
+    // @debug-start
+    const stored_file = this.map_path_to_file.get(project_file.src_path.standard);
+    if (stored_file !== undefined && stored_file !== project_file) {
+      throw new Error(`file "${project_file.src_path.standard}" different from stored file "${stored_file.src_path.standard}"`);
     }
-    return project_file;
+    // @debug-end
+    return this.map_path_to_file.has(project_file.src_path.standard);
   }
   hasPath(src_path: SimplePath): boolean {
     return this.map_path_to_file.has(src_path.standard);
   }
-  getPath(project_file: ProjectFile): SimplePath {
-    const path = this.map_file_to_path.get(project_file);
-    if (path === undefined) {
-      throw new Error(`file "${path}" does not exist`);
+  getFile(src_path: SimplePath): ProjectFile {
+    const project_file = this.map_path_to_file.get(src_path.standard);
+    if (project_file === undefined) {
+      throw new Error(`file "${src_path.standard}" does not exist`);
     }
-    return new SimplePath(path);
+    return project_file;
   }
 
   addFile(src_path: SimplePath, out_path: SimplePath) {
-    const { standard } = src_path;
-    if (this.map_path_to_file.has(standard)) {
-      throw new Error(`file "${standard}" already added`);
+    // @debug-start
+    if (this.map_path_to_file.has(src_path.standard)) {
+      throw new Error(`file "${src_path.standard}" already added`);
     }
+    // @debug-end
     const file = new ProjectFile(this, src_path, out_path);
-    this.map_path_to_file.set(standard, file);
-    this.map_file_to_path.set(file, standard);
-    this.dependency_graph.addNode(file);
+    this.set_files.add(file);
+    this.map_path_to_file.set(src_path.standard, file);
     return file;
   }
 
   // File Events
 
-  // on_add = new HandlerCaller<ProjectFile[]>();
-  // on_modify = new HandlerCaller<ProjectFile[]>();
-  // on_remove = new HandlerCaller<ProjectFile[]>();
+  // on_add = new HandlerCaller<Set<ProjectFile>>();
+  // on_modify = new HandlerCaller<Set<ProjectFile>>();
+  // on_remove = new HandlerCaller<Set<ProjectFile>>();
 
   async start() {
     // TODO: hide GlobScanner behind platform provider
@@ -150,56 +165,71 @@ export class BuilderInternal {
       this.addFile(new SimplePath(this.dir.src, path_group.relative_path.path), new SimplePath(this.dir.out, path_group.relative_path.path));
     }
 
+    // Startup Steps
     for (const step of this.startup_steps) {
       ConsoleLogWithDate(step.constructor.name);
       await step.run();
     }
-
+    // Processor Modules
     await this.processAddedFiles(this.files);
-
+    // Cleanup Steps
     for (const step of this.cleanup_steps) {
       ConsoleLogWithDate(step.constructor.name);
       await step.run();
     }
-
-    // setup file watchers with debounce
-    // on trigger
-    // add any dependencies for modified file to process queue
-    // add modified file itself to process queue
-
-    // after debounce time
-    // run each processor in processor list on every file in the process queue
+    // TODO: Start Watcher on Src
   }
 
-  async processAddedFiles(files: ProjectFile[]) {
-    console.log('added_files', files.length);
+  async processAddedFiles(added_files: Set<ProjectFile>) {
+    console.log('added_files', added_files.size);
 
     for (const processor of this.processor_modules) {
-      await processor.onAdd(this, files);
+      await processor.onAdd(this, added_files);
     }
-    for (const file of files) {
-      // mark as modified on first run
+    const tasks: Promise<void>[] = [];
+    for (const file of added_files) {
+      // TODO: should we mark as modified on first run?
       file.modified = true;
       for (const processor_function of file.processor_function_list) {
-        await processor_function(file);
+        tasks.push(processor_function(this, file));
       }
       file.modified = false;
     }
-    await this.processUpdatedFiles(files);
+    await Promise.allSettled(tasks);
+    await this.processUpdatedFiles(added_files);
   }
 
-  async processUpdatedFiles(files: ProjectFile[]) {
-    console.log('updated_files', files.length);
+  async processUpdatedFiles(updated_files: Set<ProjectFile>) {
+    console.log('updated_files', updated_files.size);
 
-    const topological_results = this.dependency_graph.getTopologicalOrder(files);
-    if (topological_results.ordered_nodes.length > 0 && topological_results.has_cycle) {
-      ConsoleError('ERROR: Found cycle in dependency graph:', `${topological_results.cycle_nodes.map((file) => file.src_path).join(' -> ')}`);
-    } else {
-      for (const file of topological_results.ordered_nodes) {
-        for (const processor_function of file.processor_function_list) {
-          await processor_function(file);
+    const tasks = new Map<ProjectFile, Defer<void>>();
+    // setup task for file and downstream files if not exist
+    for (const file of updated_files) {
+      if (!tasks.has(file)) {
+        tasks.set(file, Defer());
+      }
+      for (const downstream of this.map_upstream_to_downstream.get(file) ?? []) {
+        if (!tasks.has(downstream)) {
+          tasks.set(downstream, Defer());
         }
       }
+    }
+    // add tasks for each file that waits on upstream file if it exists in queue
+    for (const [file, task] of tasks) {
+      (async () => {
+        const waitlist: Promise<void>[] = [];
+        for (const upstream of this.map_downstream_to_upstream.get(file) ?? []) {
+          const upstream_task = tasks.get(upstream);
+          if (upstream_task) {
+            waitlist.push(upstream_task.promise);
+          }
+        }
+        await Promise.allSettled(waitlist);
+        for (const processor_function of file.processor_function_list) {
+          await processor_function(this, file);
+        }
+        task.resolve();
+      })();
     }
   }
 }

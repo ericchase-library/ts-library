@@ -22,14 +22,14 @@ export class Processor_TypeScriptGenericBundler implements ProcessorModule {
     };
   }
 
-  async onAdd(builder: BuilderInternal, files: ProjectFile[]) {
+  async onAdd(builder: BuilderInternal, files: Set<ProjectFile>) {
     for (const file of files) {
       if (!file.src_path.endsWith('.module.ts')) {
         continue;
       }
 
       file.out_path.ext = '.js';
-      file.processor_function_list.push(async (file) => {
+      file.processor_function_list.push(async (builder, file) => {
         this.config.entrypoints = [file.src_path.raw];
         const build_results = await Bun.build(this.config);
         if (build_results.success === true) {
@@ -41,7 +41,7 @@ export class Processor_TypeScriptGenericBundler implements ProcessorModule {
                   file.setText(text);
                   for (const [, ...paths] of text.matchAll(/\n?\/\/ src\/(.*)\n?/g)) {
                     for (const path of paths) {
-                      file.addUpstream(builder.getFile(new SimplePath(path)));
+                      builder.addDependency(builder.getFile(new SimplePath(path)), file);
                     }
                   }
                 }
@@ -63,5 +63,5 @@ export class Processor_TypeScriptGenericBundler implements ProcessorModule {
     }
   }
 
-  async onRemove(builder: BuilderInternal, files: ProjectFile[]): Promise<void> {}
+  async onRemove(builder: BuilderInternal, files: Set<ProjectFile>): Promise<void> {}
 }

@@ -4,7 +4,7 @@ import { BuilderInternal, ProcessorModule } from 'tools/lib/Builder-Internal.js'
 import { ProjectFile } from 'tools/lib/ProjectFile.js';
 
 export class Processor_TypeScriptGenericBundlerImportRemapper implements ProcessorModule {
-  async onAdd(builder: BuilderInternal, files: ProjectFile[]) {
+  async onAdd(builder: BuilderInternal, files: Set<ProjectFile>) {
     for (const file of files) {
       if (!file.src_path.endsWith('.module.ts')) {
         continue;
@@ -13,10 +13,10 @@ export class Processor_TypeScriptGenericBundlerImportRemapper implements Process
     }
   }
 
-  async onRemove(builder: BuilderInternal, files: ProjectFile[]): Promise<void> {}
+  async onRemove(builder: BuilderInternal, files: Set<ProjectFile>): Promise<void> {}
 }
 
-async function remapBundleImports(file: ProjectFile) {
+async function remapBundleImports(builder: BuilderInternal, file: ProjectFile) {
   let text = await file.getText();
   let find_results = findImportPath(text);
   while (find_results.indexStart !== -1) {

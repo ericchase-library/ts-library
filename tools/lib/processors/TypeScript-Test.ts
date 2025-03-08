@@ -5,12 +5,12 @@ import { BuilderInternal, ProcessorModule } from 'tools/lib/Builder-Internal.js'
 import { ProjectFile } from 'tools/lib/ProjectFile.js';
 
 export class CProcessor_Test implements ProcessorModule {
-  async onAdd(builder: BuilderInternal, files: ProjectFile[]): Promise<void> {
+  async onAdd(builder: BuilderInternal, files: Set<ProjectFile>): Promise<void> {
     for (const file of files) {
       file.processor_function_list.push(Task);
     }
   }
-  async onRemove(builder: BuilderInternal, files: ProjectFile[]): Promise<void> {}
+  async onRemove(builder: BuilderInternal, files: Set<ProjectFile>): Promise<void> {}
 }
 
 const cache = new Map<string, ProcessorModule>();
@@ -18,7 +18,7 @@ export function Processor_Test(): ProcessorModule {
   return Map_GetOrDefault(cache, '', () => new CProcessor_Test());
 }
 
-async function Task(file: ProjectFile) {
+async function Task(builder: BuilderInternal, file: ProjectFile) {
   await Sleep(100);
   console.log(file.src_path.standard);
 }

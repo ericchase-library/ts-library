@@ -6,7 +6,7 @@ import { ProjectFile } from 'tools/lib/ProjectFile.js';
 export class Processor_HTMLCustomComponent implements ProcessorModule {
   component_map = new Map<string, ProjectFile>();
 
-  async onAdd(builder: BuilderInternal, files: ProjectFile[]): Promise<void> {
+  async onAdd(builder: BuilderInternal, files: Set<ProjectFile>): Promise<void> {
     const component_path = new SimplePath(builder.dir.lib, 'components');
     for (const file of files) {
       if (file.src_path.ext !== '.html') {
@@ -19,17 +19,17 @@ export class Processor_HTMLCustomComponent implements ProcessorModule {
     }
   }
 
-  async onRemove(builder: BuilderInternal, files: ProjectFile[]): Promise<void> {}
+  async onRemove(builder: BuilderInternal, files: Set<ProjectFile>): Promise<void> {}
 
   // fat arrow function here so that it binds to the class instance automatically
-  processSourceFile: ProcessorFunction = async (source_file: ProjectFile) => {
+  processSourceFile: ProcessorFunction = async (builder: BuilderInternal, source_file: ProjectFile) => {
     let update_text = false;
     const root_element = ParseHTML((await source_file.getText()).trim(), { convert_tagnames_to_lowercase: true, self_close_void_tags: true });
     for (const [component_name, component_file] of this.component_map) {
       try {
         const placeholder_elements = root_element.getElementsByTagName(component_name);
         if (placeholder_elements.length > 0) {
-          source_file.addUpstream(component_file);
+          builder.addDependency(component_file, source_file);
           for (const placeholder_element of placeholder_elements) {
             // Steps
             //
