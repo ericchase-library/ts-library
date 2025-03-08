@@ -1,5 +1,6 @@
 import { ConsoleError, ConsoleLog } from 'src/lib/ericchase/Utility/Console.js';
-import { BuilderInternal, ProcessorModule, SimplePath } from 'tools/lib/Builder-Internal.js';
+import { BuilderInternal, ProcessorModule } from 'tools/lib/Builder-Internal.js';
+import { SimplePath } from 'tools/lib/platform/SimplePath.js';
 import { ProjectFile } from 'tools/lib/ProjectFile.js';
 
 type BuildConfig = Pick<Parameters<typeof Bun.build>[0], 'external' | 'sourcemap' | 'target'>;
@@ -24,12 +25,12 @@ export class Processor_TypeScriptGenericBundler implements ProcessorModule {
 
   async onAdd(builder: BuilderInternal, files: Set<ProjectFile>) {
     for (const file of files) {
-      if (!file.src_path.endsWith('.module.ts')) {
+      if (file.src_path.endsWith('.module.ts') === false) {
         continue;
       }
 
       file.out_path.ext = '.js';
-      file.processor_function_list.push(async (builder, file) => {
+      file.$processor_list.push(async (builder, file) => {
         this.config.entrypoints = [file.src_path.raw];
         const build_results = await Bun.build(this.config);
         if (build_results.success === true) {

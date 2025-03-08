@@ -1,77 +1,21 @@
-import { default as node_path } from 'node:path';
 import { GlobScanner } from 'src/lib/ericchase/Platform/Bun/Glob.js';
 import { Path } from 'src/lib/ericchase/Platform/Node/Path.js';
 import { ConsoleLogWithDate } from 'src/lib/ericchase/Utility/Console.js';
 import { Defer } from 'src/lib/ericchase/Utility/Defer.js';
 import { Map_GetOrDefault } from 'src/lib/ericchase/Utility/Map.js';
 import { Builder } from 'tools/lib/Builder.js';
-import { AvailableRuntimes, UnimplementedProvider } from 'tools/lib/platform/index.js';
+import { AvailableRuntimes, UnimplementedProvider } from 'tools/lib/platform/platform.js';
+import { SimplePath } from 'tools/lib/platform/SimplePath.js';
 import { ProjectFile } from 'tools/lib/ProjectFile.js';
 
 export interface BuildStep {
-  run: () => Promise<void>;
+  run: (builder: BuilderInternal) => Promise<void>;
 }
-export type ProcessorFunction = (builder: BuilderInternal, file: ProjectFile) => Promise<void>;
 export interface ProcessorModule {
   onAdd: (builder: BuilderInternal, files: Set<ProjectFile>) => Promise<void>;
   onRemove: (builder: BuilderInternal, files: Set<ProjectFile>) => Promise<void>;
 }
-export class SimplePath {
-  parts: string[] = [];
-  constructor(...paths: (SimplePath | string)[]) {
-    for (const path of paths) {
-      if (path instanceof SimplePath) {
-        this.parts.push(...path.parts);
-      } else {
-        this.parts.push(...node_path.normalize(path).replaceAll('\\', '/').split('/'));
-      }
-    }
-  }
-  /** The basename is the final rightmost segment of the file path; it is
-   * usually a file, but can also be a directory name. */
-  get basename() {
-    return this.parts[this.parts.length - 1];
-  }
-  set basename(value: string) {
-    this.parts[this.parts.length - 1] = value;
-  }
-  get name() {
-    const dot = this.basename.lastIndexOf('.');
-    return dot > 0 ? this.basename.slice(0, dot) : this.basename;
-  }
-  set name(value: string) {
-    this.basename = value + this.ext;
-  }
-  get ext() {
-    const dot = this.basename.lastIndexOf('.');
-    return dot > 0 ? this.basename.slice(dot) : '';
-  }
-  set ext(value: string) {
-    if (value[0] !== '.') {
-      this.basename = `${this.name}.${value}`;
-    } else {
-      this.basename = this.name + value;
-    }
-  }
-  get raw() {
-    return node_path.join(...this.parts);
-  }
-  get standard() {
-    return this.parts.join('/');
-  }
-  startsWith(other: SimplePath | string) {
-    if (other instanceof SimplePath) {
-      return this.raw.startsWith(other.raw);
-    }
-    return this.raw.startsWith(new SimplePath(other).raw);
-  }
-  endsWith(other: SimplePath | string) {
-    if (other instanceof SimplePath) {
-      return this.raw.endsWith(other.raw);
-    }
-    return this.raw.endsWith(new SimplePath(other).raw);
-  }
-}
+export type ProcessorFunction = (builder: BuilderInternal, file: ProjectFile) => Promise<void>;
 
 export class BuilderInternal {
   constructor(public external: Builder) {}
@@ -168,48 +112,49 @@ export class BuilderInternal {
     // Startup Steps
     for (const step of this.startup_steps) {
       ConsoleLogWithDate(step.constructor.name);
-      await step.run();
+      await step.run(this);
     }
+
     // Processor Modules
     await this.processAddedFiles(this.files);
+
     // Cleanup Steps
     for (const step of this.cleanup_steps) {
       ConsoleLogWithDate(step.constructor.name);
-      await step.run();
+      await step.run(this);
     }
     // TODO: Start Watcher on Src
   }
 
   async processAddedFiles(added_files: Set<ProjectFile>) {
-    console.log('added_files', added_files.size);
-
     for (const processor of this.processor_modules) {
       await processor.onAdd(this, added_files);
     }
     const tasks: Promise<void>[] = [];
-    for (const file of added_files) {
+    const addTask = async (file: ProjectFile) => {
       // TODO: should we mark as modified on first run?
-      file.modified = true;
-      for (const processor_function of file.processor_function_list) {
-        tasks.push(processor_function(this, file));
+      file.ismodified = true;
+      for (const processor_function of file.$processor_list) {
+        await processor_function(this, file);
       }
-      file.modified = false;
+      file.ismodified = false;
+    };
+    for (const file of added_files) {
+      tasks.push(addTask(file));
     }
-    await Promise.allSettled(tasks);
+    await Promise.all(tasks);
     await this.processUpdatedFiles(added_files);
   }
 
   async processUpdatedFiles(updated_files: Set<ProjectFile>) {
-    console.log('updated_files', updated_files.size);
-
     const tasks = new Map<ProjectFile, Defer<void>>();
     // setup task for file and downstream files if not exist
     for (const file of updated_files) {
-      if (!tasks.has(file)) {
+      if (tasks.has(file) === false) {
         tasks.set(file, Defer());
       }
       for (const downstream of this.map_upstream_to_downstream.get(file) ?? []) {
-        if (!tasks.has(downstream)) {
+        if (tasks.has(downstream) === false) {
           tasks.set(downstream, Defer());
         }
       }
@@ -225,11 +170,12 @@ export class BuilderInternal {
           }
         }
         await Promise.allSettled(waitlist);
-        for (const processor_function of file.processor_function_list) {
+        for (const processor_function of file.$processor_list) {
           await processor_function(this, file);
         }
         task.resolve();
       })();
     }
+    await Promise.allSettled(tasks.values());
   }
 }

@@ -1,6 +1,7 @@
 import { ParseHTML } from 'src/lib/ericchase/Platform/Node/HTML Processor/ParseHTML.js';
 import { ConsoleError, ConsoleLog } from 'src/lib/ericchase/Utility/Console.js';
-import { BuilderInternal, ProcessorFunction, ProcessorModule, SimplePath } from 'tools/lib/Builder-Internal.js';
+import { BuilderInternal, ProcessorFunction, ProcessorModule } from 'tools/lib/Builder-Internal.js';
+import { SimplePath } from 'tools/lib/platform/SimplePath.js';
 import { ProjectFile } from 'tools/lib/ProjectFile.js';
 
 export class Processor_HTMLCustomComponent implements ProcessorModule {
@@ -15,7 +16,7 @@ export class Processor_HTMLCustomComponent implements ProcessorModule {
       if (file.src_path.startsWith(component_path)) {
         this.component_map.set(file.src_path.name, file);
       }
-      file.processor_function_list.push(this.processSourceFile);
+      file.$processor_list.push(this.processSourceFile);
     }
   }
 

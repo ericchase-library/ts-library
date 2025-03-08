@@ -1,40 +1,36 @@
+import { Map_GetOrDefault } from 'src/lib/ericchase/Utility/Map.js';
 import { BuilderInternal, ProcessorModule } from 'tools/lib/Builder-Internal.js';
+import { SimplePath } from 'tools/lib/platform/SimplePath.js';
+import { globMatch } from 'tools/lib/platform/utility.js';
 import { ProjectFile } from 'tools/lib/ProjectFile.js';
 
-export class Processor_IOBasicWriter implements ProcessorModule {
+export class CProcessor_IOBasicWriter implements ProcessorModule {
+  constructor(
+    readonly include_patterns: string[],
+    readonly exclude_patterns: string[],
+  ) {}
   async onAdd(builder: BuilderInternal, files: Set<ProjectFile>): Promise<void> {
     for (const file of files) {
-      if (this.canWrite(file)) {
-        file.processor_function_list.push(async (builder, file) => {
-          if (file.modified === true) {
-            await file.write();
-          }
-        });
+      if (globMatch(builder.platform, file.src_path.standard, this.include_patterns, this.exclude_patterns) === true) {
+        file.addProcessorFunction(Task);
       }
     }
   }
-
   async onRemove(builder: BuilderInternal, files: Set<ProjectFile>): Promise<void> {}
+}
 
-  canWrite(file: ProjectFile): boolean {
-    // we want to copy all module and script source files
-    if (file.src_path.endsWith('.module.ts')) {
-      return true;
-    }
-    if (file.src_path.endsWith('.script.ts')) {
-      return true;
-    }
-
-    // skip regular typescript files
-    if (file.src_path.ext === '.ts') {
-      return false;
-    }
-
-    // skip anything else in lib directory
-    if (file.isinlib) {
-      return false;
-    }
-
-    return true;
+async function Task(builder: BuilderInternal, file: ProjectFile) {
+  if (file.ismodified === true) {
+    try {
+      await builder.platform.Directory.create(file.out_path.slice(0, -1));
+    } catch (e) {}
+    await file.write();
   }
+}
+
+const cache = new Map<string, ProcessorModule>();
+export function Processor_IOBasicWriter(include_patterns: string[], exclude_patterns: string[]): ProcessorModule {
+  include_patterns = include_patterns.map((pattern) => new SimplePath(pattern).standard);
+  exclude_patterns = exclude_patterns.map((pattern) => new SimplePath(pattern).standard);
+  return Map_GetOrDefault(cache, `${include_patterns.join(',')}|${exclude_patterns.join(',')}`, () => new CProcessor_IOBasicWriter(include_patterns, exclude_patterns));
 }

@@ -15,7 +15,7 @@ export class DependencyGraph<T> {
   }
 
   removeNode(item: T): void {
-    if (!this.$map.has(item)) {
+    if (this.$map.has(item) === false) {
       throw new Error(`item "${item}" already removed`);
     }
 
@@ -50,7 +50,7 @@ export class DependencyGraph<T> {
       throw new Error(`upstream item "${item_upstream}" does not exist. (downstream item "${item_downstream}")`);
     }
 
-    if (!node_upstream.downstream_set.has(item_downstream)) {
+    if (node_upstream.downstream_set.has(item_downstream) === false) {
       throw new Error(`no edge from upstream item "${item_upstream}" to downstream item "${item_downstream}"`);
     }
 

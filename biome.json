@@ -5,7 +5,7 @@
   },
   "formatter": {
     "enabled": true,
-    "ignore": ["out/"],
+    "ignore": ["out/", "src/lib/ericchase/", "package-lock.json"],
     "attributePosition": "auto",
     "formatWithErrors": true,
     "indentStyle": "space",
@@ -43,7 +43,7 @@
   },
   "linter": {
     "enabled": true,
-    "ignore": ["out/"],
+    "ignore": ["out/", "src/lib/ericchase/", "package-lock.json"],
     "rules": {
       "complexity": {
         "noUselessConstructor": "off",

@@ -9,7 +9,7 @@ export class Processor_HTMLImportConverter implements ProcessorModule {
       if (file.src_path.ext !== '.html') {
         continue;
       }
-      file.processor_function_list.push(this.processSourceFile);
+      file.$processor_list.push(this.processSourceFile);
     }
   }
 

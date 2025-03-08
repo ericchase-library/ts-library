@@ -1,17 +1,11 @@
-import { BuilderInternal, BuildStep, ProcessorModule, SimplePath } from 'tools/lib/Builder-Internal.js';
+import { BuilderInternal, BuildStep, ProcessorModule } from 'tools/lib/Builder-Internal.js';
 import { TryLockEach } from 'tools/lib/cache/LockCache.js';
-import { AvailableRuntimes, getPlatform, UnimplementedProvider } from 'tools/lib/platform/index.js';
-import { Provider } from 'tools/lib/platform/provider.js';
-
-/** Builder Defaults */
-// builder.runtime = 'bun';
-// builder.dir.out = 'out';
-// builder.dir.src = 'src';
-// builder.dir.lib = `${builder.dir.src}/lib`;
-// builder.dir.tools = 'tools';
+import { AvailableRuntimes, getPlatform, UnimplementedProvider } from 'tools/lib/platform/platform.js';
+import { Provider } from 'tools/lib/platform/Provider.js';
+import { SimplePath } from 'tools/lib/platform/SimplePath.js';
 
 export class Builder {
-  private $internal = new BuilderInternal(this);
+  $internal = new BuilderInternal(this);
 
   set platform(value: Provider) {
     this.$internal.platform = value;

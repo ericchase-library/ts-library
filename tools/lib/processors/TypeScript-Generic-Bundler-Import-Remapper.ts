@@ -6,10 +6,10 @@ import { ProjectFile } from 'tools/lib/ProjectFile.js';
 export class Processor_TypeScriptGenericBundlerImportRemapper implements ProcessorModule {
   async onAdd(builder: BuilderInternal, files: Set<ProjectFile>) {
     for (const file of files) {
-      if (!file.src_path.endsWith('.module.ts')) {
+      if (file.src_path.endsWith('.module.ts') === false) {
         continue;
       }
-      file.processor_function_list.push(remapBundleImports);
+      file.$processor_list.push(remapBundleImports);
     }
   }
 
