@@ -1,11 +1,13 @@
-import { BuilderInternal, ProcessorFunction } from 'tools/lib/Builder-Internal.js';
-import { SimplePath } from 'tools/lib/platform/SimplePath.js';
+import { CPath } from 'src/lib/ericchase/Platform/FilePath.js';
+import { Defer } from 'src/lib/ericchase/Utility/Defer.js';
+import { BuilderInternal } from 'tools/lib/BuilderInternal.js';
+import { ProcessorFunction } from 'tools/lib/Processor.js';
 
 export class ProjectFile {
   constructor(
     public builder: BuilderInternal,
-    public src_path: SimplePath,
-    public out_path: SimplePath,
+    public src_path: CPath,
+    public out_path: CPath,
   ) {}
 
   $processor_list: ProcessorFunction[] = [];
@@ -13,15 +15,34 @@ export class ProjectFile {
   addProcessorFunction(fn: ProcessorFunction): void {
     this.$processor_list.push(fn);
   }
+  async runProcessorList(waitlist?: Promise<void>[], defer?: Defer<void>) {
+    await Promise.allSettled(waitlist ?? []);
+    if (this.isdirty) {
+      for (const fn of this.$processor_list) {
+        await fn(this.builder, this);
+      }
+      if (this.ismodified) {
+        for (const downstream of this.builder.getDownstream(this)) {
+          downstream.isdirty = true;
+        }
+      }
+      this.isdirty = false;
+      this.ismodified = false;
+    }
+    defer?.resolve();
+  }
 
+  /** When true, file needs to be processed during the next processing phase. */
+  isdirty = false;
+  /** When true, file contents have been modified during the current processing phase. */
+  ismodified = false;
   /** When false, $bytes/$text are no longer from the original file. */
   isoriginal = true;
-  /** When true, downstream files need to be processed. */
-  ismodified = false;
 
   $bytes?: Uint8Array;
   $text?: string;
 
+  // Get cached contents or contents from file on disk as Uint8Array.
   async getBytes(): Promise<Uint8Array> {
     if (this.$bytes === undefined) {
       if (this.$text === undefined) {
@@ -33,6 +54,7 @@ export class ProjectFile {
     }
     return this.$bytes;
   }
+  // Get cached contents or contents from file on disk as string.
   async getText(): Promise<string> {
     if (this.$text === undefined) {
       if (this.$bytes === undefined) {
@@ -45,12 +67,14 @@ export class ProjectFile {
     return this.$text;
   }
 
+  // Set cached contents to Uint8Array.
   setBytes(bytes: Uint8Array) {
     this.isoriginal = false;
     this.ismodified = true;
     this.$bytes = bytes;
     this.$text = undefined;
   }
+  // Set cached contents to string.
   setText(text: string) {
     this.isoriginal = false;
     this.ismodified = true;
@@ -58,6 +82,7 @@ export class ProjectFile {
     this.$text = text;
   }
 
+  // Clears the cached contents and resets attributes.
   resetBytes() {
     this.isoriginal = true;
     this.ismodified = false;
@@ -65,11 +90,21 @@ export class ProjectFile {
     this.$text = undefined;
   }
 
-  async write() {
-    const data = this.$text !== undefined ? this.$text : await this.getBytes();
-    await this.builder.platform.File.write(this.out_path, data);
+  // Attempts to write cached contents to file on disk.
+  // Returns number of bytes written.
+  async write(): Promise<number> {
+    let byteswritten = 0;
+    if (this.ismodified) {
+      if (this.$text !== undefined) {
+        byteswritten = await this.builder.platform.File.writeText(this.out_path, this.$text);
+      } else {
+        byteswritten = await this.builder.platform.File.writeBytes(this.out_path, await this.getBytes());
+      }
+    }
+    return byteswritten;
   }
 
+  // Useful for some console log coercion.
   toString(): string {
     return this.src_path.toString();
   }

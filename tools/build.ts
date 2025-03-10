@@ -4,12 +4,11 @@ import { BuildStep_FSCleanDirectory } from 'tools/lib/steps/FS-CleanDirectory.js
 import { BuildStep_FSCopy } from 'tools/lib/steps/FS-Copy.js';
 import { BuildStep_IOFormat } from 'tools/lib/steps/IO-Format.js';
 
-const builder = new Builder();
+const builder = new Builder(Bun.argv[2] === '--watch' ? 'watch' : 'build');
 
 builder.setStartupSteps([
   BuildStep_BunInstall(),
   BuildStep_IOFormat(),
-
   BuildStep_FSCleanDirectory([
     '../Project@Template/server/src',
     '../Project@Template/server/tools',
@@ -17,7 +16,9 @@ builder.setStartupSteps([
     '../Project@Template/tools/lib/',
     //
   ]),
+]);
 
+builder.setCleanupSteps([
   // Copy Server Folder
   BuildStep_FSCopy({
     from: 'server/src/',

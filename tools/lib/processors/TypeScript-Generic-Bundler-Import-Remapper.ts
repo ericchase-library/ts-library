@@ -1,6 +1,6 @@
 import { MatchAny } from 'src/lib/ericchase/Algorithm/String/Search/WildcardMatcher.js';
-import { GetRelativePath } from 'src/lib/ericchase/Platform/Node/Path.js';
-import { BuilderInternal, ProcessorModule } from 'tools/lib/Builder-Internal.js';
+import { BuilderInternal } from 'tools/lib/BuilderInternal.js';
+import { ProcessorModule } from 'tools/lib/Processor.js';
 import { ProjectFile } from 'tools/lib/ProjectFile.js';
 
 export class Processor_TypeScriptGenericBundlerImportRemapper implements ProcessorModule {
@@ -21,7 +21,7 @@ async function remapBundleImports(builder: BuilderInternal, file: ProjectFile) {
   let find_results = findImportPath(text);
   while (find_results.indexStart !== -1) {
     if (find_results.importPath.startsWith('src/')) {
-      const new_import_path = GetRelativePath(file.src_path.raw, find_results.importPath);
+      const new_import_path = file.src_path.getRelative(find_results.importPath);
       text = text.slice(0, find_results.indexStart) + new_import_path + text.slice(find_results.indexEnd);
       find_results.indexEnd = find_results.indexStart + new_import_path.length;
     }

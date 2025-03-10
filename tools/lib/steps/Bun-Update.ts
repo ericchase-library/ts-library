@@ -1,5 +1,5 @@
 import { ConsoleLog } from 'src/lib/ericchase/Utility/Console.js';
-import { BuilderInternal, BuildStep } from 'tools/lib/Builder-Internal.js';
+import { BuilderInternal, BuildStep } from 'tools/lib/BuilderInternal.js';
 
 class CBuildStep_BunUpdate implements BuildStep {
   async run(builder: BuilderInternal) {
@@ -8,7 +8,6 @@ class CBuildStep_BunUpdate implements BuildStep {
   }
 }
 
-const cache = new CBuildStep_BunUpdate();
 export function BuildStep_BunUpdate(): BuildStep {
-  return cache;
+  return new CBuildStep_BunUpdate();
 }

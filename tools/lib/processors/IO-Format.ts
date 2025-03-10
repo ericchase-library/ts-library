@@ -1,7 +1,8 @@
 // TODO:
 import { U8StreamReadAll } from 'src/lib/ericchase/Algorithm/Stream.js';
 import { ConsoleLog } from 'src/lib/ericchase/Utility/Console.js';
-import { BuilderInternal, ProcessorModule } from 'tools/lib/Builder-Internal.js';
+import { BuilderInternal } from 'tools/lib/BuilderInternal.js';
+import { ProcessorModule } from 'tools/lib/Processor.js';
 import { ProjectFile } from 'tools/lib/ProjectFile.js';
 
 export class CProcessor_IOFormat implements ProcessorModule {

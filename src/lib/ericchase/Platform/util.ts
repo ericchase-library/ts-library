@@ -1,7 +1,7 @@
-import { Provider } from 'tools/lib/platform/Provider.js';
-import { SimplePath } from 'tools/lib/platform/SimplePath.js';
+import { CPath } from 'src/lib/ericchase/Platform/FilePath.js';
+import { CPlatformProvider } from 'src/lib/ericchase/Platform/PlatformProvider.js';
 
-export function globMatch(platform: Provider, query: string, include_patterns: string[], exclude_patterns: string[]): boolean {
+export function globMatch(platform: CPlatformProvider, query: string, include_patterns: string[], exclude_patterns: string[]): boolean {
   let matched = false;
   for (const pattern of include_patterns) {
     if (platform.Utility.globMatch(query, pattern) === true) {
@@ -18,7 +18,7 @@ export function globMatch(platform: Provider, query: string, include_patterns: s
   return matched;
 }
 
-export async function globScan(platform: Provider, path: SimplePath, include_patterns: string[], exclude_patterns: string[]): Promise<Set<string>> {
+export async function globScan(platform: CPlatformProvider, path: CPath, include_patterns: string[], exclude_patterns: string[]): Promise<Set<string>> {
   let matched = new Set<string>();
   for (const pattern of include_patterns) {
     matched = matched.union(await platform.Directory.globScan(path, pattern));

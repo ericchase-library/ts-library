@@ -1,14 +1,15 @@
-import { ParseHTML } from 'src/lib/ericchase/Platform/Node/HTML Processor/ParseHTML.js';
+import { ParseHTML } from 'src/lib/ericchase/Platform/NPM/NodeHTMLParser.js';
 import { ConsoleError, ConsoleLog } from 'src/lib/ericchase/Utility/Console.js';
-import { BuilderInternal, ProcessorFunction, ProcessorModule } from 'tools/lib/Builder-Internal.js';
-import { SimplePath } from 'tools/lib/platform/SimplePath.js';
+import { BuilderInternal } from 'tools/lib/BuilderInternal.js';
+import { Path } from 'src/lib/ericchase/Platform/FilePath.js';
+import { ProcessorFunction, ProcessorModule } from 'tools/lib/Processor.js';
 import { ProjectFile } from 'tools/lib/ProjectFile.js';
 
 export class Processor_HTMLCustomComponent implements ProcessorModule {
   component_map = new Map<string, ProjectFile>();
 
   async onAdd(builder: BuilderInternal, files: Set<ProjectFile>): Promise<void> {
-    const component_path = new SimplePath(builder.dir.lib, 'components');
+    const component_path = Path(builder.dir.lib, 'components');
     for (const file of files) {
       if (file.src_path.ext !== '.html') {
         continue;

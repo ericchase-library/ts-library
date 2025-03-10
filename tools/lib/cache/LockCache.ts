@@ -1,6 +1,6 @@
 import { ConsoleError } from 'src/lib/ericchase/Utility/Console.js';
 import { TaskRepeater } from 'src/lib/ericchase/Utility/TaskRepeater.js';
-import { cache_db, CreateAllQuery, CreateGetQuery, CreateRunQuery, QueryError, QueryExistsResult, type QueryResult } from 'tools/lib/cache/cache.js';
+import { cache_db, CreateAllQuery, CreateGetQuery, CreateRunQuery, QueryError, QueryExistsResult, QueryResult } from 'tools/lib/cache/cache.js';
 
 const TAG = 'tag';
 const PID = 'pid';

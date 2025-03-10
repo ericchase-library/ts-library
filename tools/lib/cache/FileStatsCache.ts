@@ -1,8 +1,8 @@
 import node_fs from 'node:fs';
 
-import type { Path, PathGroup } from 'src/lib/ericchase/Platform/Node/Path.js';
+import { CPath } from 'src/lib/ericchase/Platform/FilePath.js';
 import { DataSetMarkerManager } from 'src/lib/ericchase/Utility/UpdateMarker.js';
-import { cache_db, CreateAllQuery, CreateGetQuery, CreateRunQuery, QueryError, QueryExistsResult, type QueryResult } from 'tools/lib/cache/cache.js';
+import { cache_db, CreateAllQuery, CreateGetQuery, CreateRunQuery, QueryError, QueryExistsResult, QueryResult } from 'tools/lib/cache/cache.js';
 import { Cache_Lock, Cache_Unlock } from 'tools/lib/cache/LockCache.js';
 
 const PATH = 'path';
@@ -96,13 +96,13 @@ export function Cache_GetFileModifiedMarker() {
   return modified_marker_manager.getNewMarker();
 }
 
-export function Cache_IsFileModified(path: Path | PathGroup): QueryResult<boolean> {
+export function Cache_IsFileModified(path: CPath): QueryResult<boolean> {
   try {
-    const mtimeMs = node_fs.statSync(path.path).mtimeMs;
-    const q0 = isFileModified({ [PATH]: path.path, [CURRENT_MTIMEMS]: mtimeMs });
+    const mtimeMs = node_fs.statSync(path.raw).mtimeMs;
+    const q0 = isFileModified({ [PATH]: path.raw, [CURRENT_MTIMEMS]: mtimeMs });
     if (q0?.result === 1) {
-      updateFileStatsRecord({ [PATH]: path.path, [MTIMEMS]: mtimeMs });
-      modified_marker_manager.updateMarkers(path.path);
+      updateFileStatsRecord({ [PATH]: path.raw, [MTIMEMS]: mtimeMs });
+      modified_marker_manager.updateMarkers(path.raw);
       return { data: true };
     }
     return { data: false };

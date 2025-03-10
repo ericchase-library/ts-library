@@ -1,9 +1,8 @@
-import { Map_GetOrDefault } from 'src/lib/ericchase/Utility/Map.js';
-import { BuilderInternal, BuildStep } from 'tools/lib/Builder-Internal.js';
-import { SimplePath } from 'tools/lib/platform/SimplePath.js';
+import { BuilderInternal, BuildStep } from 'tools/lib/BuilderInternal.js';
+import { CPath, Path } from 'src/lib/ericchase/Platform/FilePath.js';
 
 class CBuildStep_FSCleanDirectory implements BuildStep {
-  constructor(readonly paths: SimplePath[]) {}
+  constructor(readonly paths: CPath[]) {}
   async run(builder: BuilderInternal) {
     for (const path of this.paths) {
       await builder.platform.Directory.delete(path);
@@ -12,7 +11,6 @@ class CBuildStep_FSCleanDirectory implements BuildStep {
   }
 }
 
-const cache = new Map<string, BuildStep>();
 export function BuildStep_FSCleanDirectory(paths: string[]): BuildStep {
-  return Map_GetOrDefault(cache, paths.join('|'), () => new CBuildStep_FSCleanDirectory(paths.map((path) => new SimplePath(path))));
+  return new CBuildStep_FSCleanDirectory(paths.map((path) => Path(path)));
 }

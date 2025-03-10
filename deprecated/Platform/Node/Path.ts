@@ -1,6 +1,6 @@
 import node_path from 'node:path';
 
-import { PrepareMessage } from '../../Utility/PrepareMessage.js';
+import { PrepareMessage } from '../../../src/lib/ericchase/Utility/PrepareMessage.js';
 
 export function GetRelativePath(from: string, to: string) {
   return node_path.relative(from, to);

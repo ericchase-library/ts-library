@@ -1,55 +1,33 @@
-import { BuilderInternal, BuildStep, ProcessorModule } from 'tools/lib/Builder-Internal.js';
+import { CPlatformProvider, getPlatformProvider, PlatformProviderId, UnimplementedProvider } from 'src/lib/ericchase/Platform/PlatformProvider.js';
+import { BuilderInternal, BuildStep } from 'tools/lib/BuilderInternal.js';
+import { Cache_FileStats_Lock, Cache_FileStats_Reset, Cache_FileStats_Unlock } from 'tools/lib/cache/FileStatsCache.js';
 import { TryLockEach } from 'tools/lib/cache/LockCache.js';
-import { AvailableRuntimes, getPlatform, UnimplementedProvider } from 'tools/lib/platform/platform.js';
-import { Provider } from 'tools/lib/platform/Provider.js';
-import { SimplePath } from 'tools/lib/platform/SimplePath.js';
+import { ProcessorModule } from 'tools/lib/Processor.js';
 
 export class Builder {
   $internal = new BuilderInternal(this);
 
-  set platform(value: Provider) {
+  constructor(mode: 'build' | 'watch' = 'build') {
+    if (mode === 'watch') {
+      this.$internal.watchmode = true;
+    }
+  }
+
+  dir = this.$internal.dir;
+
+  set platform(value: CPlatformProvider) {
     this.$internal.platform = value;
   }
   get platform() {
     return this.$internal.platform;
   }
 
-  set runtime(value: AvailableRuntimes) {
+  set runtime(value: PlatformProviderId) {
     this.$internal.runtime = value;
   }
   get runtime() {
     return this.$internal.runtime;
   }
-
-  dir = (() => {
-    const builder = this;
-    return {
-      get out() {
-        return builder.$internal.dir.out.raw;
-      },
-      set out(value: string) {
-        builder.$internal.dir.out = new SimplePath(value);
-      },
-      get src() {
-        return builder.$internal.dir.src.raw;
-      },
-      set src(value: string) {
-        builder.$internal.dir.src = new SimplePath(value);
-      },
-      get lib() {
-        return builder.$internal.dir.lib.raw;
-      },
-      set lib(value: string) {
-        builder.$internal.dir.lib = new SimplePath(value);
-      },
-      get tools() {
-        return builder.$internal.dir.tools.raw;
-      },
-      set tools(value: string) {
-        builder.$internal.dir.tools = new SimplePath(value);
-      },
-    };
-  })();
 
   setStartupSteps(steps: BuildStep[]): void {
     this.$internal.startup_steps = steps;
@@ -62,10 +40,13 @@ export class Builder {
   }
 
   async start(): Promise<void> {
+    Cache_FileStats_Lock();
+    Cache_FileStats_Reset();
     TryLockEach(['Build', 'Format']);
     if (this.platform === UnimplementedProvider) {
-      this.platform = await getPlatform(this.runtime);
+      this.platform = await getPlatformProvider(this.runtime);
     }
     await this.$internal.start();
+    Cache_FileStats_Unlock();
   }
 }

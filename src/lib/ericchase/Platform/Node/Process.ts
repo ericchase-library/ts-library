@@ -1,4 +1,4 @@
-import { ChainedHandlerCaller, type ChainedHandler } from '../../Design Pattern/Chain of Responsibility/ChainedHandler.js';
+import { ChainedHandler, ChainedHandlerCaller } from '../../Design Pattern/Chain of Responsibility/ChainedHandler.js';
 import { Sleep } from '../../Utility/Sleep.js';
 
 /** Don't forget to call `start()`. */

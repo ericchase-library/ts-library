@@ -3,10 +3,10 @@ export function MapGuard<K, V>(map: Map<K, V>, key: K, value: V | undefined): va
 }
 
 export function Map_GetOrDefault<K, V>(map: Map<K, V>, key: K, newValue: () => V): V {
-  let v = map.get(key);
-  if (!MapGuard<K, V>(map, key, v)) {
-    v = newValue();
-    map.set(key, v);
+  let value = map.get(key);
+  if (!MapGuard<K, V>(map, key, value)) {
+    value = newValue();
+    map.set(key, value);
   }
-  return v;
+  return value;
 }

@@ -1,4 +1,6 @@
-import { type HTMLElement as NodeHTMLParser_HTMLElement, parse, type Options } from 'node-html-parser';
+import { HTMLElement as NodeHTMLParser_HTMLElement, Options, parse } from 'node-html-parser';
+
+// The goal of this file is to standardize the options of node-html-parser.
 
 export namespace NodeHTMLParser {
   export type HTMLElement = NodeHTMLParser_HTMLElement;

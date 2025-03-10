@@ -1,6 +1,6 @@
 import node_os from 'node:os';
 
-import { PrepareMessage } from '../../Utility/PrepareMessage.js';
+import { PrepareMessage } from '../../../src/lib/ericchase/Utility/PrepareMessage.js';
 import { Path, PathGroup, PathGroupSet } from '../Node/Path.js';
 
 export class GlobGroup {

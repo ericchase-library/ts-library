@@ -1,6 +1,6 @@
 import type { BunFile } from 'bun';
 
-import { U8StreamCompare } from '../../Algorithm/Stream.js';
+import { U8StreamCompare } from '../../../src/lib/ericchase/Algorithm/Stream.js';
 import { DeleteFile } from '../Node/Fs.js';
 import type { Path, PathGroup } from '../Node/Path.js';
 

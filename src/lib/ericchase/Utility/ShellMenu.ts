@@ -1,6 +1,6 @@
 import { Shell } from '../Platform/Node/Shell.js';
 import { ConsoleLog } from './Console.js';
-import { MenuNavigator, ParseMenu, type Menu } from './Menu.js';
+import { Menu, MenuNavigator, ParseMenu } from './Menu.js';
 
 export class ShellMenu {
   $current_item_index = 0;

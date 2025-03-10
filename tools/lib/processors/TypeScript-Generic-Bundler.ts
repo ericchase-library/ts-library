@@ -1,6 +1,7 @@
 import { ConsoleError, ConsoleLog } from 'src/lib/ericchase/Utility/Console.js';
-import { BuilderInternal, ProcessorModule } from 'tools/lib/Builder-Internal.js';
-import { SimplePath } from 'tools/lib/platform/SimplePath.js';
+import { BuilderInternal } from 'tools/lib/BuilderInternal.js';
+import { Path } from 'src/lib/ericchase/Platform/FilePath.js';
+import { ProcessorModule } from 'tools/lib/Processor.js';
 import { ProjectFile } from 'tools/lib/ProjectFile.js';
 
 type BuildConfig = Pick<Parameters<typeof Bun.build>[0], 'external' | 'sourcemap' | 'target'>;
@@ -42,7 +43,7 @@ export class Processor_TypeScriptGenericBundler implements ProcessorModule {
                   file.setText(text);
                   for (const [, ...paths] of text.matchAll(/\n?\/\/ src\/(.*)\n?/g)) {
                     for (const path of paths) {
-                      builder.addDependency(builder.getFile(new SimplePath(path)), file);
+                      builder.addDependency(builder.getFile(Path(path)), file);
                     }
                   }
                 }

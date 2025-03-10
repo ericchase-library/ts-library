@@ -2,7 +2,7 @@ import * as Parser from 'node-html-parser';
 import node_fs from 'node:fs';
 
 import { Path, type PathGroup } from '../Path.js';
-import { ParseHTML } from './ParseHTML.js';
+import { ParseHTML } from '../../../../src/lib/ericchase/Platform/NPM/NodeHTMLParser.js';
 
 export async function LoadHtmlFile(filePath: Path | PathGroup) {
   try {

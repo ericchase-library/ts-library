@@ -1,6 +1,7 @@
-import { ParseHTML } from 'src/lib/ericchase/Platform/Node/HTML Processor/ParseHTML.js';
-import { Path } from 'src/lib/ericchase/Platform/Node/Path.js';
-import { BuilderInternal, ProcessorFunction, ProcessorModule } from 'tools/lib/Builder-Internal.js';
+import { ParseHTML } from 'src/lib/ericchase/Platform/NPM/NodeHTMLParser.js';
+import { Path } from 'src/lib/ericchase/Platform/FilePath.js';
+import { BuilderInternal } from 'tools/lib/BuilderInternal.js';
+import { ProcessorFunction, ProcessorModule } from 'tools/lib/Processor.js';
 import { ProjectFile } from 'tools/lib/ProjectFile.js';
 
 export class Processor_HTMLImportConverter implements ProcessorModule {
@@ -21,7 +22,7 @@ export class Processor_HTMLImportConverter implements ProcessorModule {
     for (const script_tag of root_element.getElementsByTagName('script')) {
       const src = script_tag.getAttribute('src');
       if (src !== undefined) {
-        if (getPathBase(src).endsWith('.ts')) {
+        if (getBasename(src).endsWith('.ts')) {
           script_tag.setAttribute('src', `${src.slice(0, src.lastIndexOf('.ts'))}.js`);
           update_text = true;
         }
@@ -33,10 +34,10 @@ export class Processor_HTMLImportConverter implements ProcessorModule {
   };
 }
 
-function getPathBase(src: string) {
+function getBasename(src: string) {
   try {
-    return new Path(new URL(src).pathname).base;
+    return Path(new URL(src).pathname).basename;
   } catch (error) {
-    return new Path(src).base;
+    return Path(src).basename;
   }
 }

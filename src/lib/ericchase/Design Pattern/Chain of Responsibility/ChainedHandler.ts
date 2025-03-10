@@ -1,4 +1,4 @@
-import { HandlerCaller, type Handler } from '../Handler.js';
+import { Handler, HandlerCaller } from '../Handler.js';
 
 export type ChainedHandler<Request = void, Actions = void> = Handler<Request, { stopHandlerChain: () => void } & Actions>;
 
