@@ -8,7 +8,7 @@ const BunProvider = PlatformProvider();
 BunProvider.Directory.create = NodeProvider.Directory.create;
 BunProvider.Directory.delete = NodeProvider.Directory.delete;
 BunProvider.Directory.globScan = async (path, pattern) => {
-  return new Set(await Array.fromAsync(new Bun.Glob(pattern).scan({ cwd: path.raw, dot: true })));
+  return await Array.fromAsync(new Bun.Glob(pattern).scan({ cwd: path.raw, dot: true }));
 };
 BunProvider.Directory.watch = NodeProvider.Directory.watch;
 
@@ -57,6 +57,12 @@ BunProvider.File.writeText = async (path, text, createpath = true) => {
   }
   return Bun.write(path.raw, text);
 };
+
+// Path
+BunProvider.Path.getStats = NodeProvider.Path.getStats;
+BunProvider.Path.isDirectory = NodeProvider.Path.isDirectory;
+BunProvider.Path.isFile = NodeProvider.Path.isFile;
+BunProvider.Path.isSymbolicLink = NodeProvider.Path.isSymbolicLink;
 
 // Utility
 BunProvider.Utility.globMatch = (query, pattern) => {

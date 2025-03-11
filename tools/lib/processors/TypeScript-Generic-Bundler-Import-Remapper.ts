@@ -3,32 +3,32 @@ import { BuilderInternal } from 'tools/lib/BuilderInternal.js';
 import { ProcessorModule } from 'tools/lib/Processor.js';
 import { ProjectFile } from 'tools/lib/ProjectFile.js';
 
-export class Processor_TypeScriptGenericBundlerImportRemapper implements ProcessorModule {
+export class CProcessor_TypeScriptGenericBundlerImportRemapper implements ProcessorModule {
   async onAdd(builder: BuilderInternal, files: Set<ProjectFile>) {
     for (const file of files) {
       if (file.src_path.endsWith('.module.ts') === false) {
         continue;
       }
-      file.$processor_list.push(remapBundleImports);
+      file.addProcessor(this, this.onProcess);
     }
   }
-
   async onRemove(builder: BuilderInternal, files: Set<ProjectFile>): Promise<void> {}
+
+  async onProcess(builder: BuilderInternal, file: ProjectFile): Promise<void> {
+    let text = await file.getText();
+    let find_results = findImportPath(text);
+    while (find_results.indexStart !== -1) {
+      if (find_results.importPath.startsWith('src/')) {
+        const new_import_path = file.src_path.getRelative(find_results.importPath);
+        text = text.slice(0, find_results.indexStart) + new_import_path + text.slice(find_results.indexEnd);
+        find_results.indexEnd = find_results.indexStart + new_import_path.length;
+      }
+      find_results = findImportPath(text, find_results.indexEnd);
+    }
+    file.setText(text);
+  }
 }
 
-async function remapBundleImports(builder: BuilderInternal, file: ProjectFile) {
-  let text = await file.getText();
-  let find_results = findImportPath(text);
-  while (find_results.indexStart !== -1) {
-    if (find_results.importPath.startsWith('src/')) {
-      const new_import_path = file.src_path.getRelative(find_results.importPath);
-      text = text.slice(0, find_results.indexStart) + new_import_path + text.slice(find_results.indexEnd);
-      find_results.indexEnd = find_results.indexStart + new_import_path.length;
-    }
-    find_results = findImportPath(text, find_results.indexEnd);
-  }
-  file.setText(text);
-}
 function indexOf(source: string, target: string, position = 0) {
   const index = source.indexOf(target, position);
   return { start: index, end: index + target.length };
@@ -64,4 +64,8 @@ function findImportPath(text: string, indexStart = 0) {
   }
 
   return { indexStart: -1, indexEnd: -1, importPath: '' };
+}
+
+export function Processor_TypeScriptGenericBundlerImportRemapper(): ProcessorModule {
+  return new CProcessor_TypeScriptGenericBundlerImportRemapper();
 }

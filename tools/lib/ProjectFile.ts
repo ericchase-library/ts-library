@@ -1,7 +1,6 @@
 import { CPath } from 'src/lib/ericchase/Platform/FilePath.js';
-import { Defer } from 'src/lib/ericchase/Utility/Defer.js';
 import { BuilderInternal } from 'tools/lib/BuilderInternal.js';
-import { ProcessorFunction } from 'tools/lib/Processor.js';
+import { ProcessorMethod, ProcessorModule } from 'tools/lib/Processor.js';
 
 export class ProjectFile {
   constructor(
@@ -10,30 +9,13 @@ export class ProjectFile {
     public out_path: CPath,
   ) {}
 
-  $processor_list: ProcessorFunction[] = [];
-
-  addProcessorFunction(fn: ProcessorFunction): void {
-    this.$processor_list.push(fn);
-  }
-  async runProcessorList(waitlist?: Promise<void>[], defer?: Defer<void>) {
-    await Promise.allSettled(waitlist ?? []);
-    if (this.isdirty) {
-      for (const fn of this.$processor_list) {
-        await fn(this.builder, this);
-      }
-      if (this.ismodified) {
-        for (const downstream of this.builder.getDownstream(this)) {
-          downstream.isdirty = true;
-        }
-      }
-      this.isdirty = false;
-      this.ismodified = false;
-    }
-    defer?.resolve();
-  }
-
   /** When true, file needs to be processed during the next processing phase. */
-  isdirty = false;
+  $isdirty = false;
+  $processor_list: { processor: ProcessorModule; method: ProcessorMethod }[] = [];
+  addProcessor(processor: ProcessorModule, method: ProcessorMethod): void {
+    this.$processor_list.push({ processor, method });
+  }
+
   /** When true, file contents have been modified during the current processing phase. */
   ismodified = false;
   /** When false, $bytes/$text are no longer from the original file. */

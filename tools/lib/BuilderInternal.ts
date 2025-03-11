@@ -1,15 +1,16 @@
-import { Handler, HandlerCaller } from 'src/lib/ericchase/Design Pattern/Handler.js';
-import { PlatformProviderId, UnimplementedProvider } from 'src/lib/ericchase/Platform/PlatformProvider.js';
+import { Stats } from 'fs';
 import { CPath, Path } from 'src/lib/ericchase/Platform/FilePath.js';
+import { PlatformProviderId, UnimplementedProvider } from 'src/lib/ericchase/Platform/PlatformProvider.js';
 import { ConsoleLogWithDate } from 'src/lib/ericchase/Utility/Console.js';
+import { Debounce } from 'src/lib/ericchase/Utility/Debounce.js';
 import { Defer } from 'src/lib/ericchase/Utility/Defer.js';
 import { Map_GetOrDefault } from 'src/lib/ericchase/Utility/Map.js';
 import { Builder } from 'tools/lib/Builder.js';
 import { ProcessorModule } from 'tools/lib/Processor.js';
 import { ProjectFile } from 'tools/lib/ProjectFile.js';
 
-type WatchPublisher = HandlerCaller<{ event: 'rename' | 'change'; path: CPath }>;
-type WatchSubscriptionCallback = Handler<{ event: 'rename' | 'change'; path: CPath }>;
+// type WatchPublisher = HandlerCaller<{ event: 'rename' | 'change'; path: CPath }>;
+// type WatchSubscriptionCallback = Handler<{ event: 'rename' | 'change'; path: CPath }>;
 
 export interface BuildStep {
   run: (builder: BuilderInternal) => Promise<void>;
@@ -41,9 +42,10 @@ export class BuilderInternal {
 
   $map_downstream_to_upstream = new Map<ProjectFile, Set<ProjectFile>>();
   $map_upstream_to_downstream = new Map<ProjectFile, Set<ProjectFile>>();
+
   addDependency(upstream: ProjectFile, downstream: ProjectFile) {
     if (this.$map_downstream_to_upstream.get(upstream)?.has(downstream)) {
-      throw new Error(`dependency cycle between upstream "${upstream.src_path.standard}" and downstream "${downstream.src_path.standard}"`);
+      throw new Error(`dependency cycle between upstream "${upstream.src_path.raw}" and downstream "${downstream.src_path.raw}"`);
     }
     Map_GetOrDefault(this.$map_downstream_to_upstream, downstream, () => new Set<ProjectFile>()).add(upstream);
     Map_GetOrDefault(this.$map_upstream_to_downstream, upstream, () => new Set<ProjectFile>()).add(downstream);
@@ -61,67 +63,143 @@ export class BuilderInternal {
 
   // Files & Paths
 
-  set_files = new Set<ProjectFile>();
-  map_path_to_file = new Map<string, ProjectFile>();
+  $set_files = new Set<ProjectFile>();
+  // raw src paths
+  $set_paths = new Set<string>();
+  // raw src paths to project files
+  $map_path_to_file = new Map<string, ProjectFile>();
 
   get files(): Set<ProjectFile> {
-    return new Set<ProjectFile>(this.set_files);
+    return new Set(this.$set_files);
   }
-  get paths(): Set<CPath> {
-    return new Set<CPath>(Array.from(this.map_path_to_file.keys()).map((path) => Path(path)));
+  get paths(): Set<string> {
+    return new Set(this.$set_paths);
   }
   hasFile(project_file: ProjectFile): boolean {
     // @debug-start
-    const stored_file = this.map_path_to_file.get(project_file.src_path.standard);
+    const stored_file = this.$map_path_to_file.get(project_file.src_path.raw);
     if (stored_file !== undefined && stored_file !== project_file) {
-      throw new Error(`file "${project_file.src_path.standard}" different from stored file "${stored_file.src_path.standard}"`);
+      throw new Error(`file "${project_file.src_path.raw}" different from stored file "${stored_file.src_path.raw}"`);
     }
     // @debug-end
-    return this.map_path_to_file.has(project_file.src_path.standard);
+    return this.$map_path_to_file.has(project_file.src_path.raw);
   }
   hasPath(src_path: CPath): boolean {
-    return this.map_path_to_file.has(src_path.standard);
+    return this.$map_path_to_file.has(src_path.raw);
   }
   getFile(src_path: CPath): ProjectFile {
-    const project_file = this.map_path_to_file.get(src_path.standard);
+    const project_file = this.$map_path_to_file.get(src_path.raw);
     if (project_file === undefined) {
-      throw new Error(`file "${src_path.standard}" does not exist`);
+      throw new Error(`file "${src_path.raw}" does not exist`);
     }
     return project_file;
   }
 
-  addFile(src_path: CPath, out_path: CPath) {
+  addPath(src_path: CPath, out_path: CPath) {
     // @debug-start
-    if (this.map_path_to_file.has(src_path.standard)) {
-      throw new Error(`file "${src_path.standard}" already added`);
+    if (this.$map_path_to_file.has(src_path.raw)) {
+      throw new Error(`file "${src_path.raw}" already added`);
     }
     // @debug-end
     const file = new ProjectFile(this, src_path, out_path);
-    this.set_files.add(file);
-    this.map_path_to_file.set(src_path.standard, file);
+    this.$map_path_to_file.set(src_path.raw, file);
+    this.$set_files.add(file);
+    this.$set_paths.add(src_path.raw);
+    this.$set_unprocessed_added_files.add(file);
+    return file;
+  }
+  removePath(src_path: CPath) {
+    // @debug-start
+    if (this.$map_path_to_file.has(src_path.raw) === false) {
+      throw new Error(`file "${src_path.raw}" already removed`);
+    }
+    // @debug-end
+    const file = this.getFile(src_path);
+    this.$map_path_to_file.delete(src_path.raw);
+    this.$set_files.delete(file);
+    this.$set_paths.delete(src_path.raw);
+    this.$set_unprocessed_removed_files.add(file);
+    for (const upstream of this.$map_downstream_to_upstream.get(file) ?? []) {
+      this.removeDependency(upstream, file);
+    }
+    for (const downstream of this.$map_upstream_to_downstream.get(file) ?? []) {
+      this.removeDependency(file, downstream);
+    }
+    this.$map_downstream_to_upstream.delete(file);
+    this.$map_upstream_to_downstream.delete(file);
+    return file;
+  }
+  updatePath(src_path: CPath) {
+    const file = this.getFile(src_path);
+    this.$set_unprocessed_updated_files.add(file);
+    file.$isdirty = true;
     return file;
   }
 
-  // File Events
-  $watchers = new Map<string, { publisher: WatchPublisher; unwatch: () => void }>();
-  addWatcher(path: CPath, callback: WatchSubscriptionCallback) {
-    const watcher = Map_GetOrDefault(this.$watchers, path.standard, () => {
-      const publisher: WatchPublisher = new HandlerCaller();
-      const unwatch = this.platform.Directory.watch(path, (event, path) => {
-        publisher.call({ event, path });
-      });
-      return { publisher, unwatch };
-    });
-    watcher.publisher.add(callback);
+  reprocessFile(file: ProjectFile) {
+    this.$set_unprocessed_added_files.add(file); // trigger a first run
+    this.$set_unprocessed_updated_files.add(file);
+    file.$isdirty = true;
   }
 
-  // on_add = new HandlerCaller<Set<ProjectFile>>();
-  // on_modify = new HandlerCaller<Set<ProjectFile>>();
-  // on_remove = new HandlerCaller<Set<ProjectFile>>();
+  // File Events
+  $unwatchSource?: () => void;
+  async getStats(path: CPath | string): Promise<Stats | undefined> {
+    try {
+      return await this.platform.Path.getStats(Path(path));
+    } catch (error) {
+      return undefined;
+    }
+  }
+  setupSourceWatcher() {
+    if (this.$unwatchSource === undefined) {
+      const event_paths = new Set<string>();
+      const process_events = Debounce(async () => {
+        // copy the set and clear it
+        const event_paths_copy = new Set(event_paths);
+        event_paths.clear();
+
+        for (const path of event_paths_copy) {
+          const src_path = Path(this.dir.src, path);
+          const stats = await this.getStats(src_path);
+          if (stats?.isFile() === true) {
+            if (this.hasPath(src_path)) {
+              this.updatePath(src_path);
+            } else {
+              this.addPath(src_path, Path(this.dir.out, path));
+            }
+          }
+        }
+
+        const scan_paths = new Set(await this.platform.Directory.globScan(Path('./'), `${this.dir.src.standard}/**/*`));
+        const this_paths = new Set(Array.from(this.$map_path_to_file.keys()).map((str) => Path(str).raw));
+        for (const path of scan_paths.difference(this_paths)) {
+          this.addPath(Path(path), Path(this.dir.out, Path(path).slice(1)));
+        }
+        for (const path of this_paths.difference(scan_paths)) {
+          this.removePath(Path(path));
+        }
+
+        // process files
+        await this.processUnprocessedFiles();
+      }, 100);
+      this.$unwatchSource = this.platform.Directory.watch(this.dir.src, (event, path) => {
+        event_paths.add(path.raw);
+        process_events();
+      });
+      ConsoleLogWithDate(`Watching "${this.dir.src.raw}"`);
+    }
+  }
+
+  // Processing
+
+  $set_unprocessed_added_files = new Set<ProjectFile>();
+  $set_unprocessed_removed_files = new Set<ProjectFile>();
+  $set_unprocessed_updated_files = new Set<ProjectFile>();
 
   async start() {
     for (const path of await this.platform.Directory.globScan(this.dir.src, '**/*')) {
-      this.addFile(Path(this.dir.src, path), Path(this.dir.out, path));
+      this.addPath(Path(this.dir.src, path), Path(this.dir.out, path));
     }
 
     // Startup Steps
@@ -131,36 +209,55 @@ export class BuilderInternal {
     }
 
     // Processor Modules
-    await this.processAddedFiles(this.files);
+    await this.processUnprocessedFiles();
 
-    // Cleanup Steps
-    for (const step of this.cleanup_steps) {
-      ConsoleLogWithDate(step.constructor.name);
-      await step.run(this);
+    if (this.watchmode === true) {
+      // Source Watcher
+      this.setupSourceWatcher();
+    } else {
+      // Cleanup Steps
+      for (const step of this.cleanup_steps) {
+        ConsoleLogWithDate(step.constructor.name);
+        await step.run(this);
+      }
     }
   }
 
-  async processAddedFiles(added_files: Set<ProjectFile>) {
+  async processUnprocessedFiles() {
+    await this.$processRemovedFiles();
+    await this.$processAddedFiles();
+    await this.$processUpdatedFiles();
+  }
+
+  // always call processUpdatedFiles after this
+  async $processAddedFiles() {
     for (const processor of this.processor_modules) {
-      await processor.onAdd(this, added_files);
+      await processor.onAdd(this, this.$set_unprocessed_added_files);
     }
     const tasks: Promise<void>[] = [];
-    for (const file of added_files) {
-      file.isdirty = true;
-      tasks.push(file.runProcessorList());
+    for (const file of this.$set_unprocessed_added_files) {
+      tasks.push(firstRunProcessorList(file));
     }
     await Promise.allSettled(tasks);
-    await this.processUpdatedFiles(added_files);
+    this.$set_unprocessed_added_files.clear();
   }
 
-  async processUpdatedFiles(updated_files: Set<ProjectFile>) {
+  // always call processUpdatedFiles after this
+  async $processRemovedFiles() {
+    for (const processor of this.processor_modules) {
+      await processor.onRemove(this, this.$set_unprocessed_removed_files);
+    }
+    this.$set_unprocessed_removed_files.clear();
+  }
+
+  async $processUpdatedFiles() {
     const defers = new Map<ProjectFile, Defer<void>>();
     // add defers for updated file and all downstream files
-    for (const file of updated_files) {
+    for (const file of this.$set_unprocessed_updated_files) {
       if (defers.has(file) === false) {
         defers.set(file, Defer());
       }
-      for (const downstream of this.getDownstream(file) ?? []) {
+      for (const downstream of this.getDownstream(file)) {
         if (defers.has(downstream) === false) {
           defers.set(downstream, Defer());
         }
@@ -176,8 +273,36 @@ export class BuilderInternal {
           waitlist.push(upstream_defer.promise);
         }
       }
-      tasks.push(file.runProcessorList(waitlist, defer));
+      tasks.push(runProcessorList(file, waitlist, defer));
     }
     await Promise.allSettled(tasks);
+    this.$set_unprocessed_updated_files.clear();
   }
+}
+
+async function firstRunProcessorList(file: ProjectFile) {
+  file.resetBytes();
+  for (const { processor, method } of file.$processor_list) {
+    await method.call(processor, file.builder, file);
+  }
+  file.$isdirty = true;
+}
+
+async function runProcessorList(file: ProjectFile, waitlist: Promise<void>[], defer?: Defer<void>) {
+  await Promise.allSettled(waitlist);
+  if (file.$isdirty) {
+    file.$isdirty = false;
+    ConsoleLogWithDate(`Processing "${file.src_path.raw}"`);
+    file.resetBytes();
+    for (const { processor, method } of file.$processor_list) {
+      await method.call(processor, file.builder, file);
+    }
+    if (file.ismodified) {
+      file.ismodified = false;
+      for (const downstream of file.builder.getDownstream(file)) {
+        downstream.$isdirty = true;
+      }
+    }
+  }
+  defer?.resolve();
 }

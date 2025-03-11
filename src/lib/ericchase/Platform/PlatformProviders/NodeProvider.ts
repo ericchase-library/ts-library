@@ -4,6 +4,7 @@ import { PlatformProvider } from 'src/lib/ericchase/Platform/PlatformProvider.js
 
 const NodeProvider = PlatformProvider();
 
+// Directory
 NodeProvider.Directory.create = async function create(path: CPath, recursive = true) {
   try {
     await node_fs.promises.mkdir(path.raw, { recursive });
@@ -14,7 +15,6 @@ NodeProvider.Directory.create = async function create(path: CPath, recursive = t
   }
   return (await node_fs.promises.stat(path.raw)).isDirectory();
 };
-
 NodeProvider.Directory.delete = async (path, recursive) => {
   try {
     await node_fs.promises.rm(path.raw, { recursive, force: true });
@@ -25,7 +25,6 @@ NodeProvider.Directory.delete = async (path, recursive) => {
   }
   return node_fs.existsSync(path.raw) === false;
 };
-
 NodeProvider.Directory.watch = (path, callback, recursive = true) => {
   const watcher = node_fs.watch(path.raw, { persistent: true, recursive }, (event, filename) => {
     callback(event, Path(filename ?? ''));
@@ -33,6 +32,20 @@ NodeProvider.Directory.watch = (path, callback, recursive = true) => {
   return () => {
     watcher.close();
   };
+};
+
+// Path
+NodeProvider.Path.getStats = (path) => {
+  return node_fs.promises.stat(path.raw);
+};
+NodeProvider.Path.isDirectory = async (path) => {
+  return (await node_fs.promises.stat(path.raw)).isDirectory();
+};
+NodeProvider.Path.isFile = async (path) => {
+  return (await node_fs.promises.stat(path.raw)).isFile();
+};
+NodeProvider.Path.isSymbolicLink = async (path) => {
+  return (await node_fs.promises.stat(path.raw)).isSymbolicLink();
 };
 
 export default NodeProvider;

@@ -1,7 +1,9 @@
+import { default as node_fs } from 'node:fs';
 import { CPath, Path } from 'src/lib/ericchase/Platform/FilePath.js';
 import { SplitLines } from 'src/lib/ericchase/Utility/String.js';
 
 export type FileData = string | ArrayBufferLike | Blob | NodeJS.TypedArray<ArrayBufferLike>;
+export type FileStats = node_fs.Stats;
 export type WatchCallback = (event: 'rename' | 'change', path: CPath) => void;
 
 export class CPlatformProvider {
@@ -12,7 +14,7 @@ export class CPlatformProvider {
     delete: async (path: CPath, recursive = true): Promise<boolean> => {
       throw new Error('Not Implemented');
     },
-    globScan: async (path: CPath, pattern: string): Promise<Set<string>> => {
+    globScan: async (path: CPath, pattern: string): Promise<string[]> => {
       throw new Error('Not Implemented');
     },
     watch: (path: CPath, callback: WatchCallback, recursive = true): (() => void) => {
@@ -42,6 +44,20 @@ export class CPlatformProvider {
       throw new Error('Not Implemented');
     },
     writeText: async (path: CPath, text: string, createpath = true): Promise<number> => {
+      throw new Error('Not Implemented');
+    },
+  };
+  Path = {
+    getStats: async (path: CPath): Promise<FileStats> => {
+      throw new Error('Not Implemented');
+    },
+    isDirectory: async (path: CPath): Promise<boolean> => {
+      throw new Error('Not Implemented');
+    },
+    isFile: async (path: CPath): Promise<boolean> => {
+      throw new Error('Not Implemented');
+    },
+    isSymbolicLink: async (path: CPath): Promise<boolean> => {
       throw new Error('Not Implemented');
     },
   };
@@ -92,7 +108,7 @@ class CPlatformProviderErrorWrapper extends CPlatformProvider {
     delete: async (path: CPath, recursive = true): Promise<boolean> => {
       return callAsync(Error().stack, this.provider.Directory.delete(path, recursive));
     },
-    globScan: async (path: CPath, pattern: string): Promise<Set<string>> => {
+    globScan: async (path: CPath, pattern: string): Promise<string[]> => {
       return callAsync(Error().stack, this.provider.Directory.globScan(path, pattern));
     },
     watch: (path: CPath, callback: WatchCallback, recursive = true): (() => void) => {
@@ -125,6 +141,20 @@ class CPlatformProviderErrorWrapper extends CPlatformProvider {
       return callAsync(Error().stack, this.provider.File.writeText(path, text, createpath));
     },
   };
+  Path = {
+    getStats: async (path: CPath): Promise<FileStats> => {
+      return callAsync(Error().stack, this.provider.Path.getStats(path));
+    },
+    isDirectory: async (path: CPath): Promise<boolean> => {
+      return callAsync(Error().stack, this.provider.Path.isDirectory(path));
+    },
+    isFile: async (path: CPath): Promise<boolean> => {
+      return callAsync(Error().stack, this.provider.Path.isFile(path));
+    },
+    isSymbolicLink: async (path: CPath): Promise<boolean> => {
+      return callAsync(Error().stack, this.provider.Path.isSymbolicLink(path));
+    },
+  };
   Utility = {
     globMatch: (query: string, pattern: string): boolean => {
       return this.provider.Utility.globMatch(query, pattern);
@@ -141,10 +171,11 @@ const modulemap: Record<PlatformProviderId, string> = {
 const $cache = new Map<PlatformProviderId, CPlatformProvider>();
 export async function getPlatformProvider(id: PlatformProviderId): Promise<CPlatformProvider> {
   if ($cache.has(id) === false) {
+    const path = Path(__dirname, 'PlatformProviders', modulemap[id]).raw;
     try {
-      $cache.set(id, new CPlatformProviderErrorWrapper((await import(Path(__dirname, 'PlatformProviders', modulemap[id]).raw)).default));
+      $cache.set(id, new CPlatformProviderErrorWrapper((await import(path)).default));
     } catch (error) {
-      throw new Error(`Runtime "${id}" Not Implemented`);
+      throw new Error(`Runtime "${id}" @ "${path}" threw: ${error}`);
     }
   }
   return $cache.get(id) ?? UnimplementedProvider;

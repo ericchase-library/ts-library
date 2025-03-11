@@ -79,7 +79,7 @@ export class CPath {
   }
 
   // Get a subarray of the segments.
-  slice(begin: number, end: number) {
+  slice(begin: number, end?: number) {
     const sub = new CPath();
     sub.segments = this.segments.slice(begin, end);
     return sub;

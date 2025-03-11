@@ -218,13 +218,13 @@ process.on('exit', () => {
   Cache_UnlockAll();
 });
 
-export function TryLock(script: string) {
+export function Cache_TryLock(script: string) {
   Cache_LockOrExit(script, (error) => {
     ConsoleError(`Another process is locking ${script}. Please wait for that process to end.`, error ?? '');
   });
 }
 
-export function TryLockEach(scripts: string[]) {
+export function Cache_TryLockEach(scripts: string[]) {
   Cache_LockEachOrExit(scripts, (script, error) => {
     ConsoleError(`Another process is locking ${script}. Please wait for that process to end.`, error ?? '');
   });
