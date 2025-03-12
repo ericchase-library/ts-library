@@ -71,9 +71,17 @@ builder.setCleanupSteps([
   BuildStep_FSCopy({
     from: './',
     to: '../Project@Template/',
-    include_patterns: ['.gitignore', '.prettierignore', '.prettierrc', 'LICENSE-APACHE', 'NOTICE', 'biome.json', 'package.json', 'tsconfig.json', 'README.md'],
+    include_patterns: ['.gitignore', '.prettierignore', '.prettierrc', 'LICENSE-APACHE', 'biome.json', 'package.json', 'tsconfig.json'],
     overwrite: true,
   }),
+  BuildStep_FSCopy({
+    from: './',
+    to: '../Project@Template/',
+    include_patterns: ['NOTICE', 'README.md'],
+    overwrite: false,
+  }),
+
+  BuildStep_IOFormat(),
   //
 ]);
 
