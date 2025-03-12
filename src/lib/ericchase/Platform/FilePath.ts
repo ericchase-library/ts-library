@@ -7,7 +7,7 @@ export class CPath {
       if (path instanceof CPath) {
         this.segments.push(...path.segments);
       } else {
-        this.segments.push(...path.split(/[\\\/]/));
+        this.segments.push(...path.split(/[\\\/]/).filter(({ length }) => length > 0));
       }
     }
   }

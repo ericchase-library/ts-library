@@ -23,8 +23,8 @@ export class CProcessor_TypeScriptGenericBundlerImportRemapper implements Proces
         // replace src dir of import with ./ or ../ chain depending on from path
         const new_import_path =
           file.src_path.segments.length === 2 //
-            ? Path('.', import_path.slice(1)).standard
-            : Path('..'.repeat(file.src_path.segments.length - 1), import_path.slice(1)).standard;
+            ? import_path.standard.replace('src/', './')
+            : import_path.standard.replace('src/', '../'.repeat(file.src_path.segments.length - 2));
         text = text.slice(0, find_results.indexStart) + new_import_path + text.slice(find_results.indexEnd);
         find_results.indexEnd = find_results.indexStart + new_import_path.length;
       }
