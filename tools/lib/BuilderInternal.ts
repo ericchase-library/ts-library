@@ -238,7 +238,9 @@ export class BuilderInternal {
     for (const file of this.$set_unprocessed_added_files) {
       tasks.push(firstRunProcessorList(file));
     }
-    await Promise.allSettled(tasks);
+    for (const task of tasks) {
+      await task;
+    }
     this.$set_unprocessed_added_files.clear();
   }
 
@@ -267,7 +269,7 @@ export class BuilderInternal {
     const tasks: Promise<void>[] = [];
     for (const [file, defer] of defers) {
       const waitlist: Promise<void>[] = [];
-      for (const upstream of this.getUpstream(file) ?? []) {
+      for (const upstream of this.getUpstream(file)) {
         const upstream_defer = defers.get(upstream);
         if (upstream_defer) {
           waitlist.push(upstream_defer.promise);
@@ -275,7 +277,9 @@ export class BuilderInternal {
       }
       tasks.push(runProcessorList(file, waitlist, defer));
     }
-    await Promise.allSettled(tasks);
+    for (const task of tasks) {
+      await task;
+    }
     this.$set_unprocessed_updated_files.clear();
   }
 }
@@ -289,7 +293,9 @@ async function firstRunProcessorList(file: ProjectFile) {
 }
 
 async function runProcessorList(file: ProjectFile, waitlist: Promise<void>[], defer?: Defer<void>) {
-  await Promise.allSettled(waitlist);
+  for (const task of waitlist) {
+    await task;
+  }
   if (file.$isdirty) {
     file.$isdirty = false;
     ConsoleLogWithDate(`Processing "${file.src_path.raw}"`);

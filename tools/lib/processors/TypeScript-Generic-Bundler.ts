@@ -75,9 +75,11 @@ export class CProcessor_TypeScriptGenericBundler implements ProcessorModule {
             {
               const text = await artifact.text();
               file.setText(text);
-              for (const [, ...paths] of text.matchAll(/\n?\/\/ src\/(.*)\n?/g)) {
+              for (const [, ...paths] of text.matchAll(/\n?\/\/ (src\/.*)\n?/g)) {
                 for (const path of paths) {
-                  builder.addDependency(builder.getFile(Path(path)), file);
+                  if (file.src_path.equals(path) === false) {
+                    builder.addDependency(builder.getFile(Path(path)), file);
+                  }
                 }
               }
             }

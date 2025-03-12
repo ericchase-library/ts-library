@@ -75,7 +75,14 @@ export class CPath {
     if (other instanceof CPath) {
       return this.standard.endsWith(other.standard);
     }
-    return this.standard.endsWith(new CPath(other).standard);
+    return this.standard.endsWith(Path(other).standard);
+  }
+
+  equals(other: CPath | string) {
+    if (other instanceof CPath) {
+      return this.standard === other.standard;
+    }
+    return this.standard === Path(other).standard;
   }
 
   // Get a subarray of the segments.

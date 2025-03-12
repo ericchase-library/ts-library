@@ -1,5 +1,6 @@
+import { ConsoleLog } from 'src/lib/ericchase/Utility/Console.js';
 import { Builder } from 'tools/lib/Builder.js';
-import { BuildStep_BunInstall } from 'tools/lib/steps/Bun-Install.js';
+import { BuildStep, BuilderInternal } from 'tools/lib/BuilderInternal.js';
 import { BuildStep_FSCleanDirectory } from 'tools/lib/steps/FS-CleanDirectory.js';
 import { BuildStep_FSCopy } from 'tools/lib/steps/FS-Copy.js';
 import { BuildStep_IOFormat } from 'tools/lib/steps/IO-Format.js';
@@ -7,7 +8,13 @@ import { BuildStep_IOFormat } from 'tools/lib/steps/IO-Format.js';
 const builder = new Builder(Bun.argv[2] === '--watch' ? 'watch' : 'build');
 
 builder.setStartupSteps([
-  BuildStep_BunInstall(),
+  // force latest update
+  new (class implements BuildStep {
+    async run(builder: BuilderInternal) {
+      Bun.spawnSync(['bun', 'update', '--latest'], { stderr: 'inherit', stdout: 'inherit' });
+      ConsoleLog();
+    }
+  })(),
   BuildStep_IOFormat(),
   //
 ]);

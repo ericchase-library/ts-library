@@ -1,5 +1,5 @@
-import { BuilderInternal, BuildStep } from 'tools/lib/BuilderInternal.js';
 import { CPath, Path } from 'src/lib/ericchase/Platform/FilePath.js';
+import { BuilderInternal, BuildStep } from 'tools/lib/BuilderInternal.js';
 
 class CBuildStep_FSCleanDirectory implements BuildStep {
   constructor(readonly paths: CPath[]) {}
@@ -11,6 +11,6 @@ class CBuildStep_FSCleanDirectory implements BuildStep {
   }
 }
 
-export function BuildStep_FSCleanDirectory(paths: string[]): BuildStep {
+export function BuildStep_FSCleanDirectory(paths: (CPath | string)[]): BuildStep {
   return new CBuildStep_FSCleanDirectory(paths.map((path) => Path(path)));
 }
