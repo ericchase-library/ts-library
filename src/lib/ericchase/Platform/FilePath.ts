@@ -56,29 +56,28 @@ export class CPath {
   }
 
   // Returns a relative path between this path and other.
-  getRelative(other: CPath | string) {
+  getRelative(other: CPath | string): CPath {
     if (other instanceof CPath) {
-      return node_path.relative(this.standard, other.standard);
+      return Path(node_path.relative(this.standard, other.standard));
     }
-    return node_path.relative(this.standard, Path(other).standard);
+    return Path(node_path.relative(this.standard, Path(other).standard));
   }
 
   // String method counterparts that handle normalization and standardization
   // of operands.
-  startsWith(other: CPath | string) {
+  startsWith(other: CPath | string): boolean {
     if (other instanceof CPath) {
       return this.standard.startsWith(other.standard);
     }
     return this.standard.startsWith(Path(other).standard);
   }
-  endsWith(other: CPath | string) {
+  endsWith(other: CPath | string): boolean {
     if (other instanceof CPath) {
       return this.standard.endsWith(other.standard);
     }
     return this.standard.endsWith(Path(other).standard);
   }
-
-  equals(other: CPath | string) {
+  equals(other: CPath | string): boolean {
     if (other instanceof CPath) {
       return this.standard === other.standard;
     }
@@ -86,23 +85,23 @@ export class CPath {
   }
 
   // Get a subarray of the segments.
-  slice(begin: number, end?: number) {
+  slice(begin: number, end?: number): CPath {
     const sub = new CPath();
     sub.segments = this.segments.slice(begin, end);
     return sub;
   }
 
   // Useful for some console log coercion.
-  toString() {
+  toString(): string {
     return this.standard;
   }
 }
 
-export function Path(...paths: (CPath | string)[]) {
+export function Path(...paths: (CPath | string)[]): CPath {
   return new CPath(...paths);
 }
 
 // Resolves '..' and '.' segments of final path.
-export function NormalizedPath(...paths: (CPath | string)[]) {
+export function NormalizedPath(...paths: (CPath | string)[]): CPath {
   return Path(node_path.normalize(Path(...paths).standard));
 }
