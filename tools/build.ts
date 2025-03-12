@@ -1,7 +1,4 @@
 import { Builder } from 'tools/lib/Builder.js';
-import { Processor_HTMLCustomComponent } from 'tools/lib/processors/HTML-Custom-Component.js';
-import { Processor_HTMLImportConverter } from 'tools/lib/processors/HTML-Import-Converter.js';
-import { Processor_IOBasicWriter } from 'tools/lib/processors/IO-Basic-Writer.js';
 import { BuildStep_BunInstall } from 'tools/lib/steps/Bun-Install.js';
 import { BuildStep_FSCleanDirectory } from 'tools/lib/steps/FS-CleanDirectory.js';
 import { BuildStep_FSCopy } from 'tools/lib/steps/FS-Copy.js';
@@ -12,6 +9,15 @@ const builder = new Builder(Bun.argv[2] === '--watch' ? 'watch' : 'build');
 builder.setStartupSteps([
   BuildStep_BunInstall(),
   BuildStep_IOFormat(),
+  //
+]);
+
+builder.setProcessorModules([
+  //
+]);
+
+builder.setCleanupSteps([
+  // Clean Template Folders
   BuildStep_FSCleanDirectory([
     '../Project@Template/server/src',
     '../Project@Template/server/tools',
@@ -19,17 +25,7 @@ builder.setStartupSteps([
     '../Project@Template/tools/lib/',
     //
   ]),
-]);
 
-builder.setProcessorModules([
-  Processor_HTMLCustomComponent(),
-  Processor_HTMLImportConverter(),
-  Processor_IOBasicWriter(['**/*'], ['**/*.ts', `${builder.dir.lib.standard}/**/*`]), // all files except for .ts and lib files
-  Processor_IOBasicWriter(['**/*.module.ts', '**/*.script.ts'], []), // all module and script files
-  //
-]);
-
-builder.setCleanupSteps([
   // Copy Server Folder
   BuildStep_FSCopy({
     from: 'server/src/',
