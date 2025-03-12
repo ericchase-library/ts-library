@@ -9,8 +9,6 @@ export class ProjectFile {
     public out_path: CPath,
   ) {}
 
-  /** When true, file needs to be processed during the next processing phase. */
-  $isdirty = false;
   $processor_list: { processor: ProcessorModule; method: ProcessorMethod }[] = [];
   addProcessor(processor: ProcessorModule, method: ProcessorMethod): void {
     this.$processor_list.push({ processor, method });

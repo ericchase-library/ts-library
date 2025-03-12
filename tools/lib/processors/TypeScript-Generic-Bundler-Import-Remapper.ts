@@ -79,9 +79,8 @@ function findQuotePairFromEnd(text: string, start: number, end: number) {
   }
   if (double_end > single_end) {
     return { start: start + slice.lastIndexOf('"', double_end - 1), end: start + double_end };
-  } else {
-    return { start: start + slice.lastIndexOf("'", single_end - 1), end: start + single_end };
   }
+  return { start: start + slice.lastIndexOf("'", single_end - 1), end: start + single_end };
 }
 
 export function Processor_TypeScriptGenericBundlerImportRemapper(): ProcessorModule {

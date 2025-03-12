@@ -1,6 +1,5 @@
-import { Stats } from 'fs';
 import { CPath, Path } from 'src/lib/ericchase/Platform/FilePath.js';
-import { PlatformProviderId, UnimplementedProvider } from 'src/lib/ericchase/Platform/PlatformProvider.js';
+import { FileStats, PlatformProviderId, UnimplementedProvider } from 'src/lib/ericchase/Platform/PlatformProvider.js';
 import { ConsoleLogWithDate } from 'src/lib/ericchase/Utility/Console.js';
 import { Debounce } from 'src/lib/ericchase/Utility/Debounce.js';
 import { Defer } from 'src/lib/ericchase/Utility/Defer.js';
@@ -8,9 +7,6 @@ import { Map_GetOrDefault } from 'src/lib/ericchase/Utility/Map.js';
 import { Builder } from 'tools/lib/Builder.js';
 import { ProcessorModule } from 'tools/lib/Processor.js';
 import { ProjectFile } from 'tools/lib/ProjectFile.js';
-
-// type WatchPublisher = HandlerCaller<{ event: 'rename' | 'change'; path: CPath }>;
-// type WatchSubscriptionCallback = Handler<{ event: 'rename' | 'change'; path: CPath }>;
 
 export interface BuildStep {
   run: (builder: BuilderInternal) => Promise<void>;
@@ -132,19 +128,17 @@ export class BuilderInternal {
   updatePath(src_path: CPath) {
     const file = this.getFile(src_path);
     this.$set_unprocessed_updated_files.add(file);
-    file.$isdirty = true;
     return file;
   }
 
   reprocessFile(file: ProjectFile) {
     this.$set_unprocessed_added_files.add(file); // trigger a first run
     this.$set_unprocessed_updated_files.add(file);
-    file.$isdirty = true;
   }
 
   // File Events
   $unwatchSource?: () => void;
-  async getStats(path: CPath | string): Promise<Stats | undefined> {
+  async getStats(path: CPath | string): Promise<FileStats | undefined> {
     try {
       return await this.platform.Path.getStats(Path(path));
     } catch (error) {
@@ -289,26 +283,16 @@ async function firstRunProcessorList(file: ProjectFile) {
   for (const { processor, method } of file.$processor_list) {
     await method.call(processor, file.builder, file);
   }
-  file.$isdirty = true;
 }
 
 async function runProcessorList(file: ProjectFile, waitlist: Promise<void>[], defer?: Defer<void>) {
   for (const task of waitlist) {
     await task;
   }
-  if (file.$isdirty) {
-    file.$isdirty = false;
-    ConsoleLogWithDate(`Processing "${file.src_path.raw}"`);
-    file.resetBytes();
-    for (const { processor, method } of file.$processor_list) {
-      await method.call(processor, file.builder, file);
-    }
-    if (file.ismodified) {
-      file.ismodified = false;
-      for (const downstream of file.builder.getDownstream(file)) {
-        downstream.$isdirty = true;
-      }
-    }
+  ConsoleLogWithDate(`Processing - "${file.src_path.raw}"`);
+  file.resetBytes();
+  for (const { processor, method } of file.$processor_list) {
+    await method.call(processor, file.builder, file);
   }
   defer?.resolve();
 }
