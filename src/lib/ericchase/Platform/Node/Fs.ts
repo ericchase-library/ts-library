@@ -30,7 +30,7 @@ export async function CreateDirectory(path: Path | PathGroup | URL, is_file = fa
     } else {
       await node_fs.promises.mkdir(is_file === true ? Path.from(path).dir : path.path, { recursive: true });
     }
-  } catch (error) {
+  } catch (error: any) {
     if (error?.code !== 'EEXIST') {
       throw error;
     }

@@ -1,14 +1,15 @@
 import { ArraySplit } from '../../Algorithm/Array.js';
+import { JSONRawStringParse } from '../../Algorithm/JSON.js';
 import { ConsoleError } from '../../Utility/Console.js';
 import { Split, SplitMultipleSpaces } from '../../Utility/String.js';
 function createCodeMap(table) {
   const map = {};
   for (const [name, code] of ArraySplit(Split(table.trim(), '|', true), 3)) {
-    map[name.trim()] = SplitMultipleSpaces(code, true)[0];
+    map[name.trim()] = JSONRawStringParse(SplitMultipleSpaces(code, true)[0]);
   }
   return map;
 }
-const GeneralASCIICodes = createCodeMap(`
+const GeneralASCIICodes = createCodeMap(String.raw`
 | BEL | \u0007 | Terminal bell
 | BS  | \u0008 | Backspace
 | HT  | \u0009 | Horizontal TAB
@@ -24,17 +25,16 @@ const CSI = `${ESC}[`;
 const DCS = `${ESC}P`;
 const OSC = `${ESC}]`;
 export const KEYS = {
-  // Special
-  SIGINT: '\u0003', // Kill the currently running task in terminal.
+  SIGINT: JSONRawStringParse(String.raw`\u0003`),
   ESC,
   CSI,
   DCS,
   OSC,
   ARROWS: {
-    DOWN: '\u001B[B',
-    LEFT: '\u001B[D',
-    RIGHT: '\u001B[C',
-    UP: '\u001B[A',
+    DOWN: JSONRawStringParse(String.raw`\u001B[B`),
+    LEFT: JSONRawStringParse(String.raw`\u001B[D`),
+    RIGHT: JSONRawStringParse(String.raw`\u001B[C`),
+    UP: JSONRawStringParse(String.raw`\u001B[A`),
   },
 };
 export const Shell = {

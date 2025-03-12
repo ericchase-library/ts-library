@@ -16,8 +16,8 @@
 
     // Import aliases
     "paths": {
-      "lib/*": ["./src/lib/*"],
       "src/*": ["./src/*"],
+      "lib/*": ["./src/lib/*"],
       "tools/*": ["./tools/*"]
     }
   },
