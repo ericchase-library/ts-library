@@ -4,7 +4,7 @@ import { ConsoleLog } from 'src/lib/ericchase/Utility/Console.js';
 import { BuilderInternal, BuildStep } from 'tools/lib/BuilderInternal.js';
 import { Cache_IsFileModified } from 'tools/lib/cache/FileStatsCache.js';
 
-class CBuildStep_FSCopy implements BuildStep {
+class CBuildStep_FSCopyFiles implements BuildStep {
   constructor(
     readonly options: {
       from: CPath;
@@ -15,7 +15,18 @@ class CBuildStep_FSCopy implements BuildStep {
     },
   ) {}
   async run(builder: BuilderInternal) {
-    for (const path of await globScan(builder.platform, this.options.from, this.options.include_patterns, this.options.exclude_patterns)) {
+    const set_from = await globScan(builder.platform, this.options.from, this.options.include_patterns, this.options.exclude_patterns);
+    const set_to = await globScan(builder.platform, this.options.to, this.options.include_patterns, this.options.exclude_patterns);
+    // copy all files that are missing
+    for (const path of set_from.difference(set_to)) {
+      const from = Path(this.options.from, path);
+      const to = Path(this.options.to, path);
+      if ((await builder.platform.File.copy(from, to, this.options.overwrite)) === true) {
+        ConsoleLog(`Copied "${from.raw}" -> "${to.raw}"`);
+      }
+    }
+    // check matching files for modification
+    for (const path of set_from.intersection(set_to)) {
       const from = Path(this.options.from, path);
       const result = await Cache_IsFileModified(from);
       if (result.data === true) {
@@ -30,8 +41,8 @@ class CBuildStep_FSCopy implements BuildStep {
   }
 }
 
-export function BuildStep_FSCopy(options: { from: string; to: string; include_patterns?: string[]; exclude_patterns?: string[]; overwrite?: boolean }): BuildStep {
-  return new CBuildStep_FSCopy({
+export function BuildStep_FSCopyFiles(options: { from: string; to: string; include_patterns?: string[]; exclude_patterns?: string[]; overwrite?: boolean }): BuildStep {
+  return new CBuildStep_FSCopyFiles({
     from: Path(options.from),
     to: Path(options.to),
     include_patterns: options.include_patterns ?? ['*'],
