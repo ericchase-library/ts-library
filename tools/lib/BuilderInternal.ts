@@ -1,8 +1,8 @@
 import { CPath, Path } from 'src/lib/ericchase/Platform/FilePath.js';
 import { FileStats, PlatformProviderId, UnimplementedProvider } from 'src/lib/ericchase/Platform/PlatformProvider.js';
 import { KEYS } from 'src/lib/ericchase/Platform/Shell.js';
-import { AddStdinListener, StartStdinRawModeReader, StopStdinReader } from 'src/lib/ericchase/Platform/StdinReader.js';
-import { ConsoleLogWithDate } from 'src/lib/ericchase/Utility/Console.js';
+import { AddStdinListener, StartStdinRawModeReader } from 'src/lib/ericchase/Platform/StdinReader.js';
+import { ConsoleLog, ConsoleLogWithDate } from 'src/lib/ericchase/Utility/Console.js';
 import { Debounce } from 'src/lib/ericchase/Utility/Debounce.js';
 import { Defer } from 'src/lib/ericchase/Utility/Defer.js';
 import { Map_GetOrDefault } from 'src/lib/ericchase/Utility/Map.js';
@@ -215,13 +215,15 @@ export class BuilderInternal {
       AddStdinListener(async (bytes, text, removeSelf) => {
         if (text === KEYS.SIGINT || text === 'q') {
           removeSelf();
+          ConsoleLog('User Command: Quit');
           this.$unwatchSource?.();
-          StopStdinReader();
           // Cleanup Steps
           for (const step of this.cleanup_steps) {
             ConsoleLogWithDate(step.constructor.name);
             await step.run(this);
           }
+          // Force Exit
+          process.exit();
         }
       });
       StartStdinRawModeReader();
