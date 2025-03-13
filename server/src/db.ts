@@ -1,5 +1,4 @@
 import { Client } from 'pg';
-import { ConsoleError } from './lib/ericchase/Utility/Console.js';
 
 const getClient = (() => {
   const client: Client | undefined = undefined;
@@ -18,22 +17,19 @@ const getClient = (() => {
         await client.connect();
         return client;
       }
-      throw 'Client undefined';
+      throw new Error('client === undefined');
     } catch (error) {
-      throw `  PostgreSQL Database Failure
-  Confirm that the database docker container is running.
-  Error: ${error}`;
+      throw new Error(`
+  PostgreSQL Database Failure
+Confirm that the database docker container is running.
+Error: ${error}
+`);
     }
   };
 })();
 
 export async function query(text: string, params: any[]) {
-  try {
-    const client = await getClient();
-    const response = await client.query(text, params);
-    return response.rows;
-  } catch (error) {
-    ConsoleError(error);
-    throw error;
-  }
+  const client = await getClient();
+  const response = await client.query(text, params);
+  return response.rows;
 }

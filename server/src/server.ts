@@ -1,3 +1,4 @@
+import { ServerWebSocket } from 'bun';
 import chalk from 'chalk';
 import { ConsoleLog } from './lib/ericchase/Utility/Console.js';
 import { get } from './router.get.js';
@@ -15,8 +16,9 @@ Bun.env.PUBLIC_PATH = PUBLIC_PATH;
 
 tryStartServer(PREFERRED_HOSTNAME, PREFERRED_PORT);
 
+interface WebSocketData {}
 function createServer(hostname: string, port: number) {
-  const server = Bun.serve({
+  const server = Bun.serve<ServerWebSocket<WebSocketData>, {}>({
     async fetch(req) {
       try {
         const method = req.method;
@@ -47,11 +49,11 @@ function createServer(hostname: string, port: number) {
     hostname: hostname,
     port,
     websocket: {
-      close(ws) {
+      close(ws: ServerWebSocket<WebSocketData>, code: number, reason: string) {
         ws.unsubscribe('ws');
       },
-      message(ws, message) {},
-      open(ws) {
+      message(ws: ServerWebSocket<WebSocketData>, message: string | Buffer) {},
+      open(ws: ServerWebSocket<WebSocketData>) {
         ws.subscribe('ws');
       },
       perMessageDeflate: false,
@@ -72,6 +74,7 @@ function tryStartServer(hostname: string, port: number) {
   try {
     const server = createServer(hostname, port);
     ConsoleLog('Serving at', `http://${server.hostname === '0.0.0.0' ? 'localhost' : server.hostname}:${server.port}/`);
+    ConsoleLog('Console at', `http://${server.hostname === '0.0.0.0' ? 'localhost' : server.hostname}:${server.port}/console`);
     ConsoleLog();
   } catch (error) {
     let error_code: 'EADDRINUSE' | 'EBADHOST' | undefined = undefined;

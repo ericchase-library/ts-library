@@ -1,5 +1,5 @@
-import { readdir } from 'node:fs/promises';
-import path from 'node:path';
+import { default as node_fs } from 'node:fs';
+import { NormalizedPath } from 'src/lib/ericchase/Platform/FilePath.js';
 import { ConsoleLog } from './lib/ericchase/Utility/Console.js';
 
 export namespace server {
@@ -19,21 +19,34 @@ export namespace server {
         return new Response('Shutting down server.');
       }
       case '/server/list': {
-        const entries: string[] = [];
-        if (Bun.env.PUBLIC_PATH) {
-          const public_path = path.normalize(Bun.env.PUBLIC_PATH);
-          for (const entry of await readdir(public_path, {
-            encoding: 'utf8',
-            recursive: true,
-            withFileTypes: true,
-          })) {
-            if (entry.isFile()) {
-              entries.push(path.relative(public_path, `${entry.parentPath}\\${entry.name}`));
-            }
-          }
-        }
-        return new Response(JSON.stringify(entries.sort()));
+        return getPublicListing();
       }
     }
+  }
+}
+
+async function getPublicListing(): Promise<Response | undefined> {
+  if (Bun.env.PUBLIC_PATH) {
+    const public_path = NormalizedPath(Bun.env.PUBLIC_PATH);
+    try {
+      if ((await node_fs.promises.stat(public_path.raw)).isDirectory() === false) {
+        throw undefined;
+      }
+    } catch (error) {
+      throw new Error(`PUBLIC_PATH "${Bun.env.PUBLIC_PATH}" does not exist or is not a directory.`);
+    }
+
+    const entries: string[] = [];
+    for (const entry of await node_fs.promises.readdir(public_path.raw, {
+      encoding: 'utf8',
+      recursive: true,
+      withFileTypes: true,
+    })) {
+      if (entry.isFile()) {
+        entries.push(public_path.getRelative(`${entry.parentPath}\\${entry.name}`).standard);
+      }
+    }
+
+    return new Response(JSON.stringify(entries.sort()));
   }
 }
