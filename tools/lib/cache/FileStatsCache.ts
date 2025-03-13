@@ -1,13 +1,7 @@
-import xxhash from 'xxhash-wasm';
-
 import { CPath } from 'src/lib/ericchase/Platform/FilePath.js';
-import { getPlatformProvider } from 'src/lib/ericchase/Platform/PlatformProvider.js';
 import { DataSetMarkerManager } from 'src/lib/ericchase/Utility/UpdateMarker.js';
-import { cache_db, CreateAllQuery, CreateGetQuery, CreateRunQuery, QueryError, QueryExistsResult, QueryResult } from 'tools/lib/cache/cache.js';
+import { cache_db, cache_platform, CreateAllQuery, CreateGetQuery, CreateRunQuery, QueryError, QueryExistsResult, QueryResult } from 'tools/lib/cache/cache.js';
 import { Cache_Lock, Cache_Unlock } from 'tools/lib/cache/LockCache.js';
-
-const { h64Raw } = await xxhash();
-const platform = await getPlatformProvider('bun');
 
 const PATH = 'path';
 const MTIMEMS = 'mtimeMs';
@@ -114,12 +108,16 @@ export function Cache_GetFileModifiedMarker() {
   return modified_marker_manager.getNewMarker();
 }
 
+let h64Raw: ((inputBuffer: Uint8Array, seed?: bigint) => bigint) | undefined = undefined;
 export async function Cache_IsFileModified(path: CPath): Promise<QueryResult<boolean>> {
+  if (h64Raw === undefined) {
+    h64Raw = (await (await import('xxhash-wasm')).default()).h64Raw;
+  }
   try {
-    const mtimeMs = (await platform.Path.getStats(path)).mtimeMs;
+    const mtimeMs = (await cache_platform.Path.getStats(path)).mtimeMs;
     const q0 = isFileTimeModified({ [PATH]: path.raw, [CURRENT_MTIMEMS]: mtimeMs });
     if (q0?.result === 1) {
-      const xxhash = h64Raw(await platform.File.readBytes(path));
+      const xxhash = h64Raw(await cache_platform.File.readBytes(path));
       const q1 = isFileHashModified({ [PATH]: path.raw, [CURRENT_HASH]: xxhash });
       if (q1?.result === 1) {
         updateFileStatsRecord({ [PATH]: path.raw, [MTIMEMS]: mtimeMs, [HASH]: xxhash });
