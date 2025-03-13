@@ -15,7 +15,7 @@ builder.setStartupSteps([
       ConsoleLog();
     }
   })(),
-  BuildStep_FSFormat('quiet'),
+  BuildStep_FSFormat(),
   //
 ]);
 

@@ -1,6 +1,6 @@
 import { U8StreamReadAll } from 'src/lib/ericchase/Algorithm/Stream.js';
 import { U8ToString } from 'src/lib/ericchase/Algorithm/Uint8Array.js';
-import { ConsoleLog } from 'src/lib/ericchase/Utility/Console.js';
+import { ConsoleErrorNotEmpty, ConsoleLog, ConsoleLogNotEmpty } from 'src/lib/ericchase/Utility/Console.js';
 import { BuilderInternal, BuildStep } from 'tools/lib/BuilderInternal.js';
 
 class CBuildStep_FSFormat implements BuildStep {
@@ -10,11 +10,12 @@ class CBuildStep_FSFormat implements BuildStep {
     const p1 = Bun.spawn(['prettier', '**/*.{html,md,yaml}', '--write'], { stderr: 'pipe', stdout: 'pipe' });
     await Promise.allSettled([p0.exited, p1.exited]);
     if (this.mode === 'normal') {
-      ConsoleLog(U8ToString(await U8StreamReadAll(p0.stdout)));
-      ConsoleLog(U8ToString(await U8StreamReadAll(p0.stderr)));
-      ConsoleLog(U8ToString(await U8StreamReadAll(p1.stdout)));
-      ConsoleLog(U8ToString(await U8StreamReadAll(p1.stderr)));
-      ConsoleLog();
+      ConsoleLog('> BIOME');
+      ConsoleLogNotEmpty(U8ToString(await U8StreamReadAll(p0.stdout)));
+      ConsoleErrorNotEmpty(U8ToString(await U8StreamReadAll(p0.stderr)));
+      ConsoleLog('> PRETTIER');
+      ConsoleLogNotEmpty(U8ToString(await U8StreamReadAll(p1.stdout)));
+      ConsoleErrorNotEmpty(U8ToString(await U8StreamReadAll(p1.stderr)));
     }
   }
 }
