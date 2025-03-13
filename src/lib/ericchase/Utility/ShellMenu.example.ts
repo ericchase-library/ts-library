@@ -1,5 +1,5 @@
-import { StdinRawModeReader } from 'src/lib/ericchase/Platform/Node/Process.js';
-import { KEYS, Shell } from 'src/lib/ericchase/Platform/Node/Shell.js';
+import { KEYS, Shell } from 'src/lib/ericchase/Platform/Shell.js';
+import { AddStdinListener, StartStdinRawModeReader } from 'src/lib/ericchase/Platform/StdinReader.js';
 import { ShellMenu } from 'src/lib/ericchase/Utility/ShellMenu.js';
 
 const menu = new ShellMenu({
@@ -53,15 +53,13 @@ const menu = new ShellMenu({
   },
 });
 
-const stdin = new StdinRawModeReader();
-stdin.addHandler((text) => {
+AddStdinListener(async (bytes, text, removeSelf) => {
   if (text === KEYS.SIGINT) {
     process.exit();
   }
 });
-await stdin.start();
 
-stdin.addHandler(async (text) => {
+AddStdinListener(async (bytes, text, removeSelf) => {
   switch (text) {
     case KEYS.ARROWS.UP:
       menu.previousItem();
@@ -70,8 +68,8 @@ stdin.addHandler(async (text) => {
       menu.nextItem();
       break;
     case ' ':
-    case '\r':
-    case '\n':
+    case KEYS.CR:
+    case KEYS.LF:
       await menu.selectItem();
       break;
     case KEYS.ESC:
@@ -80,4 +78,5 @@ stdin.addHandler(async (text) => {
   }
 });
 
+StartStdinRawModeReader();
 Shell.HideCursor();
