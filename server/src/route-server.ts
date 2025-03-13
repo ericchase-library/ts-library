@@ -35,7 +35,6 @@ async function getPublicListing(): Promise<Response | undefined> {
     } catch (error) {
       throw new Error(`PUBLIC_PATH "${Bun.env.PUBLIC_PATH}" does not exist or is not a directory.`);
     }
-
     const entries: string[] = [];
     for (const entry of await node_fs.promises.readdir(public_path.raw, {
       encoding: 'utf8',
@@ -46,7 +45,6 @@ async function getPublicListing(): Promise<Response | undefined> {
         entries.push(public_path.getRelative(`${entry.parentPath}\\${entry.name}`).standard);
       }
     }
-
     return new Response(JSON.stringify(entries.sort()));
   }
 }
