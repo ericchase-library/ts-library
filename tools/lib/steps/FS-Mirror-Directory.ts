@@ -21,22 +21,30 @@ class CBuildStep_FSMirrorDirectory implements BuildStep {
     } catch (error) {
       throw new Error(`The "from" path ("${this.options.from.raw}") does not exist.`);
     }
-    try {
-      await builder.platform.Path.getStats(this.options.to);
-    } catch (error) {
-      throw new Error(`The "to" path ("${this.options.to.raw}") does not exist.`);
-    }
+    await builder.platform.Directory.create(this.options.to);
 
     const set_from = await globScan(builder.platform, this.options.from, this.options.include_patterns, this.options.exclude_patterns);
     const set_to = await globScan(builder.platform, this.options.to, this.options.include_patterns, this.options.exclude_patterns);
+
+    // remove all files that shouldn't be
+    for (const path of set_to.difference(set_from)) {
+      const from = Path(this.options.from, path);
+      const to = Path(this.options.to, path);
+      if ((await builder.platform.File.delete(to)) === true) {
+        ConsoleLog(`Deleted "${from.raw}" -> "${to.raw}"`);
+      }
+    }
+
     // copy all files that are missing
     for (const path of set_from.difference(set_to)) {
       const from = Path(this.options.from, path);
       const to = Path(this.options.to, path);
+      await Cache_IsFileModified(from);
       if ((await builder.platform.File.copy(from, to, true)) === true) {
         ConsoleLog(`Copied "${from.raw}" -> "${to.raw}"`);
       }
     }
+
     // check matching files for modification
     for (const path of set_from.intersection(set_to)) {
       const from = Path(this.options.from, path);
@@ -48,14 +56,6 @@ class CBuildStep_FSMirrorDirectory implements BuildStep {
         }
       } else if (result.error !== undefined) {
         throw result.error;
-      }
-    }
-    // remove all files that shouldn't be
-    for (const path of set_to.difference(set_from)) {
-      const from = Path(this.options.from, path);
-      const to = Path(this.options.to, path);
-      if ((await builder.platform.File.delete(to)) === true) {
-        ConsoleLog(`Deleted "${from.raw}" -> "${to.raw}"`);
       }
     }
   }

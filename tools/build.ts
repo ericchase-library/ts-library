@@ -17,8 +17,8 @@ builder.setProcessorModules([
 ]);
 
 builder.setCleanupSteps([
-  // Update Server Lib Files
-  BuildStep_FSMirrorDirectory({ from: 'src/lib/ericchase/', to: 'server/src/lib/ericchase/', include_patterns: ['src/lib/ericchase/Platform/FilePath.ts', 'src/lib/ericchase/Utility/Console.ts', 'src/lib/ericchase/Utility/UpdateMarker.ts'] }),
+  // Update Local Server Files
+  BuildStep_FSMirrorDirectory({ from: 'src/lib/ericchase/', to: 'server/src/lib/ericchase/', include_patterns: ['Platform/FilePath.ts', 'Utility/Console.ts', 'Utility/UpdateMarker.ts'] }),
 
   // Mirror Server Directories
   BuildStep_FSMirrorDirectory({ from: 'server/', to: '../Project@Template/server/', include_patterns: ['**/*'], exclude_patterns: ['node_modules/**/*', 'bun.lockb'] }),

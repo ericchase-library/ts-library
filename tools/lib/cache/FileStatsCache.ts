@@ -119,8 +119,8 @@ export async function Cache_IsFileModified(path: CPath): Promise<QueryResult<boo
     if (q0?.result === 1) {
       const xxhash = h64Raw(await cache_platform.File.readBytes(path));
       const q1 = isFileHashModified({ [PATH]: path.raw, [CURRENT_HASH]: xxhash });
+      updateFileStatsRecord({ [PATH]: path.raw, [MTIMEMS]: mtimeMs, [HASH]: xxhash });
       if (q1?.result === 1) {
-        updateFileStatsRecord({ [PATH]: path.raw, [MTIMEMS]: mtimeMs, [HASH]: xxhash });
         modified_marker_manager.updateMarkers(path.raw);
         return { data: true };
       }
