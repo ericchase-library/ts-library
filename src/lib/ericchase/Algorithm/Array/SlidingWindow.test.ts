@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-
-import { SlidingWindow } from './SlidingWindow.js';
+import { SlidingWindow } from 'src/lib/ericchase/Algorithm/Array/SlidingWindow.js';
 
 describe(SlidingWindow.name, () => {
   test('[] returns []', () => {

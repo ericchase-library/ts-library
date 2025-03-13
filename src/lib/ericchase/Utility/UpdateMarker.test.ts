@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-
-import { DataSetMarker, DataSetMarkerManager, UpdateMarker, UpdateMarkerManager } from './UpdateMarker.js';
+import { DataSetMarker, DataSetMarkerManager, UpdateMarker, UpdateMarkerManager } from 'src/lib/ericchase/Utility/UpdateMarker.js';
 
 describe(UpdateMarker.name, () => {
   const manager = new UpdateMarkerManager();

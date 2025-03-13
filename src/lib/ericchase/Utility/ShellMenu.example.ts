@@ -1,6 +1,6 @@
-import { StdinRawModeReader } from '../Platform/Node/Process.js';
-import { KEYS, Shell } from '../Platform/Node/Shell.js';
-import { ShellMenu } from './ShellMenu.js';
+import { StdinRawModeReader } from 'src/lib/ericchase/Platform/Node/Process.js';
+import { KEYS, Shell } from 'src/lib/ericchase/Platform/Node/Shell.js';
+import { ShellMenu } from 'src/lib/ericchase/Utility/ShellMenu.js';
 
 const menu = new ShellMenu({
   menu: {

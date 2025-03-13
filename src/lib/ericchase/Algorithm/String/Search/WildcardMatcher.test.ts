@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-
-import { SlidingWindow } from '../../Array/SlidingWindow.js';
-import { MatchAny } from './WildcardMatcher.js';
+import { SlidingWindow } from 'src/lib/ericchase/Algorithm/Array/SlidingWindow.js';
+import { MatchAny } from 'src/lib/ericchase/Algorithm/String/Search/WildcardMatcher.js';
 
 describe(MatchAny.name, () => {
   test("Siler's incorrect algorithm fails this", () => {

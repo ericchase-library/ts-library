@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-
-import { Zip } from './Zip.js';
+import { Zip } from 'src/lib/ericchase/Algorithm/Array/Zip.js';
 
 describe('Zip', () => {
   test('[1,2,3] [a,b,c]', () => {

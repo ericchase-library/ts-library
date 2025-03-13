@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-
-import { nChooseRCombinations, nChooseRPermutations, nCr, nPr } from './Combinatorics.js';
+import { nChooseRCombinations, nChooseRPermutations, nCr, nPr } from 'src/lib/ericchase/Algorithm/Math/Combinatorics.js';
 
 describe('Permutations', () => {
   describe('without repetitions', () => {

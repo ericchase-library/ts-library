@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-
-import { PrepareMessage } from './PrepareMessage.js';
+import { PrepareMessage } from 'src/lib/ericchase/Utility/PrepareMessage.js';
 
 describe(PrepareMessage.name, () => {
   describe('Basic', () => {

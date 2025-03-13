@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-
-import { UpdateMarkerManager } from './Utility/UpdateMarker.js';
+import { UpdateMarkerManager } from 'src/lib/ericchase/Utility/UpdateMarker.js';
 
 describe('Private API', () => {
   describe('Utility', () => {

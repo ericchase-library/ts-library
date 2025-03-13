@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-
-import { FuzzyMatcher, IFuzzyMatchListResult, TextProcessor } from './FuzzySearch.js';
+import { FuzzyMatcher, IFuzzyMatchListResult, TextProcessor } from 'src/lib/ericchase/Algorithm/String/Search/FuzzySearch.js';
 
 describe('FuzzyMatcher', () => {
   test('snapshot', () => {

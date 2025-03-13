@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-
-import { JSONMerge } from './Merge.js';
+import { JSONMerge } from 'src/lib/ericchase/Algorithm/JSON/Merge.js';
 
 describe(JSONMerge.name, () => {
   describe('Primitives', () => {

@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-
-import { CRC } from './CRC.js';
+import { CRC } from 'src/lib/ericchase/Algorithm/Math/CRC.js';
 
 const encoder = new TextEncoder();
 

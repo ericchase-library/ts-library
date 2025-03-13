@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-
-import { GeneratorArray } from './GeneratorArray.js';
+import { GeneratorArray } from 'src/lib/ericchase/Utility/GeneratorArray.js';
 
 describe('Array', () => {
   describe('Mutating Methods', () => {
