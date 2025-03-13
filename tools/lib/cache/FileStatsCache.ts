@@ -12,7 +12,7 @@ const CURRENT_HASH = 'current_xxhash';
 class FILESTATS_RECORD {
   [PATH]?: string;
   [MTIMEMS]?: number;
-  [HASH]?: BigInt;
+  [HASH]?: bigint;
 }
 
 const TABLE = 'filestats';
