@@ -1,5 +1,6 @@
 import { CPath, Path } from 'src/lib/ericchase/Platform/FilePath.js';
 import { globScan } from 'src/lib/ericchase/Platform/util.js';
+import { ConsoleLog } from 'src/lib/ericchase/Utility/Console.js';
 import { BuilderInternal, BuildStep } from 'tools/lib/BuilderInternal.js';
 import { Cache_IsFileModified } from 'tools/lib/cache/FileStatsCache.js';
 
@@ -15,9 +16,15 @@ class CBuildStep_FSCopy implements BuildStep {
   ) {}
   async run(builder: BuilderInternal) {
     for (const path of await globScan(builder.platform, this.options.from, this.options.include_patterns, this.options.exclude_patterns)) {
-      const from = Path(this.options.from.raw, path);
-      if (Cache_IsFileModified(from).data === true) {
-        await builder.platform.File.copy(from, Path(this.options.to.raw, path), this.options.overwrite);
+      const from = Path(this.options.from, path);
+      const result = await Cache_IsFileModified(from);
+      if (result.data === true) {
+        const to = Path(this.options.to, path);
+        if ((await builder.platform.File.copy(from, to, this.options.overwrite)) === true) {
+          ConsoleLog(`Copied "${from.raw}" -> "${to.raw}"`);
+        }
+      } else if (result.error !== undefined) {
+        throw result.error;
       }
     }
   }

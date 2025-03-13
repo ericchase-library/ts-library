@@ -74,12 +74,10 @@ export class ProjectFile {
   // Returns number of bytes written.
   async write(): Promise<number> {
     let byteswritten = 0;
-    if (this.ismodified) {
-      if (this.$text !== undefined) {
-        byteswritten = await this.builder.platform.File.writeText(this.out_path, this.$text);
-      } else {
-        byteswritten = await this.builder.platform.File.writeBytes(this.out_path, await this.getBytes());
-      }
+    if (this.$text !== undefined) {
+      byteswritten = await this.builder.platform.File.writeText(this.out_path, this.$text);
+    } else {
+      byteswritten = await this.builder.platform.File.writeBytes(this.out_path, await this.getBytes());
     }
     return byteswritten;
   }

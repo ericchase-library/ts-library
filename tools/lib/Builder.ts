@@ -1,6 +1,6 @@
 import { CPlatformProvider, getPlatformProvider, PlatformProviderId, UnimplementedProvider } from 'src/lib/ericchase/Platform/PlatformProvider.js';
 import { BuilderInternal, BuildStep } from 'tools/lib/BuilderInternal.js';
-import { Cache_FileStats_Lock, Cache_FileStats_Reset, Cache_FileStats_Unlock } from 'tools/lib/cache/FileStatsCache.js';
+import { Cache_FileStats_Lock, Cache_FileStats_Unlock } from 'tools/lib/cache/FileStatsCache.js';
 import { Cache_TryLockEach, Cache_UnlockAll } from 'tools/lib/cache/LockCache.js';
 import { ProcessorModule } from 'tools/lib/Processor.js';
 
@@ -43,7 +43,6 @@ export class Builder {
 
   async start(): Promise<void> {
     Cache_FileStats_Lock();
-    Cache_FileStats_Reset();
     Cache_TryLockEach(['Build', 'Format']);
     if (this.platform === UnimplementedProvider) {
       this.platform = await getPlatformProvider(this.runtime);
