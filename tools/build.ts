@@ -45,7 +45,7 @@ builder.setCleanupSteps([
     overwrite: true,
   }),
 
-  // Mirror Project Directories "src/lib/ericchase", "tools
+  // Mirror Project Directories "src/lib/ericchase", "tools/lib"
   BuildStep_FSMirrorDirectory({
     from: 'src/lib/ericchase/',
     to: '../Project@Template/src/lib/ericchase/',

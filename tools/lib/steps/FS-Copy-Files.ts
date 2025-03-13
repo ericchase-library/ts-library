@@ -41,7 +41,7 @@ class CBuildStep_FSCopyFiles implements BuildStep {
   }
 }
 
-export function BuildStep_FSCopyFiles(options: { from: string; to: string; include_patterns?: string[]; exclude_patterns?: string[]; overwrite?: boolean }): BuildStep {
+export function BuildStep_FSCopyFiles(options: { from: CPath | string; to: CPath | string; include_patterns?: string[]; exclude_patterns?: string[]; overwrite?: boolean }): BuildStep {
   return new CBuildStep_FSCopyFiles({
     from: Path(options.from),
     to: Path(options.to),

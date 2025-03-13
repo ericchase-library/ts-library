@@ -50,7 +50,7 @@ class CBuildStep_FSMirrorDirectory implements BuildStep {
   }
 }
 
-export function BuildStep_FSMirrorDirectory(options: { from: string; to: string; include_patterns?: string[]; exclude_patterns?: string[] }): BuildStep {
+export function BuildStep_FSMirrorDirectory(options: { from: CPath | string; to: CPath | string; include_patterns?: string[]; exclude_patterns?: string[] }): BuildStep {
   return new CBuildStep_FSMirrorDirectory({
     from: Path(options.from),
     to: Path(options.to),
