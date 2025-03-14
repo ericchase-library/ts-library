@@ -1,6 +1,6 @@
 import { CPath, Path } from 'src/lib/ericchase/Platform/FilePath.js';
 import { globScan } from 'src/lib/ericchase/Platform/util.js';
-import { ConsoleLog } from 'src/lib/ericchase/Utility/Console.js';
+import { ConsoleLogNotEmpty } from 'src/lib/ericchase/Utility/Console.js';
 import { BuilderInternal, BuildStep } from 'tools/lib/BuilderInternal.js';
 import { Cache_IsFileModified } from 'tools/lib/cache/FileStatsCache.js';
 
@@ -26,12 +26,14 @@ class CStep_FS_MirrorDirectory implements BuildStep {
     const set_from = await globScan(builder.platform, this.options.from, this.options.include_patterns, this.options.exclude_patterns);
     const set_to = await globScan(builder.platform, this.options.to, this.options.include_patterns, this.options.exclude_patterns);
 
+    const logs: string[] = [];
+
     // remove all files that shouldn't be
     for (const path of set_to.difference(set_from)) {
       const from = Path(this.options.from, path);
       const to = Path(this.options.to, path);
       if ((await builder.platform.File.delete(to)) === true) {
-        ConsoleLog(`Deleted "${from.raw}" -> "${to.raw}"`);
+        logs.push(`Deleted "${from.raw}" -> "${to.raw}"`);
       }
     }
 
@@ -41,7 +43,7 @@ class CStep_FS_MirrorDirectory implements BuildStep {
       const to = Path(this.options.to, path);
       await Cache_IsFileModified(from);
       if ((await builder.platform.File.copy(from, to, true)) === true) {
-        ConsoleLog(`Copied "${from.raw}" -> "${to.raw}"`);
+        logs.push(`Copied "${from.raw}" -> "${to.raw}"`);
       }
     }
 
@@ -52,12 +54,14 @@ class CStep_FS_MirrorDirectory implements BuildStep {
       if (result.data === true) {
         const to = Path(this.options.to, path);
         if ((await builder.platform.File.copy(from, to, true)) === true) {
-          ConsoleLog(`Copied "${from.raw}" -> "${to.raw}"`);
+          logs.push(`Copied "${from.raw}" -> "${to.raw}"`);
         }
       } else if (result.error !== undefined) {
         throw result.error;
       }
     }
+
+    ConsoleLogNotEmpty(logs.join('\n'));
   }
 }
 
