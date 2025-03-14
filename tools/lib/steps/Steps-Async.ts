@@ -1,5 +1,9 @@
 import { BuilderInternal, BuildStep } from 'tools/lib/BuilderInternal.js';
 
+export function Step_Async(steps: BuildStep[]): BuildStep {
+  return new CStep_Async(steps);
+}
+
 class CStep_Async implements BuildStep {
   constructor(readonly steps: BuildStep[]) {}
   async run(builder: BuilderInternal) {
@@ -11,8 +15,4 @@ class CStep_Async implements BuildStep {
       await task;
     }
   }
-}
-
-export function Step_Async(steps: BuildStep[]): BuildStep {
-  return new CStep_Async(steps);
 }

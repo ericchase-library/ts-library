@@ -4,7 +4,17 @@ import { ConsoleLogNotEmpty, ConsoleLogWithDate } from 'src/lib/ericchase/Utilit
 import { BuilderInternal, BuildStep } from 'tools/lib/BuilderInternal.js';
 import { Cache_IsFileModified } from 'tools/lib/cache/FileStatsCache.js';
 
-class CStep_FS_CopyFiles implements BuildStep {
+export function Step_CopyFiles(options: { from: CPath | string; to: CPath | string; include_patterns?: string[]; exclude_patterns?: string[]; overwrite?: boolean }): BuildStep {
+  return new CStep_CopyFiles({
+    from: Path(options.from),
+    to: Path(options.to),
+    include_patterns: options.include_patterns ?? ['*'],
+    exclude_patterns: options.exclude_patterns ?? [],
+    overwrite: options.overwrite ?? false,
+  });
+}
+
+class CStep_CopyFiles implements BuildStep {
   constructor(
     readonly options: {
       from: CPath;
@@ -48,14 +58,4 @@ class CStep_FS_CopyFiles implements BuildStep {
     }
     ConsoleLogNotEmpty(logs.join('\n'));
   }
-}
-
-export function Step_FS_CopyFiles(options: { from: CPath | string; to: CPath | string; include_patterns?: string[]; exclude_patterns?: string[]; overwrite?: boolean }): BuildStep {
-  return new CStep_FS_CopyFiles({
-    from: Path(options.from),
-    to: Path(options.to),
-    include_patterns: options.include_patterns ?? ['*'],
-    exclude_patterns: options.exclude_patterns ?? [],
-    overwrite: options.overwrite ?? false,
-  });
 }

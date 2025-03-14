@@ -3,7 +3,11 @@ import { U8ToString } from 'src/lib/ericchase/Algorithm/Uint8Array.js';
 import { ConsoleErrorNotEmpty, ConsoleLog, ConsoleLogNotEmpty, ConsoleLogWithDate } from 'src/lib/ericchase/Utility/Console.js';
 import { BuilderInternal, BuildStep } from 'tools/lib/BuilderInternal.js';
 
-class CStep_FS_Format implements BuildStep {
+export function Step_Format(logging?: 'quiet'): BuildStep {
+  return new CStep_Format(logging ?? 'normal');
+}
+
+class CStep_Format implements BuildStep {
   constructor(readonly logging: 'normal' | 'quiet') {}
   async run(builder: BuilderInternal) {
     ConsoleLogWithDate(this.constructor.name);
@@ -19,8 +23,4 @@ class CStep_FS_Format implements BuildStep {
       ConsoleErrorNotEmpty(U8ToString(await U8StreamReadAll(p1.stderr)));
     }
   }
-}
-
-export function Step_Format(logging?: 'quiet'): BuildStep {
-  return new CStep_FS_Format(logging ?? 'normal');
 }
