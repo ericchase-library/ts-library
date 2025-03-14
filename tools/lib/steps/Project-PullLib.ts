@@ -7,6 +7,7 @@ import { Step_FS_MirrorDirectory } from 'tools/lib/steps/FS-MirrorDirectory.js';
 class CStep_Project_PullLib implements BuildStep {
   constructor(readonly external_directory: CPath) {}
   async run(builder: BuilderInternal) {
+    ConsoleLogWithDate(this.constructor.name);
     const steps = [
       // Mirror Server
       Step_FS_MirrorDirectory({
@@ -62,7 +63,6 @@ class CStep_Project_PullLib implements BuildStep {
       }),
     ];
     for (const step of steps) {
-      ConsoleLogWithDate(step.constructor.name);
       await step.run(builder);
     }
   }
