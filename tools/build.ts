@@ -1,8 +1,8 @@
+import { Step_Project_PushLib } from 'tools/Dev-Project-PushLib.js';
 import { Builder } from 'tools/lib/Builder.js';
 import { Step_Bun_Run } from 'tools/lib/steps/Bun-Run.js';
 import { Step_Format } from 'tools/lib/steps/FS-Format.js';
 import { Step_MirrorDirectory } from 'tools/lib/steps/FS-MirrorDirectory.js';
-import { Step_Project_PushLib } from 'tools/Project-PushLib.js';
 
 const builder = new Builder(Bun.argv[2] === '--watch' ? 'watch' : 'build');
 
