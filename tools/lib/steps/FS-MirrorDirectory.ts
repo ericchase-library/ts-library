@@ -6,7 +6,7 @@ import { Cache_IsFileModified } from 'tools/lib/cache/FileStatsCache.js';
 
 // !! WARNING: This can DELETE entire directories. Use with caution!!
 
-class CBuildStep_FSMirrorDirectory implements BuildStep {
+class CStep_FS_MirrorDirectory implements BuildStep {
   constructor(
     readonly options: {
       from: CPath;
@@ -61,8 +61,8 @@ class CBuildStep_FSMirrorDirectory implements BuildStep {
   }
 }
 
-export function BuildStep_FSMirrorDirectory(options: { from: CPath | string; to: CPath | string; include_patterns?: string[]; exclude_patterns?: string[] }): BuildStep {
-  return new CBuildStep_FSMirrorDirectory({
+export function Step_FS_MirrorDirectory(options: { from: CPath | string; to: CPath | string; include_patterns?: string[]; exclude_patterns?: string[] }): BuildStep {
+  return new CStep_FS_MirrorDirectory({
     from: Path(options.from),
     to: Path(options.to),
     include_patterns: options.include_patterns ?? ['*'],

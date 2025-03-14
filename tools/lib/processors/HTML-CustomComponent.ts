@@ -5,7 +5,7 @@ import { BuilderInternal } from 'tools/lib/BuilderInternal.js';
 import { ProcessorModule } from 'tools/lib/Processor.js';
 import { ProjectFile } from 'tools/lib/ProjectFile.js';
 
-export class CProcessor_HTMLCustomComponent implements ProcessorModule {
+export class CProcessor_HTML_CustomComponent implements ProcessorModule {
   component_map = new Map<string, ProjectFile>();
   htmlfile_set = new Set<ProjectFile>();
 
@@ -113,5 +113,5 @@ export class CProcessor_HTMLCustomComponent implements ProcessorModule {
 }
 
 export function Processor_HTMLCustomComponent(): ProcessorModule {
-  return new CProcessor_HTMLCustomComponent();
+  return new CProcessor_HTML_CustomComponent();
 }

@@ -5,7 +5,7 @@ import { ProcessorModule } from 'tools/lib/Processor.js';
 import { ProjectFile } from 'tools/lib/ProjectFile.js';
 
 // patterns should use / instead of \
-export class CProcessor_FSBasicWriter implements ProcessorModule {
+export class CProcessor_FS_BasicWriter implements ProcessorModule {
   constructor(
     readonly include_patterns: string[],
     readonly exclude_patterns: string[],
@@ -25,8 +25,8 @@ export class CProcessor_FSBasicWriter implements ProcessorModule {
   }
 }
 
-export function Processor_FSBasicWriter(include_patterns: string[], exclude_patterns: string[]): ProcessorModule {
-  return new CProcessor_FSBasicWriter(
+export function Processor_FS_BasicWriter(include_patterns: string[], exclude_patterns: string[]): ProcessorModule {
+  return new CProcessor_FS_BasicWriter(
     include_patterns.map((pattern) => Path(pattern).standard),
     exclude_patterns.map((pattern) => Path(pattern).standard),
   );

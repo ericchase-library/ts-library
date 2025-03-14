@@ -4,7 +4,7 @@ import { ConsoleLog } from 'src/lib/ericchase/Utility/Console.js';
 import { BuilderInternal, BuildStep } from 'tools/lib/BuilderInternal.js';
 import { Cache_IsFileModified } from 'tools/lib/cache/FileStatsCache.js';
 
-class CBuildStep_FSCopyFiles implements BuildStep {
+class CStep_FS_CopyFiles implements BuildStep {
   constructor(
     readonly options: {
       from: CPath;
@@ -50,8 +50,8 @@ class CBuildStep_FSCopyFiles implements BuildStep {
   }
 }
 
-export function BuildStep_FSCopyFiles(options: { from: CPath | string; to: CPath | string; include_patterns?: string[]; exclude_patterns?: string[]; overwrite?: boolean }): BuildStep {
-  return new CBuildStep_FSCopyFiles({
+export function Step_FS_CopyFiles(options: { from: CPath | string; to: CPath | string; include_patterns?: string[]; exclude_patterns?: string[]; overwrite?: boolean }): BuildStep {
+  return new CStep_FS_CopyFiles({
     from: Path(options.from),
     to: Path(options.to),
     include_patterns: options.include_patterns ?? ['*'],
