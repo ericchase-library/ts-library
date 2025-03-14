@@ -4,13 +4,13 @@ import { ConsoleErrorNotEmpty, ConsoleLog, ConsoleLogNotEmpty, ConsoleLogWithDat
 import { BuilderInternal, BuildStep } from 'tools/lib/BuilderInternal.js';
 
 class CStep_FS_Format implements BuildStep {
-  constructor(readonly mode: 'normal' | 'quiet') {}
+  constructor(readonly logging: 'normal' | 'quiet') {}
   async run(builder: BuilderInternal) {
     ConsoleLogWithDate(this.constructor.name);
     const p0 = Bun.spawn(['biome', 'format', '--files-ignore-unknown', 'true', '--verbose', '--write'], { stderr: 'pipe', stdout: 'pipe' });
     const p1 = Bun.spawn(['prettier', '.', '--write'], { stderr: 'pipe', stdout: 'pipe' });
     await Promise.allSettled([p0.exited, p1.exited]);
-    if (this.mode === 'normal') {
+    if (this.logging === 'normal') {
       ConsoleLog('> BIOME');
       ConsoleLogNotEmpty(U8ToString(await U8StreamReadAll(p0.stdout)));
       ConsoleErrorNotEmpty(U8ToString(await U8StreamReadAll(p0.stderr)));
@@ -21,6 +21,6 @@ class CStep_FS_Format implements BuildStep {
   }
 }
 
-export function Step_Format(mode?: 'quiet'): BuildStep {
-  return new CStep_FS_Format(mode ?? 'normal');
+export function Step_Format(logging?: 'quiet'): BuildStep {
+  return new CStep_FS_Format(logging ?? 'normal');
 }

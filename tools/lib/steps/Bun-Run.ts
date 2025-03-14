@@ -8,7 +8,7 @@ class CStep_Bun_Run implements BuildStep {
   constructor(
     readonly cmd: string[],
     dir?: CPath | string,
-    readonly quiet?: boolean,
+    readonly logging?: 'normal' | 'quiet',
   ) {
     if (dir) {
       this.dir = Path(dir).raw;
@@ -18,13 +18,13 @@ class CStep_Bun_Run implements BuildStep {
     ConsoleLogWithDate(this.constructor.name);
     ConsoleLog(`> ${this.cmd.join(' ')} (${this.dir ?? './'})`);
     const p0 = Bun.spawnSync(this.cmd, { cwd: this.dir, stderr: 'pipe', stdout: 'pipe' });
-    if (this.quiet !== true) {
+    if (this.logging === 'normal') {
       ConsoleLogNotEmpty(U8ToString(p0.stdout));
       ConsoleErrorNotEmpty(U8ToString(p0.stderr));
     }
   }
 }
 
-export function Step_Bun_Run({ cmd, dir, quiet = false }: { cmd: string[]; dir?: CPath | string; quiet?: boolean }): BuildStep {
-  return new CStep_Bun_Run(cmd, dir, quiet);
+export function Step_Bun_Run({ cmd, dir }: { cmd: string[]; dir?: CPath | string }, logging?: 'quiet'): BuildStep {
+  return new CStep_Bun_Run(cmd, dir, logging ?? 'normal');
 }
