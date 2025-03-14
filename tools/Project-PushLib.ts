@@ -22,6 +22,7 @@ class CStep_Project_PushLib implements BuildStep {
         from: 'src/lib/ericchase',
         to: Path(this.external_directory, 'src/lib/ericchase'),
         include_patterns: ['**/*.ts'],
+        exclude_patterns: ['**/*{.deprecated,.example,.test}.ts'],
         //
       }),
 
@@ -30,6 +31,7 @@ class CStep_Project_PushLib implements BuildStep {
         from: 'tools/lib',
         to: Path(this.external_directory, 'tools/lib'),
         include_patterns: ['**/*.ts'],
+        exclude_patterns: ['**/*{.deprecated,.example,.test}.ts'],
         //
       }),
 
