@@ -13,10 +13,18 @@ export function Step_Project_PushLib(project_dir: CPath | string): Step {
 
 class CStep_Project_PushLib implements Step {
   logger = logger.newChannel();
+
   constructor(readonly external_directory: CPath) {}
   async run(builder: BuilderInternal) {
     this.logger.logWithDate(this.constructor.name);
     const steps = [
+      // Mirror Database
+      Step_MirrorDirectory({
+        from: 'database',
+        to: Path(this.external_directory, 'database'),
+        include_patterns: ['**/*'],
+        //
+      }),
       // Mirror Server
       Step_MirrorDirectory({
         from: 'server',
@@ -28,8 +36,22 @@ class CStep_Project_PushLib implements Step {
 
       // Mirror Lib
       Step_MirrorDirectory({
+        from: 'src/lib/database',
+        to: Path(this.external_directory, 'src/lib/database'),
+        include_patterns: ['**/*.ts'],
+        exclude_patterns: ['**/*{.deprecated,.example,.test}.ts'],
+        //
+      }),
+      Step_MirrorDirectory({
         from: 'src/lib/ericchase',
         to: Path(this.external_directory, 'src/lib/ericchase'),
+        include_patterns: ['**/*.ts'],
+        exclude_patterns: ['**/*{.deprecated,.example,.test}.ts'],
+        //
+      }),
+      Step_MirrorDirectory({
+        from: 'src/lib/server',
+        to: Path(this.external_directory, 'src/lib/server'),
         include_patterns: ['**/*.ts'],
         exclude_patterns: ['**/*{.deprecated,.example,.test}.ts'],
         //

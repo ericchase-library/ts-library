@@ -19,6 +19,7 @@ export function Step_CopyFiles(options: { from: CPath | string; to: CPath | stri
 
 class CStep_CopyFiles implements Step {
   logger = logger.newChannel();
+
   constructor(
     readonly options: {
       from: CPath;

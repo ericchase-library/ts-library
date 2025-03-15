@@ -13,6 +13,7 @@ export function Step_Project_PullLib(project_dir: CPath | string): Step {
 
 class CStep_Project_PullLib implements Step {
   logger = logger.newChannel();
+
   constructor(readonly external_directory: CPath) {}
   async run(builder: BuilderInternal) {
     this.logger.logWithDate();

@@ -16,9 +16,10 @@ builder.setCleanupSteps([
   // Update Local Server Files
   Step_MirrorDirectory({ from: 'src/lib/ericchase/', to: 'server/src/lib/ericchase/', include_patterns: ['Platform/FilePath.ts', 'Utility/Console.ts', 'Utility/UpdateMarker.ts'] }),
   // Push Files
-  Step_Project_PushLib('C:/Code/Base/Javascript-Typescript/Project@Template'),
-  Step_Project_PushLib('C:/Code/Base/Javascript-Typescript/Templates/Website'),
-  // Step_Project_PushLib(''),
+  Step_Project_PushLib('../(Private) Projects/@mason/prodbybluezzi-beat-store'),
+  Step_Project_PushLib('../Project@Template'),
+  Step_Project_PushLib('../Templates/Discord Bot'),
+  Step_Project_PushLib('../Templates/Website'),
   //
 ]);
 

@@ -18,25 +18,27 @@ function addlog(kind: Kind, name: string, channel: number, items: any[], showdat
   buffer.push({ kind, name, channel, items, date: Date.now(), showdate });
   timeout ??= setTimeout(() => {
     timeout = undefined;
-    const lines = [];
+    const lines: any[][] = [];
     for (const { kind, name, channel, items, date, showdate } of buffer) {
-      const line = `[${name}#${channel}] ${items.map((item) => (typeof item === 'object' ? JSON.stringify(item, null, 2) : String(item))).join(' ')}`;
+      // const line = `[${name}#${channel}] ${items.map((item) => (typeof item === 'object' ? JSON.stringify(item, null, 2) : String(item))).join(' ')}`;
       if (kind === Kind.Error) {
         if (showdate) {
-          lines.push(`ERROR: (${new Date(date).toLocaleString()}) ${line}`);
+          lines.push([`(${new Date(date).toLocaleString()})`, `[${name}#${channel}]`, ...items]);
         } else {
-          lines.push(`ERROR: ${line}`);
+          lines.push([`[${name}#${channel}]`, ...items]);
         }
       } else {
         if (showdate) {
-          lines.push(`(${new Date(date).toLocaleString()}) ${line}`);
+          lines.push([`(${new Date(date).toLocaleString()})`, `[${name}#${channel}]`, ...items]);
         } else {
-          lines.push(line);
+          lines.push([`[${name}#${channel}]`, ...items]);
         }
       }
     }
     buffer = [];
-    console['log'](lines.join('\n'));
+    for (const line of lines) {
+      console['log'](...line);
+    }
   }, 100);
 }
 

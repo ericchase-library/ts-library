@@ -20,6 +20,7 @@ export function Step_MirrorDirectory(options: { from: CPath | string; to: CPath 
 
 class CStep_MirrorDirectory implements Step {
   logger = logger.newChannel();
+
   constructor(
     readonly options: {
       from: CPath;
