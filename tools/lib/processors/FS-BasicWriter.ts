@@ -8,7 +8,10 @@ import { ProjectFile } from 'tools/lib/ProjectFile.js';
 const logger = Logger(__filename, Processor_BasicWriter.name);
 
 export function Processor_BasicWriter(include_patterns: string[], exclude_patterns: string[]): ProcessorModule {
-  return new CProcessor_BasicWriter(include_patterns, exclude_patterns);
+  return new CProcessor_BasicWriter(
+    include_patterns.map((pattern) => Path(pattern).standard),
+    exclude_patterns.map((pattern) => Path(pattern).standard),
+  );
 }
 
 class CProcessor_BasicWriter implements ProcessorModule {
@@ -17,10 +20,7 @@ class CProcessor_BasicWriter implements ProcessorModule {
   constructor(
     readonly include_patterns: string[],
     readonly exclude_patterns: string[],
-  ) {
-    this.include_patterns.map((pattern) => Path(pattern).standard);
-    this.exclude_patterns.map((pattern) => Path(pattern).standard);
-  }
+  ) {}
 
   async onAdd(builder: BuilderInternal, files: Set<ProjectFile>): Promise<void> {
     for (const file of files) {

@@ -15,10 +15,9 @@ class CProcessor_TypeScript_GenericBundlerImportRemapper implements ProcessorMod
 
   async onAdd(builder: BuilderInternal, files: Set<ProjectFile>) {
     for (const file of files) {
-      if (file.src_path.endsWith('.module.ts') === false) {
-        continue;
+      if (file.src_path.endsWith('.module.ts')) {
+        file.addProcessor(this, this.onProcess);
       }
-      file.addProcessor(this, this.onProcess);
     }
   }
   async onRemove(builder: BuilderInternal, files: Set<ProjectFile>): Promise<void> {}

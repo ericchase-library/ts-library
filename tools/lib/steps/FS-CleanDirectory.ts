@@ -6,16 +6,13 @@ import { Step } from 'tools/lib/Step.js';
 const logger = Logger(__filename, Step_CleanDirectory.name);
 
 export function Step_CleanDirectory(...paths: (CPath | string)[]): Step {
-  return new CStep_CleanDirectory(paths);
+  return new CStep_CleanDirectory(paths.map((path) => Path(path)));
 }
 
 class CStep_CleanDirectory implements Step {
   logger = logger.newChannel();
 
-  paths: CPath[];
-  constructor(paths: (CPath | string)[]) {
-    this.paths = paths.map((path) => Path(path));
-  }
+  constructor(readonly paths: CPath[]) {}
   async run(builder: BuilderInternal) {
     this.logger.logWithDate();
     for (const path of this.paths) {

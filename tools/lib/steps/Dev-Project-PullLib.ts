@@ -67,9 +67,9 @@ class CStep_Project_PullLib implements Step {
         //
       }),
 
-      // Copy Default Build Scripts
+      // Copy Example Build Scripts
       Step_CopyFiles({
-        from: Path(this.external_directory, 'tools'),
+        from: Path(this.external_directory, 'tools/lib/examples'),
         to: Path(builder.dir.tools),
         include_patterns: [
           'build.ts',

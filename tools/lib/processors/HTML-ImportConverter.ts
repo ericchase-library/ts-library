@@ -16,10 +16,9 @@ class CProcessor_HTML_ImportConverter implements ProcessorModule {
 
   async onAdd(builder: BuilderInternal, files: Set<ProjectFile>) {
     for (const file of files) {
-      if (file.src_path.ext !== '.html') {
-        continue;
+      if (file.src_path.ext === '.html') {
+        file.addProcessor(this, this.onProcess);
       }
-      file.addProcessor(this, this.onProcess);
     }
   }
   async onRemove(builder: BuilderInternal, files: Set<ProjectFile>): Promise<void> {}

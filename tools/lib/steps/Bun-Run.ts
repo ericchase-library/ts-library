@@ -7,25 +7,20 @@ import { Step } from 'tools/lib/Step.js';
 const logger = Logger(__filename, Step_Bun_Run.name);
 
 export function Step_Bun_Run({ cmd, dir }: { cmd: string[]; dir?: CPath | string }, logging?: 'quiet'): Step {
-  return new CStep_Bun_Run(cmd, dir, logging ?? 'normal');
+  return new CStep_Bun_Run(cmd, Path(dir ?? process.cwd()).raw, logging ?? 'normal');
 }
 
 class CStep_Bun_Run implements Step {
   logger = logger.newChannel();
 
-  dir?: string;
   constructor(
     readonly cmd: string[],
-    dir?: CPath | string,
+    readonly dir: string,
     readonly logging?: 'normal' | 'quiet',
-  ) {
-    if (dir) {
-      this.dir = Path(dir).raw;
-    }
-  }
+  ) {}
   async run(builder: BuilderInternal) {
     this.logger.logWithDate();
-    this.logger.log(`> ${this.cmd.join(' ')} (${this.dir ?? './'})`);
+    this.logger.log(`> ${this.cmd.join(' ')} (${this.dir})`);
     const p0 = Bun.spawnSync(this.cmd, { cwd: this.dir, stderr: 'pipe', stdout: 'pipe' });
     if (this.logging === 'normal') {
       this.logger.logNotEmpty(U8ToString(p0.stdout));
