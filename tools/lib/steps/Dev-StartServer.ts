@@ -15,9 +15,10 @@ export function Step_StartServer(): Step {
 }
 
 class CStep_StartServer implements Step {
+  logger = logger.newChannel();
+
   child_process?: Subprocess<'ignore', 'pipe', 'pipe'>;
   enabled = false;
-  logger = logger.newChannel();
 
   disable() {
     this.enabled = false;

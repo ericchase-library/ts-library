@@ -36,10 +36,8 @@ function addlog(kind: Kind, name: string, channel: number, items: any[], showdat
       }
     }
     buffer = [];
-    for (const line of lines) {
-      console['log'](...line);
-    }
-  }, 100);
+    console['log'](lines.join('\n'));
+  }, 250);
 }
 
 class CLoggerChannel {

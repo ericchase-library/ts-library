@@ -8,10 +8,10 @@ import { Step_MirrorDirectory } from 'tools/lib/steps/FS-MirrorDirectory.js';
 const builder = new Builder(Bun.argv[2] === '--watch' ? 'watch' : 'build');
 
 builder.setStartupSteps([
-  Step_Bun_Run({ cmd: ['bun', 'update', '--latest'] }),
-  Step_Format(),
-  Step_CleanDirectory(builder.dir.out),
-  Step_StartServer(),
+  // Step_Bun_Run({ cmd: ['bun', 'update', '--latest'] }),
+  // Step_CleanDirectory(builder.dir.out),
+  // Step_Format(),
+  // Step_StartServer(),
   //
 ]);
 
