@@ -33,9 +33,9 @@ class CStep_StartServer implements Step {
     logger.log("Hot Refresh On    (Press 'h' to toggle.)");
   }
   onchange() {
-    try {
-      fetch(`${server_http}/server/reload`);
-    } catch (error) {}
+    fetch(`${server_http}/server/reload`).catch((error) => {
+      logger.error(error);
+    });
   }
   unwatch?: () => void;
 
@@ -46,27 +46,35 @@ class CStep_StartServer implements Step {
         for await (const lines of AsyncLineReader(p0.stdout)) {
           logger.log(...lines);
         }
-      })();
+      })().catch((error) => {
+        logger.error(error);
+      });
       (async () => {
         for await (const lines of AsyncLineReader(p0.stderr)) {
           logger.error(...lines);
         }
-      })();
+      })().catch((error) => {
+        logger.error(error);
+      });
       this.child_process = p0;
 
       // give the server some time to start up
-      Sleep(1000).then(() => {
-        this.enable(builder);
-        AddStdinListener(async (bytes, text) => {
-          if (text === 'h') {
-            if (this.enabled === true) {
-              this.disable();
-            } else {
-              this.enable(builder);
+      Sleep(1000)
+        .then(() => {
+          this.enable(builder);
+          AddStdinListener(async (bytes, text) => {
+            if (text === 'h') {
+              if (this.enabled === true) {
+                this.disable();
+              } else {
+                this.enable(builder);
+              }
             }
-          }
+          });
+        })
+        .catch((error) => {
+          logger.error(error);
         });
-      });
     }
   }
 }
