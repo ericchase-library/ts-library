@@ -20,8 +20,8 @@ class CStep_Project_PullLib implements Step {
     const steps = [
       // Mirror Database
       Step_MirrorDirectory({
-        from: 'database',
-        to: Path(this.external_directory, 'database'),
+        from: Path(this.external_directory, 'database'),
+        to: 'database',
         include_patterns: ['**/*'],
         //
       }),
