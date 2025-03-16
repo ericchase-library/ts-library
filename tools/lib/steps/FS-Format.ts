@@ -1,8 +1,7 @@
 import { U8StreamReadAll } from 'src/lib/ericchase/Algorithm/Stream.js';
 import { U8ToString } from 'src/lib/ericchase/Algorithm/Uint8Array.js';
 import { Logger } from 'src/lib/ericchase/Utility/Logger.js';
-import { BuilderInternal } from 'tools/lib/BuilderInternal.js';
-import { Step } from 'tools/lib/Step.js';
+import { BuilderInternal, Step } from 'tools/lib/Builder.js';
 
 const logger = Logger(__filename, Step_Format.name);
 

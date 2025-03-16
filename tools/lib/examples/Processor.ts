@@ -1,16 +1,5 @@
 import { Logger } from 'src/lib/ericchase/Utility/Logger.js';
-import { BuilderInternal } from 'tools/lib/BuilderInternal.js';
-import { ProjectFile } from 'tools/lib/ProjectFile.js';
-
-// Type Declarations
-
-export type ProcessorMethod = (builder: BuilderInternal, file: ProjectFile) => Promise<void>;
-export interface ProcessorModule {
-  onAdd: (builder: BuilderInternal, files: Set<ProjectFile>) => Promise<void>;
-  onRemove: (builder: BuilderInternal, files: Set<ProjectFile>) => Promise<void>;
-}
-
-// Example
+import { BuilderInternal, ProcessorModule, ProjectFile } from 'tools/lib/Builder.js';
 
 const logger = Logger(__filename, Processor_ExampleProcessorModule.name);
 

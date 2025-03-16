@@ -1,9 +1,8 @@
 import { CPath, Path } from 'src/lib/ericchase/Platform/FilePath.js';
 import { globScan } from 'src/lib/ericchase/Platform/util.js';
 import { Logger } from 'src/lib/ericchase/Utility/Logger.js';
-import { BuilderInternal } from 'tools/lib/BuilderInternal.js';
+import { BuilderInternal, Step } from 'tools/lib/Builder.js';
 import { Cache_AreFilesEqual, Cache_UpdateFileStats } from 'tools/lib/cache/FileStatsCache.js';
-import { Step } from 'tools/lib/Step.js';
 
 const logger = Logger(__filename, Step_CopyFiles.name);
 

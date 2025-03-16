@@ -1,13 +1,5 @@
 import { Logger } from 'src/lib/ericchase/Utility/Logger.js';
-import { BuilderInternal } from 'tools/lib/BuilderInternal.js';
-
-// Type Declarations
-
-export interface Step {
-  run: (builder: BuilderInternal) => Promise<void>;
-}
-
-// Example
+import { BuilderInternal, Step } from 'tools/lib/Builder.js';
 
 const logger = Logger(__filename, Step_ExampleStep.name);
 

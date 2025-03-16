@@ -1,7 +1,5 @@
 import { Logger } from 'src/lib/ericchase/Utility/Logger.js';
-import { BuilderInternal } from 'tools/lib/BuilderInternal.js';
-import { ProcessorModule } from 'tools/lib/Processor.js';
-import { ProjectFile } from 'tools/lib/ProjectFile.js';
+import { BuilderInternal, ProcessorModule, ProjectFile } from 'tools/lib/Builder.js';
 
 const logger = Logger(__filename, Processor_TypeScript_IIFEWrapper.name);
 

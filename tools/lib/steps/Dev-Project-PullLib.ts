@@ -1,7 +1,6 @@
 import { CPath, Path } from 'src/lib/ericchase/Platform/FilePath.js';
 import { Logger } from 'src/lib/ericchase/Utility/Logger.js';
-import { BuilderInternal } from 'tools/lib/BuilderInternal.js';
-import { Step } from 'tools/lib/Step.js';
+import { BuilderInternal, Step } from 'tools/lib/Builder.js';
 import { Step_CopyFiles } from 'tools/lib/steps/FS-CopyFiles.js';
 import { Step_MirrorDirectory } from 'tools/lib/steps/FS-MirrorDirectory.js';
 

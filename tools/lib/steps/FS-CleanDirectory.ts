@@ -1,7 +1,6 @@
 import { CPath, Path } from 'src/lib/ericchase/Platform/FilePath.js';
 import { Logger } from 'src/lib/ericchase/Utility/Logger.js';
-import { BuilderInternal } from 'tools/lib/BuilderInternal.js';
-import { Step } from 'tools/lib/Step.js';
+import { BuilderInternal, Step } from 'tools/lib/Builder.js';
 
 const logger = Logger(__filename, Step_CleanDirectory.name);
 
