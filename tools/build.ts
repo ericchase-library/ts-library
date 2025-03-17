@@ -2,6 +2,7 @@ import { Builder } from 'tools/lib/Builder.js';
 import { Processor_BasicWriter } from 'tools/lib/processors/FS-BasicWriter.js';
 import { Processor_TypeScript_GenericCompiler } from 'tools/lib/processors/TypeScript-GenericCompiler.js';
 import { Step_Bun_Run } from 'tools/lib/steps/Bun-Run.js';
+import { Step_StartServer } from 'tools/lib/steps/Dev-StartServer.js';
 import { Step_CleanDirectory } from 'tools/lib/steps/FS-CleanDirectory.js';
 import { Step_Format } from 'tools/lib/steps/FS-Format.js';
 import { Step_Lint } from 'tools/lib/steps/FS-Lint.js';
@@ -14,6 +15,7 @@ builder.setStartupSteps([
   Step_CleanDirectory(builder.dir.out),
   Step_Format(),
   Step_Lint(),
+  Step_StartServer(),
   //
 ]);
 

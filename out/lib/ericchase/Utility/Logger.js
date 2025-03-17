@@ -1,4 +1,5 @@
 import { Path } from "src/lib/ericchase/Platform/FilePath.js";
+import { Defer } from "src/lib/ericchase/Utility/Defer.js";
 import { Map_GetOrDefault } from "src/lib/ericchase/Utility/Map.js";
 import { RemoveWhiteSpaceOnlyLinesFromTopAndBottom } from "src/lib/ericchase/Utility/String.js";
 const LoggerOptions = {
@@ -58,6 +59,7 @@ class CLogger {
 }
 let buffer = [];
 let timeout;
+let done = Defer();
 const output_list = [];
 const name_to_buffer = new Map;
 const name_to_logger = new Map;
@@ -126,14 +128,16 @@ function setTimer() {
       const { path, platform } = await output;
       for (const [name, lines] of name_to_buffer) {
         if (lines.length > 0) {
-          await platform.File.appendText(Path(path, name + ".log"), lines.join(`
-`) + `
+          await platform.File.appendText(Path(path, `${name}.log`), `${lines.join(`
+`)}
 `);
           name_to_buffer.set(name, []);
         }
       }
     }
     buffer = [];
+    done.resolve();
+    done = Defer();
   }, 50);
 }
 export const DefaultLogger = Logger();
@@ -156,6 +160,9 @@ export function SetLoggerOptions(options) {
     LoggerOptions.list = new Set(options.list);
   if (options.listmode !== undefined)
     LoggerOptions.listmode = options.listmode;
+}
+export async function WaitForLogger() {
+  await done.promise;
 }
 function formatDate(date) {
   let y = date.getFullYear(), m = date.getMonth() + 1, d = date.getDate(), hh = date.getHours(), mm = date.getMinutes(), ss = date.getSeconds(), ap = hh < 12 ? "AM" : "PM";

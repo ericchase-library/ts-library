@@ -85,16 +85,16 @@ function cleanStack(stack = "") {
   return lines.join(`
 `);
 }
-async function callAsync(stack = "", promise) {
+async function callAsync(stack, promise) {
   try {
     return await promise;
   } catch (async_error) {
     if (typeof async_error === "object") {
       throw new Error(`${async_error.message}
-${cleanStack(stack)}`);
+${cleanStack(stack ?? "")}`);
     }
     throw new Error(`${async_error}
-${cleanStack(stack)}`);
+${cleanStack(stack ?? "")}`);
   }
 }
 
