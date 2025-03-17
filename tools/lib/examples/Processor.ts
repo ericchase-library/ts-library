@@ -27,6 +27,7 @@ class CProcessor_ExampleProcessorModule implements ProcessorModule {
   }
   async onProcess(builder: BuilderInternal, file: ProjectFile): Promise<void> {
     // Do whatever you want to do with the file.
-    this.logger.logWithDate(`Example Processor: "${file.src_path.raw}"`);
+    this.logger.logWithDate();
+    this.logger.log(`Example Processor: "${file.src_path.raw}"`);
   }
 }

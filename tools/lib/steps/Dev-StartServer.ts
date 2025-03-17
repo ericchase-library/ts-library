@@ -39,6 +39,7 @@ class CStep_StartServer implements Step {
   unwatch?: () => void;
 
   async run(builder: BuilderInternal) {
+    this.logger.logWithDate();
     if (builder.watchmode === true) {
       const p0 = Bun.spawn(['bun', 'run', 'server/tools/start.ts'], { stderr: 'pipe', stdout: 'pipe' });
       (async () => {

@@ -7,7 +7,9 @@ const NodeProvider = PlatformProvider();
 // Directory
 NodeProvider.Directory.create = async function create(path: CPath, recursive = true) {
   try {
-    await node_fs.promises.mkdir(path.raw, { recursive });
+    if (path.equals('.') === false) {
+      await node_fs.promises.mkdir(path.raw, { recursive });
+    }
   } catch (error: any) {
     if (error.code !== 'EEXIST') {
       throw error;

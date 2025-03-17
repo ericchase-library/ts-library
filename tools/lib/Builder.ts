@@ -293,13 +293,20 @@ export class BuilderInternal {
   }
 
   async processUnprocessedFiles() {
-    await this.$processRemovedFiles();
-    await this.$processAddedFiles();
-    await this.$processUpdatedFiles();
+    if (this.$set_unprocessed_removed_files.size > 0) {
+      await this.$processRemovedFiles();
+    }
+    if (this.$set_unprocessed_added_files.size > 0) {
+      await this.$processAddedFiles();
+    }
+    if (this.$set_unprocessed_updated_files.size > 0) {
+      await this.$processUpdatedFiles();
+    }
   }
 
   // always call processUpdatedFiles after this
   async $processAddedFiles() {
+    logger.logWithDate('Processing Added Files');
     for (const processor of this.processor_modules) {
       await processor.onAdd(this, this.$set_unprocessed_added_files);
     }
@@ -322,6 +329,7 @@ export class BuilderInternal {
   }
 
   async $processUpdatedFiles() {
+    logger.logWithDate('Processing Updated Files');
     const defers = new Map<ProjectFile, Defer<void>>();
     // add defers for updated file and all downstream files
     for (const file of this.$set_unprocessed_updated_files) {
@@ -440,6 +448,7 @@ export class ProjectFile {
 }
 
 async function firstRunProcessorList(file: ProjectFile) {
+  logger.log(`"${file.src_path.raw}"`);
   file.resetBytes();
   for (const { processor, method } of file.$processor_list) {
     await method.call(processor, file.builder, file);
@@ -450,7 +459,7 @@ async function runProcessorList(file: ProjectFile, waitlist: Promise<void>[], de
   for (const task of waitlist) {
     await task;
   }
-  logger.logWithDate(`Processing - "${file.src_path.raw}"`);
+  logger.log(`"${file.src_path.raw}"`);
   file.resetBytes();
   for (const { processor, method } of file.$processor_list) {
     await method.call(processor, file.builder, file);

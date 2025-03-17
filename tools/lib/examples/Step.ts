@@ -13,6 +13,7 @@ class CStep_ExampleStep implements Step {
   constructor() {}
   async run(builder: BuilderInternal) {
     // Do whatever you want.
-    this.logger.logWithDate('Example Build Step');
+    this.logger.logWithDate();
+    this.logger.log('Example  Step');
   }
 }

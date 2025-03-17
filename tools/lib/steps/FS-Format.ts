@@ -16,13 +16,13 @@ class CStep_Format implements Step {
   async run(builder: BuilderInternal) {
     this.logger.logWithDate();
     const p0 = Bun.spawn(['biome', 'format', '--files-ignore-unknown', 'true', '--verbose', '--write'], { stderr: 'pipe', stdout: 'pipe' });
-    const p1 = Bun.spawn(['prettier', '.', '--write'], { stderr: 'pipe', stdout: 'pipe' });
+    const p1 = Bun.spawn(['prettier', '--write', '.'], { stderr: 'pipe', stdout: 'pipe' });
     await Promise.allSettled([p0.exited, p1.exited]);
     if (this.logging === 'normal') {
-      this.logger.log('> BIOME');
+      this.logger.log('> biome format --files-ignore-unknown true --verbose --write');
       this.logger.logNotEmpty(U8ToString(await U8StreamReadAll(p0.stdout)));
       this.logger.errorNotEmpty(U8ToString(await U8StreamReadAll(p0.stderr)));
-      this.logger.log('> PRETTIER');
+      this.logger.log('> prettier --write .');
       this.logger.logNotEmpty(U8ToString(await U8StreamReadAll(p1.stdout)));
       this.logger.errorNotEmpty(U8ToString(await U8StreamReadAll(p1.stderr)));
     }

@@ -21,7 +21,7 @@ class CProcessor_TypeScript_GenericBundler implements ProcessorModule {
     for (const file of files) {
       if (file.src_path.endsWith('.module.ts') || file.src_path.endsWith('.script.ts')) {
         file.out_path.ext = '.js';
-        file.addProcessor(this, this.onProcessFile);
+        file.addProcessor(this, this.onProcess);
         this.bundlefile_set.add(file);
       } else if (file.src_path.ext === '.ts') {
         trigger_reprocess = true;
@@ -49,7 +49,7 @@ class CProcessor_TypeScript_GenericBundler implements ProcessorModule {
     }
   }
 
-  async onProcessFile(builder: BuilderInternal, file: ProjectFile): Promise<void> {
+  async onProcess(builder: BuilderInternal, file: ProjectFile): Promise<void> {
     const build_results = await Bun.build({
       entrypoints: [file.src_path.raw],
       external: file.src_path.endsWith('.module.ts') ? this.config.external : [],
@@ -61,6 +61,9 @@ class CProcessor_TypeScript_GenericBundler implements ProcessorModule {
       },
       sourcemap: this.config.sourcemap,
       target: this.config.target,
+      // add iife around scripts
+      banner: file.src_path.endsWith('.script.ts') ? '(() => {\n' : undefined,
+      footer: file.src_path.endsWith('.script.ts') ? '})();' : undefined,
     });
     if (build_results.success === true) {
       for (const artifact of build_results.outputs) {
@@ -85,7 +88,7 @@ class CProcessor_TypeScript_GenericBundler implements ProcessorModule {
         }
       }
     } else {
-      this.logger.errorWithDate(`ERROR: Processor: ${__filename}, File: ${file.src_path}`);
+      this.logger.errorWithDate(`ERROR: Processor: ${__filename}, File: ${file.src_path.raw}`);
       for (const log of build_results.logs) {
         this.logger.log(log.message);
       }
