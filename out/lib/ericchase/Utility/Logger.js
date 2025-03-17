@@ -1,5 +1,4 @@
 import { Path } from "src/lib/ericchase/Platform/FilePath.js";
-import { Defer } from "src/lib/ericchase/Utility/Defer.js";
 import { Map_GetOrDefault } from "src/lib/ericchase/Utility/Map.js";
 import { RemoveWhiteSpaceOnlyLinesFromTopAndBottom } from "src/lib/ericchase/Utility/String.js";
 const LoggerOptions = {
@@ -59,7 +58,6 @@ class CLogger {
 }
 let buffer = [];
 let timeout;
-let done = Defer();
 const output_list = [];
 const name_to_buffer = new Map;
 const name_to_logger = new Map;
@@ -136,8 +134,6 @@ function setTimer() {
       }
     }
     buffer = [];
-    done.resolve();
-    done = Defer();
   }, 50);
 }
 export const DefaultLogger = Logger();
@@ -162,7 +158,13 @@ export function SetLoggerOptions(options) {
     LoggerOptions.listmode = options.listmode;
 }
 export async function WaitForLogger() {
-  await done.promise;
+  return new Promise((resolve, reject) => {
+    setInterval(() => {
+      if (buffer.length === 0 && timeout === undefined) {
+        resolve();
+      }
+    }, 250);
+  });
 }
 function formatDate(date) {
   let y = date.getFullYear(), m = date.getMonth() + 1, d = date.getDate(), hh = date.getHours(), mm = date.getMinutes(), ss = date.getSeconds(), ap = hh < 12 ? "AM" : "PM";
