@@ -14,6 +14,7 @@
   "scripts": {
     "build": "bun run tools/build.ts",
     "dev": "bun run tools/build.ts --watch",
+    "lint": "biome lint --error-on-warnings --write",
     "serve": "bun run server/tools/start.ts"
   },
   "type": "module"

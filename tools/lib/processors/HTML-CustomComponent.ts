@@ -3,7 +3,7 @@ import { ParseHTML } from 'src/lib/ericchase/Platform/NPM/NodeHTMLParser.js';
 import { Logger } from 'src/lib/ericchase/Utility/Logger.js';
 import { BuilderInternal, ProcessorModule, ProjectFile } from 'tools/lib/Builder.js';
 
-const logger = Logger(__filename, Processor_HTML_CustomComponent.name);
+const logger = Logger(Processor_HTML_CustomComponent.name);
 
 export function Processor_HTML_CustomComponent(): ProcessorModule {
   return new CProcessor_HTML_CustomComponent();
@@ -105,9 +105,8 @@ class CProcessor_HTML_CustomComponent implements ProcessorModule {
           }
         }
       } catch (error) {
-        this.logger.errorWithDate(`ERROR: Processor: ${__filename}, File: ${file.src_path}`);
+        this.logger.error(`ERROR: Processor: ${__filename}, File: ${file.src_path}`);
         this.logger.log(error);
-        this.logger.log();
       }
     }
     if (update_text === true) {

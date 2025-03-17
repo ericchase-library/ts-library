@@ -7,7 +7,7 @@ import { Sleep } from 'src/lib/ericchase/Utility/Sleep.js';
 import { server_http } from 'src/lib/server/server.js';
 import { BuilderInternal, Step } from 'tools/lib/Builder.js';
 
-const logger = Logger(__filename, Step_StartServer.name);
+const logger = Logger(Step_StartServer.name);
 
 export function Step_StartServer(): Step {
   return new CStep_StartServer();
@@ -39,7 +39,7 @@ class CStep_StartServer implements Step {
   unwatch?: () => void;
 
   async run(builder: BuilderInternal) {
-    this.logger.logWithDate();
+    this.logger.log('Start Server');
     if (builder.watchmode === true) {
       const p0 = Bun.spawn(['bun', 'run', 'server/tools/start.ts'], { stderr: 'pipe', stdout: 'pipe' });
       (async () => {

@@ -2,7 +2,7 @@ import { Path } from 'src/lib/ericchase/Platform/FilePath.js';
 import { Logger } from 'src/lib/ericchase/Utility/Logger.js';
 import { BuilderInternal, ProcessorModule, ProjectFile } from 'tools/lib/Builder.js';
 
-const logger = Logger(__filename, Processor_TypeScript_GenericBundlerImportRemapper.name);
+const logger = Logger(Processor_TypeScript_GenericBundlerImportRemapper.name);
 
 export function Processor_TypeScript_GenericBundlerImportRemapper(): ProcessorModule {
   return new CProcessor_TypeScript_GenericBundlerImportRemapper();

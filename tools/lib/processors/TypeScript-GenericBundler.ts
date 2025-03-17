@@ -2,7 +2,7 @@ import { Path } from 'src/lib/ericchase/Platform/FilePath.js';
 import { Logger } from 'src/lib/ericchase/Utility/Logger.js';
 import { BuilderInternal, ProcessorModule, ProjectFile } from 'tools/lib/Builder.js';
 
-const logger = Logger(__filename, Processor_TypeScript_GenericBundler.name);
+const logger = Logger(Processor_TypeScript_GenericBundler.name);
 
 type BuildConfig = Pick<Parameters<typeof Bun.build>[0], 'external' | 'sourcemap' | 'target'>;
 
@@ -88,11 +88,10 @@ class CProcessor_TypeScript_GenericBundler implements ProcessorModule {
         }
       }
     } else {
-      this.logger.errorWithDate(`ERROR: Processor: ${__filename}, File: ${file.src_path.raw}`);
+      this.logger.error(`ERROR: Processor: ${__filename}, File: ${file.src_path.raw}`);
       for (const log of build_results.logs) {
         this.logger.log(log.message);
       }
-      this.logger.log();
     }
   }
 }

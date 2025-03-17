@@ -18,8 +18,8 @@ builder.setStartupSteps([
 ]);
 
 builder.setProcessorModules([
-  Processor_TypeScript_GenericCompiler(['**/*.ts'], ['**/*.module.ts', '**/*.script.ts']),
-  Processor_BasicWriter(['**/*.ts'], ['**/*.module.ts', '**/*.script.ts']),
+  Processor_TypeScript_GenericCompiler(['**/*.ts'], ['**/*{.deprecated,.example,.module,.script,.test}.ts']),
+  Processor_BasicWriter(['**/*.ts'], ['**/*{.deprecated,.example,.module,.script,.test}.ts']),
   //
 ]);
 

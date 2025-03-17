@@ -3,7 +3,7 @@ import { globMatch } from 'src/lib/ericchase/Platform/util.js';
 import { Logger } from 'src/lib/ericchase/Utility/Logger.js';
 import { BuilderInternal, ProcessorModule, ProjectFile } from 'tools/lib/Builder.js';
 
-const logger = Logger(__filename, Processor_TypeScript_GenericCompiler.name);
+const logger = Logger(Processor_TypeScript_GenericCompiler.name);
 
 type BuildConfig = Pick<Parameters<typeof Bun.build>[0], 'target'>;
 
@@ -33,7 +33,8 @@ class CProcessor_TypeScript_GenericCompiler implements ProcessorModule {
       jsxOptimizationInline: false,
       minifyWhitespace: false,
       treeShaking: false,
-      trimUnusedImports: false,
+      // this is ok
+      trimUnusedImports: true,
     });
   }
 
@@ -51,9 +52,8 @@ class CProcessor_TypeScript_GenericCompiler implements ProcessorModule {
     try {
       file.setText(await this.transpiler.transform(await file.getText()));
     } catch (error) {
-      this.logger.errorWithDate(`ERROR: Processor: ${__filename}, File: ${file.src_path.raw}`);
+      this.logger.error(`ERROR: Processor: ${__filename}, File: ${file.src_path.raw}`);
       this.logger.error(error);
-      this.logger.log();
     }
   }
 }

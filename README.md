@@ -18,6 +18,8 @@ If you want to reach me sooner with modern technology, try discord:
 
 The build tools were completely rewritten, along with some of the library modules. As of now, the library should be considered on version 2.0.0. It's a work in progress, but should be much more useful than v1.
 
+These build tools use the Biome (https://biomejs.dev/) toolchain for formatting and linting most source files; as well as Prettier (https://prettier.io/) for formatting html and markdown files. Formatting has always been a massive pain point in web dev, and will probably continue to be so. From time to time, I find better tools for formatting files, and the build tools may be updated accordingly.
+
 ## Massive Disclaimer
 
 **This library is updated often!**
@@ -63,14 +65,6 @@ For final builds:
 bun run build
 ```
 
-**Lint the source code**
-
-```
-bun run lint
-```
-
-My build tools use the Biome (https://biomejs.dev/) toolchain for formatting and linting most source files; as well as Prettier (https://prettier.io/) for formatting html and markdown files. Formatting has always been a massive pain point in web dev, and will probably continue to be so. From time to time, I find better tools for formatting files, and the build tools may be updated accordingly.
-
 ## Project Structure
 
 ### ./src/
@@ -89,7 +83,7 @@ This folder contains the scripts we use to automate work flows, like:
   - opening all the source files in your project;
   - re-installing all the npm packages in your package.json file; etc.
 
-You can literally do anything you want, which is the point of this library. These scripts should be easy to read, easy to write, and easy to modify. The goal isn't to produce a complete packaged build tool like Gulp, Grunt, Webpack, Makefile, etc. You can use those tools as well! The main idea here is to get away from writing clumsy npm scripts in package.json that rely on other packaged tools.
+You can literally do anything you want, which is the point of this library. The scripts should be easy to read, easy to write, and easy to modify. The goal isn't to produce a complete packaged build tool like Gulp, Grunt, Webpack, Makefile, etc. You can use those tools as well! The main idea here is to get away from writing clumsy npm scripts in package.json that rely on other packaged tools.
 
 **Note:**
 
@@ -99,7 +93,7 @@ The scripts under `./tools/` also use modules from this library (from `./src/`).
 
 This folder is produced during the normal build process and would contain the final compiled/bundled source code.
 
-For this library project, build tools v1 compiled the TypeScript files into JavaScript files to produce a pure JavaScript library. However, I didn't find the resulting library easy to use. It's much easier to simply copy a template project and build from the TypeScript library instead. I may write a compiler processor compatible with build tools v2 later.
+For this library project, build tools v1 compiled the TypeScript files into JavaScript files to produce a pure JavaScript library. However, I didn't find the resulting library easy to use. It's much easier to simply copy a template project and build from the TypeScript library instead. ~~I may write a compiler processor compatible with build tools v2 later.~~ I somewhat did.
 
 **Note:**
 
@@ -140,13 +134,13 @@ The code in this repository will always be truly free and open source (unless I 
 
 - _please leave a trail_
 
-When making a copy of this project, I _kindly ask_ that you include the text within the `NOTICE` file somewhere (perhaps in your own README.md or LICENSE or NOTICE file?) or a link to this repository so that other readers of your project may also be able to find this original template.
+When making a copy of this project, I _kindly ask_ that you include the text within the `NOTICE` file somewhere (perhaps in your own README.md or LICENSE or NOTICE file?) or a link to this repository so that other users of your project may also be able to find this original template.
 
 ```
 Typescript Library
 https://github.com/ericchase-library/ts-library
 
-Copyright © 2024 ericchase
+Copyright © 2025 ericchase
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

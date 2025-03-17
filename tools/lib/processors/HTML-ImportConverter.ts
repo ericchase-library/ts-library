@@ -3,7 +3,7 @@ import { ParseHTML } from 'src/lib/ericchase/Platform/NPM/NodeHTMLParser.js';
 import { Logger } from 'src/lib/ericchase/Utility/Logger.js';
 import { BuilderInternal, ProcessorModule, ProjectFile } from 'tools/lib/Builder.js';
 
-const logger = Logger(__filename, Processor_HTML_ImportConverter.name);
+const logger = Logger(Processor_HTML_ImportConverter.name);
 
 export function Processor_HTML_ImportConverter(): ProcessorModule {
   return new CProcessor_HTML_ImportConverter();

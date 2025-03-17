@@ -4,7 +4,7 @@ import { BuilderInternal, Step } from 'tools/lib/Builder.js';
 import { Step_CopyFiles } from 'tools/lib/steps/FS-CopyFiles.js';
 import { Step_MirrorDirectory } from 'tools/lib/steps/FS-MirrorDirectory.js';
 
-const logger = Logger(__filename, Step_Project_PullLib.name);
+const logger = Logger(Step_Project_PullLib.name);
 
 export function Step_Project_PullLib(project_dir: CPath | string): Step {
   return new CStep_Project_PullLib(Path(project_dir));
@@ -15,7 +15,7 @@ class CStep_Project_PullLib implements Step {
 
   constructor(readonly external_directory: CPath) {}
   async run(builder: BuilderInternal) {
-    this.logger.logWithDate();
+    this.logger.log('Pull Lib');
     const steps = [
       // Mirror Database
       Step_MirrorDirectory({

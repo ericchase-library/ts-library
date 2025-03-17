@@ -4,12 +4,14 @@ import { KEYS } from 'src/lib/ericchase/Platform/Shell.js';
 import { AddStdinListener, StartStdinRawModeReader } from 'src/lib/ericchase/Platform/StdinReader.js';
 import { Debounce } from 'src/lib/ericchase/Utility/Debounce.js';
 import { Defer } from 'src/lib/ericchase/Utility/Defer.js';
-import { Logger } from 'src/lib/ericchase/Utility/Logger.js';
+import { AddLoggerOutputDirectory, Logger } from 'src/lib/ericchase/Utility/Logger.js';
 import { Map_GetOrDefault } from 'src/lib/ericchase/Utility/Map.js';
 import { Cache_FileStats_Lock, Cache_FileStats_Unlock } from 'tools/lib/cache/FileStatsCache.js';
 import { Cache_TryLockEach, Cache_UnlockAll } from 'tools/lib/cache/LockCache.js';
 
-const logger = Logger(__filename, 'Builder');
+const default_platform = await getPlatformProvider('bun');
+AddLoggerOutputDirectory(Path('./cache'), default_platform);
+const logger = Logger('Builder');
 
 export type ProcessorMethod = (builder: BuilderInternal, file: ProjectFile) => Promise<void>;
 
@@ -76,7 +78,7 @@ export class BuilderInternal {
 
   constructor(public external: Builder) {}
 
-  platform = UnimplementedProvider;
+  platform = default_platform;
   runtime: PlatformProviderId = 'bun';
   watchmode = false;
 
@@ -243,7 +245,7 @@ export class BuilderInternal {
         event_paths.add(path.raw);
         const orphan = process_events();
       });
-      this.logger.logWithDate(`Watching "${this.dir.src.raw}"`);
+      this.logger.log(`Watching "${this.dir.src.raw}"`);
     }
   }
 
@@ -293,20 +295,22 @@ export class BuilderInternal {
   }
 
   async processUnprocessedFiles() {
-    if (this.$set_unprocessed_removed_files.size > 0) {
-      await this.$processRemovedFiles();
-    }
-    if (this.$set_unprocessed_added_files.size > 0) {
-      await this.$processAddedFiles();
-    }
-    if (this.$set_unprocessed_updated_files.size > 0) {
-      await this.$processUpdatedFiles();
+    if (this.processor_modules.length > 0) {
+      if (this.$set_unprocessed_removed_files.size > 0) {
+        await this.$processRemovedFiles();
+      }
+      if (this.$set_unprocessed_added_files.size > 0) {
+        await this.$processAddedFiles();
+      }
+      if (this.$set_unprocessed_updated_files.size > 0) {
+        await this.$processUpdatedFiles();
+      }
     }
   }
 
   // always call processUpdatedFiles after this
   async $processAddedFiles() {
-    logger.logWithDate('Processing Added Files');
+    logger.log('Processing Added Files');
     for (const processor of this.processor_modules) {
       await processor.onAdd(this, this.$set_unprocessed_added_files);
     }
@@ -329,7 +333,7 @@ export class BuilderInternal {
   }
 
   async $processUpdatedFiles() {
-    logger.logWithDate('Processing Updated Files');
+    logger.log('Processing Updated Files');
     const defers = new Map<ProjectFile, Defer<void>>();
     // add defers for updated file and all downstream files
     for (const file of this.$set_unprocessed_updated_files) {

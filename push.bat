@@ -1,0 +1,1 @@
+bun run tools/push.ts

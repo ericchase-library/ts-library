@@ -6,7 +6,7 @@ import { Cache_AreFilesEqual, Cache_RemoveFileStats, Cache_UpdateFileStats } fro
 
 // !! WARNING: This can DELETE entire directories. Use with caution!!
 
-const logger = Logger(__filename, Step_MirrorDirectory.name);
+const logger = Logger(Step_MirrorDirectory.name);
 
 export function Step_MirrorDirectory(options: { from: CPath | string; to: CPath | string; include_patterns?: string[]; exclude_patterns?: string[] }): Step {
   return new CStep_MirrorDirectory({
@@ -29,7 +29,7 @@ class CStep_MirrorDirectory implements Step {
     },
   ) {}
   async run(builder: BuilderInternal) {
-    this.logger.logWithDate();
+    this.logger.log('Mirror Directory');
     try {
       await builder.platform.Path.getStats(this.options.from);
     } catch (error) {

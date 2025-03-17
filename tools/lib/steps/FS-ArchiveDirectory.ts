@@ -3,7 +3,7 @@ import { CPath, Path } from 'src/lib/ericchase/Platform/FilePath.js';
 import { Logger } from 'src/lib/ericchase/Utility/Logger.js';
 import { BuilderInternal, Step } from 'tools/lib/Builder.js';
 
-const logger = Logger(__filename, Step_ArchiveDirectory.name);
+const logger = Logger(Step_ArchiveDirectory.name);
 
 export function Step_ArchiveDirectory(dir: CPath | string, outfile: CPath | string): Step {
   return new CStep_ArchiveDirectory(Path(dir), Path(outfile));
@@ -19,7 +19,7 @@ class CStep_ArchiveDirectory implements Step {
     readonly outpath: CPath,
   ) {}
   async run(builder: BuilderInternal) {
-    this.logger.logWithDate();
+    this.logger.log('Archive');
     try {
       this.zip.addLocalFolder(this.dir.raw);
       this.zip.writeZip(this.outpath.raw);

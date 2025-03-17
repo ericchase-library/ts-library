@@ -11,8 +11,6 @@ class CStep_Async implements Step {
     for (const step of this.steps) {
       tasks.push(step.run(builder));
     }
-    for (const task of tasks) {
-      await task;
-    }
+    await Promise.allSettled(tasks);
   }
 }

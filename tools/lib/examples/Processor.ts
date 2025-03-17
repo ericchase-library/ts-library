@@ -1,7 +1,7 @@
 import { Logger } from 'src/lib/ericchase/Utility/Logger.js';
 import { BuilderInternal, ProcessorModule, ProjectFile } from 'tools/lib/Builder.js';
 
-const logger = Logger(__filename, Processor_ExampleProcessorModule.name);
+const logger = Logger(Processor_ExampleProcessorModule.name);
 
 // A "factory" function for creating and/or configuring the class. Also helps
 // cut down on code ceremony for the user.
@@ -27,7 +27,6 @@ class CProcessor_ExampleProcessorModule implements ProcessorModule {
   }
   async onProcess(builder: BuilderInternal, file: ProjectFile): Promise<void> {
     // Do whatever you want to do with the file.
-    this.logger.logWithDate();
     this.logger.log(`Example Processor: "${file.src_path.raw}"`);
   }
 }

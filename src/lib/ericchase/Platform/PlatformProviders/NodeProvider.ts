@@ -36,6 +36,16 @@ NodeProvider.Directory.watch = (path, callback, recursive = true) => {
   };
 };
 
+// File
+NodeProvider.File.appendBytes = async (path, bytes) => {
+  await NodeProvider.Directory.create(path.slice(0, -1));
+  return node_fs.promises.appendFile(path.raw, bytes);
+};
+NodeProvider.File.appendText = async (path, text) => {
+  await NodeProvider.Directory.create(path.slice(0, -1));
+  return node_fs.promises.appendFile(path.raw, text);
+};
+
 // Path
 NodeProvider.Path.getStats = (path) => {
   return node_fs.promises.stat(path.raw);

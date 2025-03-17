@@ -172,6 +172,5 @@ sync.ffs_db
 ## Repo Specific
 ##
 
-tools/cache/
-tools/push.ts
-push.bat
+cache/
+synced-projects.jsonc

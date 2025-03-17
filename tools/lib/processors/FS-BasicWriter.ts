@@ -3,7 +3,7 @@ import { globMatch } from 'src/lib/ericchase/Platform/util.js';
 import { Logger } from 'src/lib/ericchase/Utility/Logger.js';
 import { BuilderInternal, ProcessorModule, ProjectFile } from 'tools/lib/Builder.js';
 
-const logger = Logger(__filename, Processor_BasicWriter.name);
+const logger = Logger(Processor_BasicWriter.name);
 
 export function Processor_BasicWriter(include_patterns: string[], exclude_patterns: string[]): ProcessorModule {
   return new CProcessor_BasicWriter(
