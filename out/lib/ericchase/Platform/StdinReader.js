@@ -1,3 +1,4 @@
+import { Orphan } from "src/lib/ericchase/Utility/Promise.js";
 const decoder = new TextDecoder;
 let enabled = false;
 let rawmode = false;
@@ -5,7 +6,7 @@ const listeners = new Set;
 function handler(bytes) {
   const text = decoder.decode(bytes);
   for (const listener of listeners) {
-    const ignore = listener(bytes, text, () => listeners.delete(listener));
+    Orphan(listener(bytes, text, () => listeners.delete(listener)));
   }
 }
 function SwitchToLineReader() {

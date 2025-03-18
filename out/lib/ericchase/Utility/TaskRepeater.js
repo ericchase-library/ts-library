@@ -1,3 +1,5 @@
+import { Orphan } from "src/lib/ericchase/Utility/Promise.js";
+
 export class TaskRepeater {
   $result;
   $running = false;
@@ -25,7 +27,7 @@ export class TaskRepeater {
   start() {
     if (this.$running === false) {
       this.$running = true;
-      const orphan = this.$executor();
+      Orphan(this.$executor());
     }
   }
   stop() {
