@@ -64,7 +64,9 @@ const name_to_logger = new Map;
 const name_to_uuid = new Map;
 const uuid_to_channel = new Map;
 const uuid_to_name = new Map;
+let unprocessedlogcount = 0;
 function addlog(kind, logger, items) {
+  unprocessedlogcount++;
   buffer.push({ date: Date.now(), kind, uuid: logger.uuid, channel: logger.channel, items });
   setTimer();
 }
@@ -86,54 +88,63 @@ function isLoggerEnabled(name) {
   }
   return !LoggerOptions.list.has(name);
 }
-function setTimer() {
-  timeout ??= setTimeout(async () => {
-    timeout = undefined;
-    for (const { date, kind, uuid, channel, items } of buffer) {
-      const name = uuid_to_name.get(uuid) ?? "default";
-      const name_buffer = Map_GetOrDefault(name_to_buffer, name, () => []);
-      if (isLoggerEnabled(name) === false) {
-        continue;
+async function processBuffer() {
+  const default_buffer = Map_GetOrDefault(name_to_buffer, "default", () => []);
+  const temp_buffer = buffer;
+  buffer = [];
+  for (const { date, kind, uuid, channel, items } of temp_buffer) {
+    unprocessedlogcount--;
+    const name = uuid_to_name.get(uuid) ?? "default";
+    const name_buffer = Map_GetOrDefault(name_to_buffer, name, () => []);
+    if (isLoggerEnabled(name) === false) {
+      continue;
+    }
+    const datestring = formatDate(new Date(date));
+    if (kind === 0 /* Err */) {
+      for (const line of RemoveWhiteSpaceOnlyLinesFromTopAndBottom(items.join(" "))) {
+        const text = `${datestring} |${uuid}.${channel}| (${name}) <ERROR> ${line}`;
+        if (LoggerOptions.console === true) {
+          if (LoggerOptions.ceremony === true) {
+            console["error"](text);
+          } else {
+            console["error"](`<ERROR> ${line}`);
+          }
+        }
+        default_buffer.push(text);
+        name_buffer.push(text);
       }
-      const datestring = formatDate(new Date(date));
-      if (kind === 0 /* Err */) {
-        for (const line of RemoveWhiteSpaceOnlyLinesFromTopAndBottom(items.join(" "))) {
-          const text = `${datestring} |${uuid}.${channel}| (${name}) <ERROR> ${line}`;
-          if (LoggerOptions.console === true) {
-            if (LoggerOptions.ceremony === true) {
-              console["error"](text);
-            } else {
-              console["error"](`<ERROR> ${line}`);
-            }
+    } else {
+      for (const line of RemoveWhiteSpaceOnlyLinesFromTopAndBottom(items.join(" "))) {
+        const text = `${datestring} |${uuid}.${channel}| (${name}) ${line}`;
+        if (LoggerOptions.console === true) {
+          if (LoggerOptions.ceremony === true) {
+            console["log"](text);
+          } else {
+            console["log"](line);
           }
-          name_buffer.push(text);
         }
-      } else {
-        for (const line of RemoveWhiteSpaceOnlyLinesFromTopAndBottom(items.join(" "))) {
-          const text = `${datestring} |${uuid}.${channel}| (${name}) ${line}`;
-          if (LoggerOptions.console === true) {
-            if (LoggerOptions.ceremony === true) {
-              console["log"](text);
-            } else {
-              console["log"](line);
-            }
-          }
-          name_buffer.push(text);
-        }
+        default_buffer.push(text);
+        name_buffer.push(text);
       }
     }
-    for (const output of output_list) {
-      const { path, platform } = await output;
-      for (const [name, lines] of name_to_buffer) {
-        if (lines.length > 0) {
-          await platform.File.appendText(Path(path, `${name}.log`), `${lines.join(`
+  }
+  for (const output of output_list) {
+    const { path, platform } = await output;
+    for (const [name, lines] of name_to_buffer) {
+      if (lines.length > 0) {
+        await platform.File.appendText(Path(path, `${name}.log`), `${lines.join(`
 `)}
 `);
-          name_to_buffer.set(name, []);
-        }
+        name_to_buffer.set(name, []);
       }
     }
-    buffer = [];
+  }
+}
+let task = undefined;
+function setTimer() {
+  timeout ??= setTimeout(() => {
+    timeout = undefined;
+    task = processBuffer();
   }, 50);
 }
 export const DefaultLogger = Logger();
@@ -158,16 +169,28 @@ export function SetLoggerOptions(options) {
     LoggerOptions.listmode = options.listmode;
 }
 export async function WaitForLogger() {
-  return new Promise((resolve, reject) => {
-    setInterval(() => {
-      if (buffer.length === 0 && timeout === undefined) {
-        resolve();
-      }
-    }, 250);
-  });
+  if (unprocessedlogcount > 0) {
+    await new Promise((resolve, reject) => {
+      let id = setInterval(() => {
+        if (unprocessedlogcount > 0) {
+          setTimer();
+        } else {
+          clearInterval(id);
+          resolve();
+        }
+      }, 250);
+    });
+    await task;
+  }
 }
 function formatDate(date) {
   let y = date.getFullYear(), m = date.getMonth() + 1, d = date.getDate(), hh = date.getHours(), mm = date.getMinutes(), ss = date.getSeconds(), ap = hh < 12 ? "AM" : "PM";
   hh = hh % 12 || 12;
   return y + "-" + (m < 10 ? "0" : "") + m + "-" + (d < 10 ? "0" : "") + d + " " + (hh < 10 ? "0" : "") + hh + ":" + (mm < 10 ? "0" : "") + mm + ":" + (ss < 10 ? "0" : "") + ss + " " + ap;
 }
+process.on("beforeExit", async (code) => {
+  await WaitForLogger();
+  if (unprocessedlogcount > 0) {
+    console["error"]("Unprocessed Logs:", unprocessedlogcount);
+  }
+});

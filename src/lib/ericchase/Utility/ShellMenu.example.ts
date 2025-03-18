@@ -1,5 +1,5 @@
 import { KEYS, Shell } from 'src/lib/ericchase/Platform/Shell.js';
-import { AddStdinListener, StartStdinRawModeReader } from 'src/lib/ericchase/Platform/StdinReader.js';
+import { AddStdInListener, StartStdInRawModeReader } from 'src/lib/ericchase/Platform/StdinReader.js';
 import { ShellMenu } from 'src/lib/ericchase/Utility/ShellMenu.js';
 
 const menu = new ShellMenu({
@@ -53,13 +53,13 @@ const menu = new ShellMenu({
   },
 });
 
-AddStdinListener(async (bytes, text, removeSelf) => {
+AddStdInListener(async (bytes, text, removeSelf) => {
   if (text === KEYS.SIGINT) {
     process.exit();
   }
 });
 
-AddStdinListener(async (bytes, text, removeSelf) => {
+AddStdInListener(async (bytes, text, removeSelf) => {
   switch (text) {
     case KEYS.ARROWS.UP:
       menu.previousItem();
@@ -78,5 +78,5 @@ AddStdinListener(async (bytes, text, removeSelf) => {
   }
 });
 
-StartStdinRawModeReader();
+StartStdInRawModeReader();
 Shell.HideCursor();

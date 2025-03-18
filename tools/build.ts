@@ -15,13 +15,21 @@ builder.setStartupSteps([
   Step_CleanDirectory(builder.dir.out),
   Step_Format(),
   Step_Lint(),
-  Step_StartServer(),
+  //
+]);
+
+builder.setBeforeProcessingSteps([
   //
 ]);
 
 builder.setProcessorModules([
   Processor_TypeScript_GenericCompiler(['**/*.ts'], ['**/*{.deprecated,.example,.module,.script,.test}.ts']),
   Processor_BasicWriter(['**/*.ts'], ['**/*{.deprecated,.example,.module,.script,.test}.ts']),
+  //
+]);
+
+builder.setAfterProcessingSteps([
+  Step_StartServer(),
   //
 ]);
 

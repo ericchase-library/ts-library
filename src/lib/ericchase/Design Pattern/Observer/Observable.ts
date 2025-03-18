@@ -1,4 +1,4 @@
-export type SubscriptionCallback<Value> = (value: Value, unsubscribe: () => void) => void;
+import { SubscriptionCallback } from 'src/lib/ericchase/Design Pattern/Observer/ObserverCallbacks.js';
 
 export class Observable<Value> {
   public notify(data: Value): void {
