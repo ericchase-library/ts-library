@@ -138,7 +138,7 @@ export async function U8StreamReadSome(stream, count) {
 export async function U8StreamReadLines(stream, callback) {
   for await (const lines of AsyncLineReader(stream)) {
     for (const line of lines) {
-      if (callback(line) === false) {
+      if (await callback(line) === false) {
         return;
       }
     }
