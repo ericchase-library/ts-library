@@ -81,3 +81,6 @@ export function Path(...paths) {
 export function NormalizedPath(...paths) {
   return Path(node_path.normalize(Path(...paths).standard));
 }
+export function SanitizeFileName(name) {
+  return Path(name).standard.replace(/[^a-z0-9\.\_\-]/gi, "_").toLowerCase();
+}

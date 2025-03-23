@@ -27,8 +27,11 @@ class CProcessor_HTML_ImportConverter implements ProcessorModule {
     for (const script_tag of root_element.getElementsByTagName('script')) {
       const src = script_tag.getAttribute('src');
       if (src !== undefined) {
-        if (getBasename(src).endsWith('.ts')) {
+        if (getBasename(src)?.endsWith('.ts')) {
           script_tag.setAttribute('src', `${src.slice(0, src.lastIndexOf('.ts'))}.js`);
+          update_text = true;
+        } else if (getBasename(src)?.endsWith('.tsx')) {
+          script_tag.setAttribute('src', `${src.slice(0, src.lastIndexOf('.tsx'))}.js`);
           update_text = true;
         }
       }

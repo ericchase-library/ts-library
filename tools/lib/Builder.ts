@@ -38,6 +38,7 @@ export class Builder {
   }
 
   dir = this.$internal.dir;
+  watchmode = this.$internal.watchmode;
 
   set platform(value: CPlatformProvider) {
     this.$internal.platform = value;
@@ -274,56 +275,69 @@ export class BuilderInternal {
     Cache_FileStats_Lock();
     Cache_TryLockEach(['Build', 'Format']);
 
-    const unlock = this.$idle.lock();
+    try {
+      const unlock = this.$idle.lock();
 
-    for (const path of await this.platform.Directory.globScan(this.dir.src, '**/*')) {
-      this.addPath(Path(this.dir.src, path), Path(this.dir.out, path));
-    }
+      for (const path of await this.platform.Directory.globScan(this.dir.src, '**/*')) {
+        this.addPath(Path(this.dir.src, path), Path(this.dir.out, path));
+      }
 
-    if (this.watchmode === true) {
-      // Setup Source Watcher
-      this.setupSourceWatcher();
-      // Setup Stdin Reader
-      const releaseStdIn = GetStdInReaderLock();
-      AddStdInListener(async (bytes, text, removeSelf) => {
-        if (text === 'q') {
-          removeSelf();
-          this.channel.log('User Command: Quit');
-          await this.$idle.onZeroLocks();
-          this.$unwatchSource?.();
-          await this.shutdown();
-          releaseStdIn();
-        }
-      });
-      AddStdInListener(async (bytes, text, removeSelf) => {
-        if (text === KEYS.SIGINT) {
-          try {
+      if (this.watchmode === true) {
+        // Setup Source Watcher
+        this.setupSourceWatcher();
+        // Setup Stdin Reader
+        const releaseStdIn = GetStdInReaderLock();
+        AddStdInListener(async (bytes, text, removeSelf) => {
+          if (text === 'q') {
             removeSelf();
-            this.channel.log('User Command: Force Quit');
+            this.channel.log('User Command: Quit');
+            await this.$idle.onZeroLocks();
             this.$unwatchSource?.();
+            await this.shutdown();
+            // Release Locks
+            Cache_UnlockAll();
+            Cache_FileStats_Unlock();
             releaseStdIn();
-          } catch (error) {
-            ConsoleError(error);
           }
-          process.exit();
-        }
-      });
-      StartStdInRawModeReader();
+        });
+        AddStdInListener(async (bytes, text, removeSelf) => {
+          if (text === KEYS.SIGINT) {
+            try {
+              removeSelf();
+              this.channel.log('User Command: Force Quit');
+              this.$unwatchSource?.();
+              releaseStdIn();
+            } catch (error) {
+              ConsoleError(error);
+            }
+            process.exit();
+          }
+        });
+        StartStdInRawModeReader();
+      }
+
+      // Startup Steps
+      for (const step of this.startup_steps) {
+        await step.run(this);
+      }
+
+      // Processor Modules
+      await this.processUnprocessedFiles();
+
+      if (this.watchmode !== true) {
+        await this.shutdown();
+        // Release Locks
+        Cache_UnlockAll();
+        Cache_FileStats_Unlock();
+      }
+
+      unlock();
+    } catch (error) {
+      this.channel.error(error);
+      // Release Locks
+      Cache_UnlockAll();
+      Cache_FileStats_Unlock();
     }
-
-    // Startup Steps
-    for (const step of this.startup_steps) {
-      await step.run(this);
-    }
-
-    // Processor Modules
-    await this.processUnprocessedFiles();
-
-    if (this.watchmode !== true) {
-      await this.shutdown();
-    }
-
-    unlock();
   }
 
   async shutdown() {
@@ -341,9 +355,6 @@ export class BuilderInternal {
       await step.run(this);
       await step.end(this);
     }
-    // Release Locks
-    Cache_UnlockAll();
-    Cache_FileStats_Unlock();
   }
 
   async processUnprocessedFiles() {

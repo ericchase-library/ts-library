@@ -4,10 +4,10 @@ import { BuilderInternal, ProcessorModule, ProjectFile } from 'tools/lib/Builder
 
 const logger = Logger(Processor_TypeScript_GenericBundler.name);
 
-type BuildConfig = Pick<Parameters<typeof Bun.build>[0], 'external' | 'sourcemap' | 'target'>;
+type BuildConfig = Pick<Parameters<typeof Bun.build>[0], 'define' | 'external' | 'sourcemap' | 'target'>;
 
-export function Processor_TypeScript_GenericBundler({ external = [], sourcemap = 'linked', target = 'browser' }: BuildConfig): ProcessorModule {
-  return new CProcessor_TypeScript_GenericBundler({ external, sourcemap, target });
+export function Processor_TypeScript_GenericBundler({ define = {}, external = [], sourcemap = 'linked', target = 'browser' }: BuildConfig): ProcessorModule {
+  return new CProcessor_TypeScript_GenericBundler({ define, external, sourcemap, target });
 }
 
 class CProcessor_TypeScript_GenericBundler implements ProcessorModule {
@@ -19,11 +19,11 @@ class CProcessor_TypeScript_GenericBundler implements ProcessorModule {
   async onAdd(builder: BuilderInternal, files: Set<ProjectFile>) {
     let trigger_reprocess = false;
     for (const file of files) {
-      if (file.src_path.endsWith('.module.ts') || file.src_path.endsWith('.script.ts')) {
+      if (file.src_path.endsWith('.module.ts') || file.src_path.endsWith('.script.ts') || file.src_path.endsWith('.module.tsx') || file.src_path.endsWith('.script.tsx')) {
         file.out_path.ext = '.js';
         file.addProcessor(this, this.onProcess);
         this.bundlefile_set.add(file);
-      } else if (file.src_path.ext === '.ts') {
+      } else if (file.src_path.ext === '.ts' || file.src_path.ext === '.tsx') {
         trigger_reprocess = true;
       }
     }
@@ -36,9 +36,9 @@ class CProcessor_TypeScript_GenericBundler implements ProcessorModule {
   async onRemove(builder: BuilderInternal, files: Set<ProjectFile>): Promise<void> {
     let trigger_reprocess = false;
     for (const file of files) {
-      if (file.src_path.endsWith('.module.ts') || file.src_path.endsWith('.script.ts')) {
+      if (file.src_path.endsWith('.module.ts') || file.src_path.endsWith('.script.ts') || file.src_path.endsWith('.module.tsx') || file.src_path.endsWith('.script.tsx')) {
         this.bundlefile_set.delete(file);
-      } else if (file.src_path.ext === '.ts') {
+      } else if (file.src_path.ext === '.ts' || file.src_path.ext === '.tsx') {
         trigger_reprocess = true;
       }
     }
@@ -51,8 +51,9 @@ class CProcessor_TypeScript_GenericBundler implements ProcessorModule {
 
   async onProcess(builder: BuilderInternal, file: ProjectFile): Promise<void> {
     const build_results = await Bun.build({
+      define: this.config.define,
       entrypoints: [file.src_path.raw],
-      external: file.src_path.endsWith('.module.ts') ? this.config.external : [],
+      external: file.src_path.endsWith('.module.ts') || file.src_path.endsWith('.module.tsx') ? this.config.external : [],
       format: 'esm',
       minify: {
         identifiers: false,
@@ -62,8 +63,8 @@ class CProcessor_TypeScript_GenericBundler implements ProcessorModule {
       sourcemap: this.config.sourcemap,
       target: this.config.target,
       // add iife around scripts
-      banner: file.src_path.endsWith('.script.ts') ? '(() => {\n' : undefined,
-      footer: file.src_path.endsWith('.script.ts') ? '})();' : undefined,
+      banner: file.src_path.endsWith('.script.ts') || file.src_path.endsWith('.script.tsx') ? '(() => {\n' : undefined,
+      footer: file.src_path.endsWith('.script.ts') || file.src_path.endsWith('.script.tsx') ? '})();' : undefined,
     });
     if (build_results.success === true) {
       for (const artifact of build_results.outputs) {

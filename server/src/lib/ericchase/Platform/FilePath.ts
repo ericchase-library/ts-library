@@ -108,3 +108,9 @@ export function Path(...paths: (CPath | string)[]): CPath {
 export function NormalizedPath(...paths: (CPath | string)[]): CPath {
   return Path(node_path.normalize(Path(...paths).standard));
 }
+
+export function SanitizeFileName(name: CPath | string) {
+  return Path(name)
+    .standard.replace(/[^a-z0-9\.\_\-]/gi, '_')
+    .toLowerCase();
+}

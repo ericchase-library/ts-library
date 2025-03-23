@@ -15,7 +15,7 @@ class CStep_Format implements Step {
   async end(builder: BuilderInternal) {}
   async run(builder: BuilderInternal) {
     this.channel.log('Format');
-    await Step_Bun_Run({ cmd: ['biome', 'format', '--files-ignore-unknown', 'true', '--verbose', '--write'] }, this.logging).run(builder);
+    await Step_Bun_Run({ cmd: ['biome', 'format', '--verbose', '--write'] }, this.logging).run(builder);
     await Step_Bun_Run({ cmd: ['prettier', '--write', '.'] }, this.logging).run(builder);
   }
 }
