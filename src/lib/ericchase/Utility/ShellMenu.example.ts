@@ -1,6 +1,6 @@
-import { KEYS, Shell } from 'src/lib/ericchase/Platform/Shell.js';
-import { AddStdInListener, StartStdInRawModeReader } from 'src/lib/ericchase/Platform/StdinReader.js';
-import { ShellMenu } from 'src/lib/ericchase/Utility/ShellMenu.js';
+import { KEYS, Shell } from '../Platform/Shell.js';
+import { AddStdInListener, StartStdInRawModeReader } from '../Platform/StdinReader.js';
+import { ShellMenu } from './ShellMenu.js';
 
 const menu = new ShellMenu({
   menu: {

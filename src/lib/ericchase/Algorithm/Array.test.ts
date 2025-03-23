@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { ArrayAreEqual, ArrayBufferToBytes, ArrayChunks, ArrayShuffle, ArraySplit } from 'src/lib/ericchase/Algorithm/Array.js';
-import { U8, U8Clamped } from 'src/lib/ericchase/Algorithm/Uint8Array.js';
+import { ArrayAreEqual, ArrayBufferToBytes, ArrayChunks, ArrayShuffle, ArraySplit } from './Array.js';
+import { U8, U8Clamped } from './Uint8Array.js';
 
 describe(ArrayAreEqual.name, () => {
   const cases = [

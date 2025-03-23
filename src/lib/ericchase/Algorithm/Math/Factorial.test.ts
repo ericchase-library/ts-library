@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { ArrayShuffle } from 'src/lib/ericchase/Algorithm/Array.js';
-import { Factorial } from 'src/lib/ericchase/Algorithm/Math/Factorial.js';
+import { ArrayShuffle } from '../Array.js';
+import { Factorial } from './Factorial.js';
 
 const tests: [string, () => void][] = [
   ['0', () => expect(Factorial(0)).toBe(1n)],

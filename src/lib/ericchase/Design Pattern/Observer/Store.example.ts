@@ -1,4 +1,4 @@
-import { ConsoleLog } from 'src/lib/ericchase/Utility/Console.js';
+import { ConsoleLog } from '../../Utility/Console.js';
 
 type SubscriptionCallback<Value> = (value: Value) => void;
 type UpdateCallback<Value> = (value: Value) => Value;

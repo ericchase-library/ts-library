@@ -1,4 +1,4 @@
-import { UpdateMarkerManager } from 'src/lib/ericchase/Utility/UpdateMarker.js';
+import { UpdateMarkerManager } from './UpdateMarker.js';
 
 const marker_manager = new UpdateMarkerManager();
 let newline_count = 0;

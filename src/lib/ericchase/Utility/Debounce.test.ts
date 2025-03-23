@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { Debounce, ImmediateDebounce } from 'src/lib/ericchase/Utility/Debounce.js';
+import { Debounce, ImmediateDebounce } from './Debounce.js';
 
 describe(Debounce.name, async () => {
   test('Sync - Consecutive Awaits', async () => {

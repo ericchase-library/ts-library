@@ -1,11 +1,12 @@
-import { Path } from 'src/lib/ericchase/Platform/FilePath.js';
-import { Logger } from 'src/lib/ericchase/Utility/Logger.js';
-import { BuilderInternal, ProcessorModule, ProjectFile } from 'tools/lib/Builder.js';
+import { Path } from '../../../src/lib/ericchase/Platform/FilePath.js';
+import { Logger } from '../../../src/lib/ericchase/Utility/Logger.js';
+import { BuilderInternal, ProcessorModule, ProjectFile } from '../Builder.js';
 
 const logger = Logger(Processor_TypeScript_GenericBundler.name);
 
 type BuildConfig = Pick<Parameters<typeof Bun.build>[0], 'define' | 'external' | 'sourcemap' | 'target'>;
 
+// External pattern cannot contain more than one "*" wildcard.
 export function Processor_TypeScript_GenericBundler({ define = {}, external = [], sourcemap = 'linked', target = 'browser' }: BuildConfig): ProcessorModule {
   return new CProcessor_TypeScript_GenericBundler({ define, external, sourcemap, target });
 }
@@ -14,7 +15,9 @@ class CProcessor_TypeScript_GenericBundler implements ProcessorModule {
   channel = logger.newChannel();
 
   bundlefile_set = new Set<ProjectFile>();
-  constructor(readonly config: Required<BuildConfig>) {}
+  constructor(readonly config: Required<BuildConfig>) {
+    this.config.external.push('*.module.js');
+  }
 
   async onAdd(builder: BuilderInternal, files: Set<ProjectFile>) {
     let trigger_reprocess = false;
@@ -50,49 +53,62 @@ class CProcessor_TypeScript_GenericBundler implements ProcessorModule {
   }
 
   async onProcess(builder: BuilderInternal, file: ProjectFile): Promise<void> {
-    const build_results = await Bun.build({
-      define: this.config.define,
-      entrypoints: [file.src_path.raw],
-      external: builder.platform.Utility.globMatch(file.src_path.standard, '**/*{.module}{.ts,.tsx,.jsx}') ? this.config.external : [],
-      format: 'esm',
-      minify: {
-        identifiers: false,
-        syntax: false,
-        whitespace: false,
-      },
-      sourcemap: this.config.sourcemap,
-      target: this.config.target,
-      // add iife around scripts
-      banner: builder.platform.Utility.globMatch(file.src_path.standard, '**/*{.script}{.ts,.tsx,.jsx}') ? '(() => {\n' : undefined,
-      footer: builder.platform.Utility.globMatch(file.src_path.standard, '**/*{.script}{.ts,.tsx,.jsx}') ? '})();' : undefined,
-    });
-    if (build_results.success === true) {
-      for (const artifact of build_results.outputs) {
-        switch (artifact.kind) {
-          case 'entry-point':
-            {
-              const text = await artifact.text();
-              file.setText(text);
-              for (const [, ...paths] of text.matchAll(/\n?\/\/ (src\/.*)\n?/g)) {
-                for (const path of paths) {
-                  if (file.src_path.equals(path) === false) {
-                    builder.addDependency(builder.getFile(Path(path)), file);
+    try {
+      const results = await Bun.build({
+        define: this.config.define,
+        entrypoints: [file.src_path.raw],
+        external: builder.platform.Utility.globMatch(file.src_path.standard, '**/*{.module}{.ts,.tsx,.jsx}') ? this.config.external : [],
+        format: 'esm',
+        minify: {
+          identifiers: false,
+          syntax: false,
+          whitespace: false,
+        },
+        sourcemap: this.config.sourcemap,
+        target: this.config.target,
+        // add iife around scripts
+        banner: builder.platform.Utility.globMatch(file.src_path.standard, '**/*{.script}{.ts,.tsx,.jsx}') ? '(() => {\n' : undefined,
+        footer: builder.platform.Utility.globMatch(file.src_path.standard, '**/*{.script}{.ts,.tsx,.jsx}') ? '})();' : undefined,
+      });
+      if (results.success === true) {
+        for (const artifact of results.outputs) {
+          switch (artifact.kind) {
+            case 'entry-point':
+              {
+                const text = await artifact.text();
+                file.setText(text);
+                for (const [, ...paths] of text.matchAll(/\n?\/\/ (src\/.*)\n?/g)) {
+                  for (const path of paths) {
+                    if (file.src_path.equals(path) === false) {
+                      builder.addDependency(builder.getFile(Path(path)), file);
+                    }
                   }
                 }
               }
-            }
-            break;
-          case 'sourcemap':
-            // TODO: add virtual file to project manager
-            // await Bun.write(file.out_file.newBase(new Path(artifact.path).base).path, await artifact.text());
-            break;
+              break;
+            case 'sourcemap':
+              // TODO: add virtual file to project manager
+              // await Bun.write(file.out_file.newBase(new Path(artifact.path).base).path, await artifact.text());
+              break;
+          }
         }
+      } else {
+        this.channel.error(`File: ${file.src_path.raw}, Errors: [`);
+        for (const log of results.logs) {
+          this.channel.error(' ', log);
+        }
+        this.channel.error(']');
       }
-    } else {
-      this.channel.error(`ERROR: Processor: ${__filename}, File: ${file.src_path.raw}`);
-      for (const log of build_results.logs) {
-        this.channel.log(log.message);
+    } catch (error) {
+      this.channel.error(`File: ${file.src_path.raw}, Errors: [`);
+      if (error instanceof AggregateError) {
+        for (const e of error.errors) {
+          this.channel.error(' ', e);
+        }
+      } else {
+        this.channel.error(error);
       }
+      this.channel.error(']');
     }
   }
 }

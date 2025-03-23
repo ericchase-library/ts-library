@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { Sleep } from 'src/lib/ericchase/Utility/Sleep.js';
-import { RestartableTaskChain } from 'src/lib/ericchase/Utility/Task_RestartableTaskChain.js';
+import { Sleep } from './Sleep.js';
+import { RestartableTaskChain } from './Task_RestartableTaskChain.js';
 
 describe('start', () => {
   describe('sync', () => {

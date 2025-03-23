@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { MaxPriorityQueue, MinPriorityQueue, PriorityQueue } from 'src/lib/ericchase/Abstract Data Type/PriorityQueue.js';
-import { nChooseRPermutations } from 'src/lib/ericchase/Algorithm/Math/Combinatorics.js';
+import { MaxPriorityQueue, MinPriorityQueue, PriorityQueue } from './PriorityQueue.js';
+import { nChooseRPermutations } from '../Algorithm/Math/Combinatorics.js';
 
 describe('MinPriorityQueue', () => {
   const Queue = MinPriorityQueue;

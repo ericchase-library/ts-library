@@ -1,8 +1,8 @@
-import { U8StreamReadAll } from 'src/lib/ericchase/Algorithm/Stream.js';
-import { U8ToString } from 'src/lib/ericchase/Algorithm/Uint8Array.js';
-import { CPath, Path } from 'src/lib/ericchase/Platform/FilePath.js';
-import { Logger } from 'src/lib/ericchase/Utility/Logger.js';
-import { BuilderInternal, Step } from 'tools/lib/Builder.js';
+import { U8StreamReadAll } from '../../../src/lib/ericchase/Algorithm/Stream.js';
+import { U8ToString } from '../../../src/lib/ericchase/Algorithm/Uint8Array.js';
+import { CPath, Path } from '../../../src/lib/ericchase/Platform/FilePath.js';
+import { Logger } from '../../../src/lib/ericchase/Utility/Logger.js';
+import { BuilderInternal, Step } from '../Builder.js';
 
 const logger = Logger(Step_Bun_Run.name);
 

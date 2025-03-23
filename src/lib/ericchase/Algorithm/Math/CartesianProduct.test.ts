@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { CartesianProduct, nCartesianProduct } from 'src/lib/ericchase/Algorithm/Math/CartesianProduct.js';
+import { CartesianProduct, nCartesianProduct } from './CartesianProduct.js';
 
 describe(CartesianProduct.name, () => {
   describe('homogeneous & same type', () => {

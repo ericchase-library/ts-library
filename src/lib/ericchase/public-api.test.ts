@@ -1,9 +1,9 @@
 import { describe, expect, test } from 'bun:test';
-import { AssertBigint, AssertBoolean, AssertEqual, AssertFunction, AssertNotEqual, AssertNumber, AssertObject, AssertString, AssertSymbol, AssertUndefined } from 'src/lib/ericchase/Utility/Assert.js';
-import { ConsoleError, ConsoleErrorToLines, ConsoleErrorWithDate, ConsoleLog, ConsoleLogToLines, ConsoleLogWithDate, ConsoleNewline, GetConsoleMarker } from 'src/lib/ericchase/Utility/Console.js';
-import { Debounce, ImmediateDebounce } from 'src/lib/ericchase/Utility/Debounce.js';
-import { HasMethod, HasProperty } from 'src/lib/ericchase/Utility/Guard.js';
-import { DataSetMarker, DataSetMarkerManager, UpdateMarker, UpdateMarkerManager } from 'src/lib/ericchase/Utility/UpdateMarker.js';
+import { AssertBigint, AssertBoolean, AssertEqual, AssertFunction, AssertNotEqual, AssertNumber, AssertObject, AssertString, AssertSymbol, AssertUndefined } from './Utility/Assert.js';
+import { ConsoleError, ConsoleErrorToLines, ConsoleErrorWithDate, ConsoleLog, ConsoleLogToLines, ConsoleLogWithDate, ConsoleNewline, GetConsoleMarker } from './Utility/Console.js';
+import { Debounce, ImmediateDebounce } from './Utility/Debounce.js';
+import { HasMethod, HasProperty } from './Utility/Guard.js';
+import { DataSetMarker, DataSetMarkerManager, UpdateMarker, UpdateMarkerManager } from './Utility/UpdateMarker.js';
 
 // special import for alias
 import * as import_debounce from './Utility/Debounce.js';

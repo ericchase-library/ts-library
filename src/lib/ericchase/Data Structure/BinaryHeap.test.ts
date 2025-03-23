@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { nChooseRPermutations } from 'src/lib/ericchase/Algorithm/Math/Combinatorics.js';
-import { BinaryHeap, MaxBinaryHeap, MinBinaryHeap } from 'src/lib/ericchase/Data Structure/BinaryHeap.js';
+import { nChooseRPermutations } from '../Algorithm/Math/Combinatorics.js';
+import { BinaryHeap, MaxBinaryHeap, MinBinaryHeap } from './BinaryHeap.js';
 
 function TestPermutations(
   Heap: new () => BinaryHeap<number>, //

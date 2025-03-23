@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { U8StreamReadAll, U8StreamReadSome } from 'src/lib/ericchase/Algorithm/Stream.js';
-import { U8 } from 'src/lib/ericchase/Algorithm/Uint8Array.js';
+import { U8StreamReadAll, U8StreamReadSome } from './Stream.js';
+import { U8 } from './Uint8Array.js';
 
 describe(U8StreamReadAll.name, () => {
   test('[1, 2, 3, 4]', async () => {

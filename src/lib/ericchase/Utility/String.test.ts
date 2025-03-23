@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { nChooseRPermutations } from 'src/lib/ericchase/Algorithm/Math/Combinatorics.js';
-import { GetLeftMarginSize, LineIsOnlyWhiteSpace, RemoveWhiteSpaceOnlyLinesFromTopAndBottom, Split, SplitLines, SplitMultipleSpaces, SplitMultipleWhiteSpace, ToSnakeCase, TrimLines } from 'src/lib/ericchase/Utility/String.js';
+import { nChooseRPermutations } from '../Algorithm/Math/Combinatorics.js';
+import { GetLeftMarginSize, LineIsOnlyWhiteSpace, RemoveWhiteSpaceOnlyLinesFromTopAndBottom, Split, SplitLines, SplitMultipleSpaces, SplitMultipleWhiteSpace, ToSnakeCase, TrimLines } from './String.js';
 
 describe(GetLeftMarginSize.name, () => {
   test('Empty', () => {

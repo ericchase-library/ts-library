@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { JSONAnalyze } from 'src/lib/ericchase/Algorithm/JSON/Analyze.js';
+import { JSONAnalyze } from './Analyze.js';
 
 describe(JSONAnalyze.name, () => {
   test('Primitives', () => {
