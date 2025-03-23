@@ -23,8 +23,8 @@ builder.setBeforeProcessingSteps([
 ]);
 
 builder.setProcessorModules([
-  Processor_TypeScript_GenericCompiler(['**/*.ts'], ['**/*{.deprecated,.example,.module,.script,.test}.ts']),
-  Processor_BasicWriter(['**/*.ts'], ['**/*{.deprecated,.example,.module,.script,.test}.ts']),
+  Processor_TypeScript_GenericCompiler(['**/*{.ts,.tsx,.jsx}'], ['**/*{.deprecated,.example,.module,.script,.test}{.ts,.tsx,.jsx}']),
+  Processor_BasicWriter(['**/*{.ts,.tsx,.jsx}'], ['**/*{.deprecated,.example,.module,.script,.test}{.ts,.tsx,.jsx}']),
   //
 ]);
 
