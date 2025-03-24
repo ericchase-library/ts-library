@@ -1,1 +1,1 @@
-bun run tools/push.ts
+bun run tools/push.ts %*

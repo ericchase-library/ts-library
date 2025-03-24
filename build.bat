@@ -1,1 +1,1 @@
-bun run tools/build.ts
+bun run tools/build.ts %*

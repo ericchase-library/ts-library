@@ -15,6 +15,7 @@ const builder = new Builder();
 
 builder.setStartupSteps([
   Step_Bun_Run({ cmd: ['bun', 'update', '--latest'] }, 'quiet'),
+  Step_Bun_Run({ cmd: ['bun', 'install'] }, 'quiet'),
   Step_Format('quiet'),
   Step_Lint('quiet'),
   //
@@ -24,7 +25,7 @@ builder.setCleanupSteps([
   // Update Local Server Files
   Step_MirrorDirectory({ from: 'src/lib/ericchase/', to: 'server/src/lib/ericchase/', include_patterns: ['Platform/FilePath.ts', 'Utility/Console.ts'] }),
   // Update Template Project
-  Step_Project_PushLib('../Project@Template'),
+  Step_Project_PushLib('../Project@Template', Bun.argv[2] === 'force'),
   Step_Log('-'),
   // Push Files (double check)
   Step_Async(project_paths.map((path: string) => Step_Bun_Run({ cmd: ['bun', 'run', 'pull'], dir: path }))),
