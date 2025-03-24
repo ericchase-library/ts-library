@@ -13,14 +13,11 @@ import { Step_Project_PushLib } from './Step-Dev-Project-PushLib.js';
 const builder = new Builder(Bun.argv[2] === '--watch' ? 'watch' : 'build');
 
 builder.setStartupSteps([
-  Step_Bun_Run({ cmd: ['bun', 'update', '--latest'] }),
+  Step_Bun_Run({ cmd: ['bun', 'update', '--latest'] }, 'quiet'),
+  Step_Bun_Run({ cmd: ['bun', 'install'] }, 'quiet'),
   Step_CleanDirectory(builder.dir.out),
-  Step_Format(),
-  Step_Lint(),
-  //
-]);
-
-builder.setBeforeProcessingSteps([
+  Step_Format('quiet'),
+  Step_Lint('quiet'),
   //
 ]);
 
