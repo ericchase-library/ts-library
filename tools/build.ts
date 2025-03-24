@@ -5,6 +5,7 @@ import { Step_Bun_Run } from './lib/steps/Bun-Run.js';
 import { Step_CleanDirectory } from './lib/steps/FS-CleanDirectory.js';
 import { Step_Format } from './lib/steps/FS-Format.js';
 import { Step_Lint } from './lib/steps/FS-Lint.js';
+import { Step_MirrorDirectory } from './lib/steps/FS-MirrorDirectory.js';
 import { Step_Project_PushLib } from './Step-Dev-Project-PushLib.js';
 
 const builder = new Builder(Bun.argv[2] === '--watch' ? 'watch' : 'build');
@@ -25,6 +26,8 @@ builder.setProcessorModules([
 ]);
 
 builder.setCleanupSteps([
+  // Update Server Lib
+  Step_MirrorDirectory({ from: 'src/lib/ericchase/', to: 'server/src/lib/ericchase/', include_patterns: ['Platform/FilePath.ts', 'Utility/Console.ts'] }),
   // Update Template Project
   Step_Project_PushLib('../Project@Template'),
   //
