@@ -44,7 +44,7 @@ builder.setAfterProcessingSteps([
 
 builder.setCleanupSteps([
   // Update Local Server Files
-  Step_MirrorDirectory({ from: 'src/lib/ericchase/', to: 'server/src/lib/ericchase/', include_patterns: ['Platform/FilePath.ts', 'Utility/Console.ts', 'Utility/UpdateMarker.ts'] }),
+  Step_MirrorDirectory({ from: 'src/lib/ericchase/', to: 'server/src/lib/ericchase/', include_patterns: ['Platform/FilePath.ts', 'Utility/Console.ts'] }),
   // Update Template Project
   Step_Project_PushLib('../Project@Template'),
   //

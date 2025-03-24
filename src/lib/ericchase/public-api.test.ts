@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { AssertBigint, AssertBoolean, AssertEqual, AssertFunction, AssertNotEqual, AssertNumber, AssertObject, AssertString, AssertSymbol, AssertUndefined } from './Utility/Assert.js';
-import { ConsoleError, ConsoleErrorToLines, ConsoleErrorWithDate, ConsoleLog, ConsoleLogToLines, ConsoleLogWithDate, ConsoleNewline, GetConsoleMarker } from './Utility/Console.js';
+import { ConsoleError, ConsoleErrorToLines, ConsoleErrorWithDate, ConsoleLog, ConsoleLogToLines, ConsoleLogWithDate, ConsoleNewline } from './Utility/Console.js';
 import { Debounce, ImmediateDebounce } from './Utility/Debounce.js';
 import { HasMethod, HasProperty } from './Utility/Guard.js';
 import { DataSetMarker, DataSetMarkerManager, UpdateMarker, UpdateMarkerManager } from './Utility/UpdateMarker.js';
@@ -43,9 +43,6 @@ describe('Public API', () => {
       });
     });
     describe('Console.ts', () => {
-      test('GetConsoleMarker', () => {
-        expect(GetConsoleMarker.name).toBe('GetConsoleMarker');
-      });
       test('ConsoleError', () => {
         expect(ConsoleError.name).toBe('ConsoleError');
       });
