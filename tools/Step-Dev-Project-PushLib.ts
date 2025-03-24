@@ -18,31 +18,31 @@ class CStep_Project_PushLib implements Step {
   async run(builder: BuilderInternal) {
     this.channel.log('Push Lib');
     const steps = [
-      // Mirror Database
-      Step_MirrorDirectory({
-        from: 'database',
-        to: Path(this.external_directory, 'database'),
-        include_patterns: ['**/*'],
-        //
-      }),
+      // // Mirror Database
+      // Step_MirrorDirectory({
+      //   from: 'database',
+      //   to: Path(this.external_directory, 'database'),
+      //   include_patterns: ['**/*'],
+      //   //
+      // }),
 
-      // Mirror Server
-      Step_MirrorDirectory({
-        from: 'server',
-        to: Path(this.external_directory, 'server'),
-        include_patterns: ['**/*'],
-        exclude_patterns: ['node_modules/**/*', 'bun.lockb'],
-        //
-      }),
+      // // Mirror Server
+      // Step_MirrorDirectory({
+      //   from: 'server',
+      //   to: Path(this.external_directory, 'server'),
+      //   include_patterns: ['**/*'],
+      //   exclude_patterns: ['node_modules/**/*', 'bun.lockb'],
+      //   //
+      // }),
 
       // Mirror Lib
-      Step_MirrorDirectory({
-        from: Path(builder.dir.lib, 'database'),
-        to: Path(this.external_directory, 'src/lib/database'),
-        include_patterns: ['**/*.ts'],
-        exclude_patterns: ['**/*{.deprecated,.example,.test}.ts'],
-        //
-      }),
+      // Step_MirrorDirectory({
+      //   from: Path(builder.dir.lib, 'database'),
+      //   to: Path(this.external_directory, 'src/lib/database'),
+      //   include_patterns: ['**/*.ts'],
+      //   exclude_patterns: ['**/*{.deprecated,.example,.test}.ts'],
+      //   //
+      // }),
       Step_MirrorDirectory({
         from: Path(builder.dir.lib, 'ericchase'),
         to: Path(this.external_directory, 'src/lib/ericchase'),
@@ -50,13 +50,13 @@ class CStep_Project_PushLib implements Step {
         exclude_patterns: ['**/*{.deprecated,.example,.test}.ts'],
         //
       }),
-      Step_MirrorDirectory({
-        from: Path(builder.dir.lib, 'server'),
-        to: Path(this.external_directory, 'src/lib/server'),
-        include_patterns: ['**/*.ts'],
-        exclude_patterns: ['**/*{.deprecated,.example,.test}.ts'],
-        //
-      }),
+      // Step_MirrorDirectory({
+      //   from: Path(builder.dir.lib, 'server'),
+      //   to: Path(this.external_directory, 'src/lib/server'),
+      //   include_patterns: ['**/*.ts'],
+      //   exclude_patterns: ['**/*{.deprecated,.example,.test}.ts'],
+      //   //
+      // }),
 
       // Mirror Tools Lib
       Step_MirrorDirectory({
