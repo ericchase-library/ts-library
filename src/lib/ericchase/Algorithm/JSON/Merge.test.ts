@@ -13,7 +13,7 @@ describe(JSONMerge.name, () => {
     });
   });
   describe('Objects', () => {
-    test('Returns a shallow merge of each object.', () => {
+    test('Returns a deep merge of each object.', () => {
       expect(JSONMerge({ a: 1, b: 2 }, { c: 3 })).toEqual({ a: 1, b: 2, c: 3 });
     });
     test('Newer primitive values overwrite the older primitive.', () => {
@@ -23,31 +23,44 @@ describe(JSONMerge.name, () => {
       expect(JSONMerge({ a: [1, 2, 3] }, { a: ['a', 'b', 'c'] })).toEqual({ a: [1, 2, 3, 'a', 'b', 'c'] });
     });
     test('Object values are recursively merged.', () => {
-      expect(
-        JSONMerge(
-          {
-            val: 1,
-            arr: [1, 2, 3],
-            obj: {
-              val: 1,
-              arr: [1, 2, 3],
-            },
-          },
-          {
-            val: 'a',
-            arr: ['a', 'b', 'c'],
-            obj: {
-              val: 'a',
-              arr: ['a', 'b', 'c'],
-            },
-          },
-        ),
-      ).toEqual({
+      const a = {
+        val: 1,
+        arr: [1, 2, 3],
+        obj: {
+          val: 1,
+          arr: [1, 2, 3],
+        },
+      };
+      const b = {
+        val: 'a',
+        arr: ['a', 'b', 'c'],
+        obj: {
+          val: 'a',
+          arr: ['a', 'b', 'c'],
+        },
+      };
+      expect(JSONMerge(a, b)).toEqual({
         val: 'a',
         arr: [1, 2, 3, 'a', 'b', 'c'],
         obj: {
           val: 'a',
           arr: [1, 2, 3, 'a', 'b', 'c'],
+        },
+      });
+      expect(a).toEqual({
+        val: 1,
+        arr: [1, 2, 3],
+        obj: {
+          val: 1,
+          arr: [1, 2, 3],
+        },
+      });
+      expect(b).toEqual({
+        val: 'a',
+        arr: ['a', 'b', 'c'],
+        obj: {
+          val: 'a',
+          arr: ['a', 'b', 'c'],
         },
       });
     });
