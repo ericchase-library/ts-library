@@ -17,11 +17,11 @@ export function globMatch(platform, query, include_patterns, exclude_patterns) {
 export async function globScan(platform, path, include_patterns, exclude_patterns) {
   const included = [];
   for (const pattern of include_patterns) {
-    included.push(...await platform.Directory.globScan(path, pattern));
+    included.push(...await Array.fromAsync(platform.Directory.globScan(path, pattern)));
   }
   const excluded = [];
   for (const pattern of exclude_patterns) {
-    excluded.push(...await platform.Directory.globScan(path, pattern));
+    excluded.push(...await Array.fromAsync(platform.Directory.globScan(path, pattern)));
   }
   return new Set(included).difference(new Set(excluded));
 }

@@ -4,8 +4,8 @@ import NodeProvider from "./NodeProvider.js";
 const BunProvider = PlatformProvider();
 BunProvider.Directory.create = NodeProvider.Directory.create;
 BunProvider.Directory.delete = NodeProvider.Directory.delete;
-BunProvider.Directory.globScan = async (path, pattern, absolutepaths = false, onlyfiles = true) => {
-  return await Array.fromAsync(new Bun.Glob(pattern).scan({ cwd: path.raw, dot: true, absolute: absolutepaths, onlyFiles: onlyfiles }));
+BunProvider.Directory.globScan = (path, pattern, absolutepaths = false, onlyfiles = true) => {
+  return new Bun.Glob(pattern).scan({ cwd: path.raw, dot: true, absolute: absolutepaths, onlyFiles: onlyfiles });
 };
 BunProvider.Directory.watch = NodeProvider.Directory.watch;
 BunProvider.File.appendBytes = NodeProvider.File.appendBytes;

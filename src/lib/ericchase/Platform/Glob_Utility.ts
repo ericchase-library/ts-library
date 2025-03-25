@@ -21,11 +21,11 @@ export function globMatch(platform: CPlatformProvider, query: string, include_pa
 export async function globScan(platform: CPlatformProvider, path: CPath, include_patterns: string[], exclude_patterns: string[]): Promise<Set<string>> {
   const included: string[] = [];
   for (const pattern of include_patterns) {
-    included.push(...(await platform.Directory.globScan(path, pattern)));
+    included.push(...(await Array.fromAsync(platform.Directory.globScan(path, pattern))));
   }
   const excluded: string[] = [];
   for (const pattern of exclude_patterns) {
-    excluded.push(...(await platform.Directory.globScan(path, pattern)));
+    excluded.push(...(await Array.fromAsync(platform.Directory.globScan(path, pattern))));
   }
   return new Set(included).difference(new Set(excluded));
 }
