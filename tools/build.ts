@@ -29,7 +29,7 @@ builder.setCleanupSteps(
   // Update Server Lib
   Step_MirrorDirectory({ from: 'src/lib/ericchase/', to: 'server/src/lib/ericchase/', include_patterns: ['Platform/FilePath.ts', 'Utility/Console.ts'] }),
   // Update Template Project
-  Step_Project_PushLib('../Project@Template'),
+  Step_Project_PushLib('../@Template'),
   //
 );
 
