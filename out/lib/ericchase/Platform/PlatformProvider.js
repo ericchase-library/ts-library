@@ -1,6 +1,6 @@
 var __dirname = "";
-import { Path } from "./FilePath.js";
 import { SplitLines } from "../Utility/String.js";
+import { Path } from "./FilePath.js";
 
 export class CPlatformProvider {
   Directory = {
@@ -10,7 +10,7 @@ export class CPlatformProvider {
     delete: (path, recursive = true) => {
       throw new Error("Not Implemented");
     },
-    globScan: (path, pattern) => {
+    globScan: (path, pattern, absolutepaths = false, onlyfiles = true) => {
       throw new Error("Not Implemented");
     },
     watch: (path, callback, recursive = true) => {
@@ -111,8 +111,8 @@ class CPlatformProviderErrorWrapper extends CPlatformProvider {
     delete: (path, recursive = true) => {
       return callAsync(Error().stack, this.provider.Directory.delete(path, recursive));
     },
-    globScan: (path, pattern) => {
-      return callAsync(Error().stack, this.provider.Directory.globScan(path, pattern));
+    globScan: (path, pattern, absolutepaths = false, onlyfiles = true) => {
+      return callAsync(Error().stack, this.provider.Directory.globScan(path, pattern, absolutepaths, onlyfiles));
     },
     watch: (path, callback, recursive = true) => {
       return this.provider.Directory.watch(path, callback, recursive);
