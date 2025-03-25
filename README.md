@@ -2,7 +2,7 @@
 
 - https://github.com/ericchase-library/ts-library
 
-This project houses the TypeScript library that I use on a day-to-day basis (yes, daily). Everyone is free to use it! I tried to make this comprehensive README file to explain everything about the project. If you have any questions or suggestions, or just want some basic help setting up your dev environment, please feel free to contact me!
+This project houses the TypeScript library that I build to make common webdev workflows easier. Everyone is free to use it! I tried to make this comprehensive README file to explain everything about the project. If you have any questions or suggestions, or just want some basic help setting up your dev environment, please feel free to contact me!
 
 You can find the email I use for github on my github profile:
 
@@ -20,12 +20,12 @@ The build tools were completely rewritten, along with some of the library module
 
 These build tools use the Biome (https://biomejs.dev/) toolchain for formatting and linting most source files; as well as Prettier (https://prettier.io/) for formatting html and markdown files. Formatting has always been a massive pain point in web dev, and will probably continue to be so. From time to time, I find better tools for formatting files, and the build tools may be updated accordingly.
 
-## Massive Disclaimer
+## Disclaimer
 
-**This library is updated often!**
+**This project is updated often!**
 
 - Expect breaking changes if you **directly** rely on it!
-- Please check the `CHANGELOG.md` file.
+- Please check the `CHANGELOG.md` file, which may or may not contain recent changes.
 
 **Read the `./tools/build.ts` file before running the build script.**
 
@@ -122,7 +122,7 @@ I've tried to write these files as generic as possible so that you can use them 
 
 **TL;DR:**
 
-> This code is truly free and open source, licensed under the Apache 2.0 License. If you make a copy, **I humbly ask** that you include the text from the `NOTICE` file somewhere in your project. **_You are not required to!_** You are also not required to include the original `LICENSE-APACHE` or `NOTICE` files, and I would prefer just a copy of the `NOTICE` file text or a link to this repository instead. You can use and modify this code however you like, including using a proprietary license for your changes. The only restriction I maintain is under clause 3 of the Apache 2.0 License regarding patents. If you find any potential license violations, please contact me so that I may resolve them.
+> This code is truly free and open source, licensed under the Apache 2.0 License. If you make a copy, _I humbly ask_ that you include the text from the `NOTICE` file somewhere in your project. **_You are not required to!_** You are also not required to include the original `LICENSE-APACHE` or `NOTICE` files, and I would prefer just a copy of the `NOTICE` file text or a link to this repository instead. You can use and modify this code however you like, including using a proprietary license for your changes. The only restriction I maintain is under clause 3 of the Apache 2.0 License regarding patents. If you find any potential license violations within any of my projects, please contact me so that I may resolve them.
 
 ---
 
