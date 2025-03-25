@@ -1,4 +1,4 @@
-import { BinaryHeap } from "../Data Structure/BinaryHeap.js";
+import { BinaryHeap } from "../DataStructure/BinaryHeap.js";
 
 export class PriorityQueue extends BinaryHeap {
   constructor(mustComeBefore = (a, b) => a < b) {

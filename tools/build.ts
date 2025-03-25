@@ -10,27 +10,27 @@ import { Step_Project_PushLib } from './Step-Dev-Project-PushLib.js';
 
 const builder = new Builder(Bun.argv[2] === '--watch' ? 'watch' : 'build');
 
-builder.setStartupSteps([
+builder.setStartupSteps(
   Step_Bun_Run({ cmd: ['bun', 'update', '--latest'] }, 'quiet'),
   Step_Bun_Run({ cmd: ['bun', 'install'] }, 'quiet'),
   Step_CleanDirectory(builder.dir.out),
   Step_Format('quiet'),
   Step_Lint('quiet'),
   //
-]);
+);
 
-builder.setProcessorModules([
+builder.setProcessorModules(
   Processor_TypeScript_GenericCompiler(['**/*{.ts,.tsx,.jsx}'], ['**/*{.deprecated,.example,.module,.script,.test}{.ts,.tsx,.jsx}']),
   Processor_BasicWriter(['**/*{.ts,.tsx,.jsx}'], ['**/*{.deprecated,.example,.module,.script,.test}{.ts,.tsx,.jsx}']),
   //
-]);
+);
 
-builder.setCleanupSteps([
+builder.setCleanupSteps(
   // Update Server Lib
   Step_MirrorDirectory({ from: 'src/lib/ericchase/', to: 'server/src/lib/ericchase/', include_patterns: ['Platform/FilePath.ts', 'Utility/Console.ts'] }),
   // Update Template Project
   Step_Project_PushLib('../Project@Template'),
   //
-]);
+);
 
 await builder.start();

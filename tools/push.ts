@@ -13,15 +13,15 @@ SetLoggerOptions({ ceremony: false });
 
 const builder = new Builder();
 
-builder.setStartupSteps([
+builder.setStartupSteps(
   Step_Bun_Run({ cmd: ['bun', 'update', '--latest'] }, 'quiet'),
   Step_Bun_Run({ cmd: ['bun', 'install'] }, 'quiet'),
   Step_Format('quiet'),
   Step_Lint('quiet'),
   //
-]);
+);
 
-builder.setCleanupSteps([
+builder.setCleanupSteps(
   // Update Local Server Files
   Step_MirrorDirectory({ from: 'src/lib/ericchase/', to: 'server/src/lib/ericchase/', include_patterns: ['Platform/FilePath.ts', 'Utility/Console.ts'] }),
   // Update Template Project
@@ -31,6 +31,6 @@ builder.setCleanupSteps([
   Step_Async(project_paths.map((path: string) => Step_Bun_Run({ cmd: ['bun', 'run', 'pull'], dir: path }))),
   Step_Log('-'),
   Step_Async(project_paths.map((path: string) => Step_Bun_Run({ cmd: ['bun', 'run', 'pull'], dir: path }))),
-]);
+);
 
 await builder.start();

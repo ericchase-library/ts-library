@@ -1,4 +1,4 @@
-import { Store } from "../Design Pattern/Observer/Store.js";
+import { Store } from "../DesignPattern/Observer/Store.js";
 import { ConsoleLog } from "./Console.js";
 
 export class JobQueue {
