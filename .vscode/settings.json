@@ -1,3 +1,8 @@
 {
+  "javascript.preferences.importModuleSpecifier": "project-relative",
+  "javascript.preferences.importModuleSpecifierEnding": "js",
+  "typescript.preferences.importModuleSpecifier": "project-relative",
+  "typescript.preferences.importModuleSpecifierEnding": "js",
+  "typescript.tsc.autoDetect": "off",
   "typescript.tsserver.experimental.enableProjectDiagnostics": true
 }

@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'bun:test';
-import { ArrayAreEqual, ArrayBufferToBytes, ArrayChunks, ArrayShuffle, ArraySplit } from './Array.js';
+import { ArrayEquals, ArrayBufferToBytes, ArrayChunks, ArrayShuffle, ArraySplit } from './Array.js';
 import { U8, U8Clamped } from './Uint8Array.js';
 
-describe(ArrayAreEqual.name, () => {
+describe(ArrayEquals.name, () => {
   const cases = [
     U8([]), //
     U8([1, 2]),
@@ -19,11 +19,11 @@ describe(ArrayAreEqual.name, () => {
   ] as const;
   for (const input of cases) {
     test(input.toString(), () => {
-      expect(ArrayAreEqual(input, input)).toBe(true);
+      expect(ArrayEquals(input, input)).toBe(true);
     });
   }
   test('Unequal Arrays Fail', () => {
-    expect(ArrayAreEqual([1], [1, 2])).toBe(false);
+    expect(ArrayEquals([1], [1, 2])).toBe(false);
   });
 });
 

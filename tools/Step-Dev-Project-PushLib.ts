@@ -39,6 +39,7 @@ class CStep_Project_PushLib implements Step {
         from: './',
         to: Path(this.external_directory, './'),
         include_patterns: [
+          '.vscode/settings.json',
           '.gitignore',
           '.prettierignore',
           '.prettierrc',
