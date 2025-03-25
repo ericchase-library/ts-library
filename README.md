@@ -99,7 +99,7 @@ The scripts under `./tools/` also use modules from this library (from `./src/`).
 
 This folder is produced during the normal build process and would contain the final compiled/bundled source code.
 
-For this library project, build tools v1 compiled the TypeScript files into JavaScript files to produce a pure JavaScript library. However, I didn't find the resulting library easy to use. It's much easier to simply copy a template project and build from the TypeScript library instead. ~~I may write a compiler processor compatible with build tools v2 later.~~ I somewhat did.
+For this library project, build tools v1 compiled the TypeScript files into JavaScript files to produce a pure JavaScript library. However, I didn't find the resulting library easy to use. It's much easier to simply copy a template project and build from the TypeScript library instead.
 
 **Note:**
 

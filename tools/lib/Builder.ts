@@ -24,8 +24,8 @@ export interface ProcessorModule {
 }
 
 export interface Step {
-  run: (builder: BuilderInternal) => Promise<void>;
   end: (builder: BuilderInternal) => Promise<void>;
+  run: (builder: BuilderInternal) => Promise<void>;
 }
 
 export class Builder {
@@ -365,15 +365,17 @@ export class BuilderInternal {
       if (this.$set_unprocessed_added_files.size > 0) {
         await this.$processAddedFiles();
       }
-      for (const step of this.before_steps) {
-        await step.run(this);
-      }
+    }
+    for (const step of this.before_steps) {
+      await step.run(this);
+    }
+    if (this.processor_modules.length > 0) {
       if (this.$set_unprocessed_updated_files.size > 0) {
         await this.$processUpdatedFiles();
       }
-      for (const step of this.after_steps) {
-        await step.run(this);
-      }
+    }
+    for (const step of this.after_steps) {
+      await step.run(this);
     }
   }
 
