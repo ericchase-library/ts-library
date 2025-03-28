@@ -27,9 +27,6 @@ function Insertion(array, target, isOrdered = (a, b) => a < b) {
     }
     middle = Midpoint(begin, end);
   }
-  if (isOrdered(array[middle - 1], target) === false) {
-    return middle - 1;
-  }
-  return middle;
+  return middle - 1;
 }
 BinarySearch.Insertion = Insertion;
