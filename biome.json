@@ -58,7 +58,8 @@
       "suspicious": {
         "noConfusingVoidType": "off",
         "noEmptyInterface": "off",
-        "noExplicitAny": "off"
+        "noExplicitAny": "off",
+        "noFocusedTests": "off"
       }
     }
   },
