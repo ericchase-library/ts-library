@@ -1,6 +1,6 @@
 ## About
 
-- https://github.com/ericchase-library/ts-library
+https://github.com/ericchase-library/ts-library
 
 This project houses the TypeScript library that I build to make common webdev workflows easier. Everyone is free to use it! I tried to make this comprehensive README file to explain everything about the project. If you have any questions or suggestions, or just want some basic help setting up your dev environment, please feel free to contact me!
 
@@ -13,6 +13,12 @@ If you want to reach me sooner with modern technology, try discord:
 - discord @chaseeric https://discordapp.com/users/208091532648120320
 - Zero to Hero https://discord.gg/cXG3KGKuu6
 - JavaScript.info https://discord.gg/AuEWpFkfD4
+
+## TypeScript Template Project
+
+For more information about my TypeScript template projects, please visit:
+
+- https://github.com/ericchase-library/ts-template
 
 ## Build Tools V2
 
