@@ -16,7 +16,7 @@ If you want to reach me sooner with modern technology, try discord:
 
 ## TypeScript Template Project
 
-For more information about my TypeScript template projects, please visit:
+For information about my TypeScript template projects, please visit:
 
 - https://github.com/ericchase-library/ts-template
 
