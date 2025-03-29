@@ -33,6 +33,9 @@ export class CPath {
       this.basename = this.name + value;
     }
   }
+  get parentpath() {
+    return this.slice(0, -1);
+  }
   get raw() {
     return node_path.join(...this.segments);
   }
@@ -75,11 +78,8 @@ export function Path(...paths) {
 export function NormalizedPath(...paths) {
   return Path(node_path.normalize(Path(...paths).standard));
 }
-export function GetRelativePath(from, to) {
-  function getDirPath({ path, isFile }) {
-    return isFile === true ? Path(path).slice(0, -1).raw : Path(path).raw;
-  }
-  return Path(node_path.relative(getDirPath(from), Path(to.path).raw));
+export function GetRelativePath(from_path, from_is_file, to_path) {
+  return Path(node_path.relative(from_is_file === true ? Path(from_path).parentpath.raw : Path(from_path).raw, Path(to_path).raw));
 }
 export function GetSanitizedFileName(name) {
   return Path(name).standard.replace(/ /g, "-").replace(/[^a-z0-9\.\_\-]/gi, "_").toLowerCase();
