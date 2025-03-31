@@ -28,9 +28,10 @@ builder.setCleanUpSteps(
   Step_Project_PushLib('../@Template'),
   //
   Step_Log('-'),
-  // Push Files (double check)
+  // Push Files
   Step_Async(project_paths.map((path: string) => Step_Bun_Run({ cmd: ['bun', 'run', 'pull'], dir: path }))),
-  // Step_Log('-'),
+  Step_Log('-'),
+  // Double Check
   Step_Async(project_paths.map((path: string) => Step_Bun_Run({ cmd: ['bun', 'run', 'pull'], dir: path }))),
   //
 );
