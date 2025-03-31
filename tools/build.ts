@@ -26,7 +26,7 @@ builder.setProcessorModules(
 );
 
 builder.setCleanupSteps(
-  // Update Server Lib
+  // Update Local Server Files
   Step_MirrorDirectory({ from: 'src/lib/ericchase/', to: 'server/src/lib/ericchase/', include_patterns: ['Platform/FilePath.ts', 'Utility/Console.ts'] }),
   // Update Template Project
   Step_Project_PushLib('../@Template'),

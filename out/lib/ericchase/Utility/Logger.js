@@ -58,7 +58,7 @@ class CLogger {
 }
 let buffer = [];
 let timeout;
-const output_list = [];
+const output_map = new Map;
 const name_to_buffer = new Map;
 const name_to_logger = new Map;
 const name_to_uuid = new Map;
@@ -128,8 +128,7 @@ async function processBuffer() {
       }
     }
   }
-  for (const output of output_list) {
-    const { path, platform } = await output;
+  for (const [path, platform] of output_map) {
     for (const [name, lines] of name_to_buffer) {
       if (lines.length > 0) {
         await platform.File.appendText(Path(path, `${name}.log`), `${lines.join(`
@@ -151,12 +150,14 @@ export const DefaultLogger = Logger();
 export function Logger(name = "default") {
   return Map_GetOrDefault(name_to_logger, name, () => new CLogger(getUuid(name), "00", name));
 }
-export function AddLoggerOutputDirectory(path, platform) {
+export async function AddLoggerOutputDirectory(path, platform) {
+  DefaultLogger.log(`Add Logger Output Directory: "${Path(path).raw}"`);
   path = Path(path, "logs");
-  output_list.push((async () => {
+  if (output_map.has(path) === false) {
+    output_map.set(path, platform);
     await platform.Directory.create(path);
-    return { path, platform };
-  })());
+    console.log("");
+  }
 }
 export function SetLoggerOptions(options) {
   if (options.ceremony !== undefined)

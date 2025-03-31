@@ -25,7 +25,8 @@ builder.setCleanupSteps(
   // Update Local Server Files
   Step_MirrorDirectory({ from: 'src/lib/ericchase/', to: 'server/src/lib/ericchase/', include_patterns: ['Platform/FilePath.ts', 'Utility/Console.ts'] }),
   // Update Template Project
-  Step_Project_PushLib('../@Template', Bun.argv[2] === 'force'),
+  Step_Project_PushLib('../@Template'),
+  //
   Step_Log('-'),
   // Push Files (double check)
   Step_Async(project_paths.map((path: string) => Step_Bun_Run({ cmd: ['bun', 'run', 'pull'], dir: path }))),

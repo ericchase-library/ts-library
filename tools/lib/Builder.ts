@@ -12,19 +12,22 @@ import { Cache_FileStats_Lock, Cache_FileStats_Unlock } from './cache/FileStatsC
 import { Cache_TryLockEach, Cache_UnlockAll } from './cache/LockCache.js';
 
 const default_platform = await getPlatformProvider('bun');
-AddLoggerOutputDirectory(Path('./cache'), default_platform);
+await AddLoggerOutputDirectory(Path('./cache'), default_platform);
 const logger = Logger('Builder');
 
 export type ProcessorMethod = (builder: BuilderInternal, file: ProjectFile) => Promise<void>;
 
 export interface ProcessorModule {
-  onAdd: (builder: BuilderInternal, files: Set<ProjectFile>) => Promise<void>;
-  onRemove: (builder: BuilderInternal, files: Set<ProjectFile>) => Promise<void>;
+  onStartUp?: (builder: BuilderInternal) => Promise<void>;
+  onAdd?: (builder: BuilderInternal, files: Set<ProjectFile>) => Promise<void>;
+  onRemove?: (builder: BuilderInternal, files: Set<ProjectFile>) => Promise<void>;
+  onCleanUp?: (builder: BuilderInternal) => Promise<void>;
 }
 
 export interface Step {
-  end: (builder: BuilderInternal) => Promise<void>;
-  run: (builder: BuilderInternal) => Promise<void>;
+  onStartUp?: (builder: BuilderInternal) => Promise<void>;
+  onRun?: (builder: BuilderInternal) => Promise<void>;
+  onCleanUp?: (builder: BuilderInternal) => Promise<void>;
 }
 
 export class Builder {
@@ -292,7 +295,7 @@ export class BuilderInternal {
             this.channel.log('User Command: Quit');
             await this.$idle.onZeroLocks();
             this.$unwatchSource?.();
-            await this.shutdown();
+            await this.cleanup();
             // Release Locks
             Cache_UnlockAll();
             Cache_FileStats_Unlock();
@@ -311,16 +314,13 @@ export class BuilderInternal {
         StartStdInRawModeReader();
       }
 
-      // Startup Steps
-      for (const step of this.startup_steps) {
-        await this.safe$step$run(step);
-      }
+      await this.startup();
 
       // Processor Modules
       await this.processUnprocessedFiles();
 
       if (this.watchmode !== true) {
-        await this.shutdown();
+        await this.cleanup();
         // Release Locks
         Cache_UnlockAll();
         Cache_FileStats_Unlock();
@@ -333,20 +333,35 @@ export class BuilderInternal {
     }
   }
 
-  async shutdown() {
+  all_steps = [...this.startup_steps, ...this.before_steps, ...this.after_steps, ...this.cleanup_steps];
+
+  async startup() {
+    // All Steps onStartUp
+    for (const step of this.all_steps) {
+      await Safe$Step$onStartUp(this, step);
+    }
+    // Startup Steps onRun
     for (const step of this.startup_steps) {
-      await this.safe$step$end(step);
+      await Safe$Step$onRun(this, step);
     }
-    for (const step of this.before_steps) {
-      await this.safe$step$end(step);
+    // All Processors onStartUp
+    for (const processor of this.processor_modules) {
+      await Safe$Processor$onStartUp(this, processor);
     }
-    for (const step of this.after_steps) {
-      await this.safe$step$end(step);
+  }
+
+  async cleanup() {
+    // All Processors onCleanUp
+    for (const processor of this.processor_modules) {
+      await Safe$Processor$onCleanUp(this, processor);
     }
-    // Cleanup Steps
+    // Cleanup Steps onRun
     for (const step of this.cleanup_steps) {
-      await this.safe$step$run(step);
-      await this.safe$step$end(step);
+      await Safe$Step$onRun(this, step);
+    }
+    // All Steps onCleanUp
+    for (const step of this.all_steps) {
+      await Safe$Step$onCleanUp(this, step);
     }
   }
 
@@ -360,7 +375,7 @@ export class BuilderInternal {
       }
     }
     for (const step of this.before_steps) {
-      await this.safe$step$run(step);
+      await Safe$Step$onRun(this, step);
     }
     if (this.processor_modules.length > 0) {
       if (this.$set_unprocessed_updated_files.size > 0) {
@@ -368,7 +383,7 @@ export class BuilderInternal {
       }
     }
     for (const step of this.after_steps) {
-      await this.safe$step$run(step);
+      await Safe$Step$onRun(this, step);
     }
   }
 
@@ -376,7 +391,7 @@ export class BuilderInternal {
   async $processAddedFiles() {
     this.channel.log('Processing Added Files:');
     for (const processor of this.processor_modules) {
-      await this.safe$processormodule$onadd(processor);
+      await Safe$Processor$onAdd(this, processor);
     }
     const tasks: Promise<void>[] = [];
     for (const file of this.$set_unprocessed_added_files) {
@@ -389,7 +404,7 @@ export class BuilderInternal {
   // always call processUpdatedFiles after this
   async $processRemovedFiles() {
     for (const processor of this.processor_modules) {
-      await this.safe$processormodule$onremove(processor);
+      await Safe$Processor$onRemove(this, processor);
     }
     this.$set_unprocessed_removed_files.clear();
   }
@@ -428,7 +443,7 @@ export class BuilderInternal {
     this.channel.log(`"${file.src_path.raw}"`);
     file.resetBytes();
     for (const { processor, method } of file.$processor_list) {
-      await this.safe$processormodule$method(processor, method, file);
+      await Safe$Processor$onProcess(this, processor, method, file);
     }
   }
 
@@ -437,45 +452,9 @@ export class BuilderInternal {
     this.channel.log(`"${file.src_path.raw}"`);
     file.resetBytes();
     for (const { processor, method } of file.$processor_list) {
-      await this.safe$processormodule$method(processor, method, file);
+      await Safe$Processor$onProcess(this, processor, method, file);
     }
     defer?.resolve();
-  }
-
-  async safe$processormodule$onadd(processor: ProcessorModule) {
-    try {
-      await processor.onAdd(this, this.$set_unprocessed_added_files);
-    } catch (error) {
-      this.channel.error(`Unhandled exception in ${processor.constructor.name}.onAdd:`, error);
-    }
-  }
-  async safe$processormodule$onremove(processor: ProcessorModule) {
-    try {
-      await processor.onRemove(this, this.$set_unprocessed_removed_files);
-    } catch (error) {
-      this.channel.error(`Unhandled exception in ${processor.constructor.name}.onRemove:`, error);
-    }
-  }
-  async safe$processormodule$method(processor: ProcessorModule, method: ProcessorMethod, file: ProjectFile) {
-    try {
-      await method.call(processor, this, file);
-    } catch (error) {
-      this.channel.error(`Unhandled exception in ${processor.constructor.name} for "${file.src_path.raw}":`, error);
-    }
-  }
-  async safe$step$end(step: Step) {
-    try {
-      await step.end(this);
-    } catch (error) {
-      this.channel.error(`Unhandled exception in ${step.constructor.name}.end:`, error);
-    }
-  }
-  async safe$step$run(step: Step) {
-    try {
-      await step.run(this);
-    } catch (error) {
-      this.channel.error(`Unhandled exception in ${step.constructor.name}.run:`, error);
-    }
   }
 }
 
@@ -562,5 +541,63 @@ export class ProjectFile {
   // Useful for some console log coercion.
   toString(): string {
     return this.src_path.toString();
+  }
+}
+
+export async function Safe$Processor$onStartUp(builder: BuilderInternal, processor: ProcessorModule) {
+  try {
+    await processor.onStartUp?.(builder);
+  } catch (error) {
+    builder.channel.error(`Unhandled exception in ${processor.constructor.name}.onStartUp:`, error);
+  }
+}
+export async function Safe$Processor$onAdd(builder: BuilderInternal, processor: ProcessorModule) {
+  try {
+    await processor.onAdd?.(builder, builder.$set_unprocessed_added_files);
+  } catch (error) {
+    builder.channel.error(`Unhandled exception in ${processor.constructor.name}.onAdd:`, error);
+  }
+}
+export async function Safe$Processor$onProcess(builder: BuilderInternal, processor: ProcessorModule, method: ProcessorMethod, file: ProjectFile) {
+  try {
+    await method.call(processor, builder, file);
+  } catch (error) {
+    builder.channel.error(`Unhandled exception in ${processor.constructor.name} for "${file.src_path.raw}":`, error);
+  }
+}
+export async function Safe$Processor$onRemove(builder: BuilderInternal, processor: ProcessorModule) {
+  try {
+    await processor.onRemove?.(builder, builder.$set_unprocessed_removed_files);
+  } catch (error) {
+    builder.channel.error(`Unhandled exception in ${processor.constructor.name}.onRemove:`, error);
+  }
+}
+export async function Safe$Processor$onCleanUp(builder: BuilderInternal, processor: ProcessorModule) {
+  try {
+    await processor.onCleanUp?.(builder);
+  } catch (error) {
+    builder.channel.error(`Unhandled exception in ${processor.constructor.name}.onCleanUp:`, error);
+  }
+}
+
+export async function Safe$Step$onStartUp(builder: BuilderInternal, step: Step) {
+  try {
+    await step.onStartUp?.(builder);
+  } catch (error) {
+    builder.channel.error(`Unhandled exception in ${step.constructor.name}.onStartUp:`, error);
+  }
+}
+export async function Safe$Step$onRun(builder: BuilderInternal, step: Step) {
+  try {
+    await step.onRun?.(builder);
+  } catch (error) {
+    builder.channel.error(`Unhandled exception in ${step.constructor.name}.onRun:`, error);
+  }
+}
+export async function Safe$Step$onCleanUp(builder: BuilderInternal, step: Step) {
+  try {
+    await step.onCleanUp?.(builder);
+  } catch (error) {
+    builder.channel.error(`Unhandled exception in ${step.constructor.name}.onCleanUp:`, error);
   }
 }
