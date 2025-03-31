@@ -172,7 +172,6 @@ export async function AddLoggerOutputDirectory(path: CPath | string, platform: C
   if (output_map.has(path) === false) {
     output_map.set(path, platform);
     await platform.Directory.create(path);
-    console.log('');
   }
 }
 
