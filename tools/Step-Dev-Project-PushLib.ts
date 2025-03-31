@@ -17,6 +17,7 @@ class CStep_Project_PushLib implements Step {
 
   constructor(readonly external_directory: CPath | string) {}
   async onStartUp(builder: BuilderInternal): Promise<void> {
+    console.log('onStartUp');
     this.steps = [
       Step_MirrorDirectory({
         from: Path('src/lib/ericchase'),
@@ -50,11 +51,13 @@ class CStep_Project_PushLib implements Step {
     }
   }
   async onRun(builder: BuilderInternal): Promise<void> {
+    console.log('onRun');
     for (const step of this.steps) {
       await Safe$Step$onRun(builder, step);
     }
   }
   async onCleanUp(builder: BuilderInternal): Promise<void> {
+    console.log('onCleanUp');
     for (const step of this.steps) {
       await Safe$Step$onCleanUp(builder, step);
     }

@@ -10,7 +10,7 @@ import { Step_Project_PushLib } from './Step-Dev-Project-PushLib.js';
 
 const builder = new Builder(Bun.argv[2] === '--watch' ? 'watch' : 'build');
 
-builder.setStartupSteps(
+builder.setStartUpSteps(
   Step_Bun_Run({ cmd: ['bun', 'update', '--latest'] }, 'quiet'),
   Step_Bun_Run({ cmd: ['bun', 'install'] }, 'quiet'),
   Step_CleanDirectory(builder.dir.out),
@@ -25,7 +25,7 @@ builder.setProcessorModules(
   //
 );
 
-builder.setCleanupSteps(
+builder.setCleanUpSteps(
   // Update Local Server Files
   Step_MirrorDirectory({ from: 'src/lib/ericchase/', to: 'server/src/lib/ericchase/', include_patterns: ['Platform/FilePath.ts', 'Utility/Console.ts'] }),
   // Update Template Project

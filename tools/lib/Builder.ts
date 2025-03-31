@@ -58,7 +58,7 @@ export class Builder {
 
   forceProcessFile() {}
 
-  setStartupSteps(...steps: Step[]): void {
+  setStartUpSteps(...steps: Step[]): void {
     this.$internal.startup_steps = steps;
   }
   setBeforeProcessingSteps(...steps: Step[]): void {
@@ -70,7 +70,7 @@ export class Builder {
   setAfterProcessingSteps(...steps: Step[]): void {
     this.$internal.after_steps = steps;
   }
-  setCleanupSteps(...steps: Step[]): void {
+  setCleanUpSteps(...steps: Step[]): void {
     this.$internal.cleanup_steps = steps;
   }
 
@@ -107,6 +107,10 @@ export class BuilderInternal {
   processor_modules: ProcessorModule[] = [];
   after_steps: Step[] = [];
   cleanup_steps: Step[] = [];
+
+  get all_steps() {
+    return [...this.startup_steps, ...this.before_steps, ...this.after_steps, ...this.cleanup_steps];
+  }
 
   // Dependencies
 
@@ -252,7 +256,7 @@ export class BuilderInternal {
         }
 
         // process files
-        await this.processUnprocessedFiles();
+        await this.$processUnprocessedFiles();
 
         unlock();
       }, 100);
@@ -295,7 +299,7 @@ export class BuilderInternal {
             this.channel.log('User Command: Quit');
             await this.$idle.onZeroLocks();
             this.$unwatchSource?.();
-            await this.cleanup();
+            await this.$runCleanUpPhase();
             // Release Locks
             Cache_UnlockAll();
             Cache_FileStats_Unlock();
@@ -314,13 +318,13 @@ export class BuilderInternal {
         StartStdInRawModeReader();
       }
 
-      await this.startup();
+      await this.$runStartUpPhase();
 
       // Processor Modules
-      await this.processUnprocessedFiles();
+      await this.$processUnprocessedFiles();
 
       if (this.watchmode !== true) {
-        await this.cleanup();
+        await this.$runCleanUpPhase();
         // Release Locks
         Cache_UnlockAll();
         Cache_FileStats_Unlock();
@@ -333,14 +337,12 @@ export class BuilderInternal {
     }
   }
 
-  all_steps = [...this.startup_steps, ...this.before_steps, ...this.after_steps, ...this.cleanup_steps];
-
-  async startup() {
+  async $runStartUpPhase() {
     // All Steps onStartUp
     for (const step of this.all_steps) {
       await Safe$Step$onStartUp(this, step);
     }
-    // Startup Steps onRun
+    // StartUp Steps onRun
     for (const step of this.startup_steps) {
       await Safe$Step$onRun(this, step);
     }
@@ -350,12 +352,12 @@ export class BuilderInternal {
     }
   }
 
-  async cleanup() {
+  async $runCleanUpPhase() {
     // All Processors onCleanUp
     for (const processor of this.processor_modules) {
       await Safe$Processor$onCleanUp(this, processor);
     }
-    // Cleanup Steps onRun
+    // CleanUp Steps onRun
     for (const step of this.cleanup_steps) {
       await Safe$Step$onRun(this, step);
     }
@@ -365,7 +367,7 @@ export class BuilderInternal {
     }
   }
 
-  async processUnprocessedFiles() {
+  async $processUnprocessedFiles() {
     if (this.processor_modules.length > 0) {
       if (this.$set_unprocessed_removed_files.size > 0) {
         await this.$processRemovedFiles();
