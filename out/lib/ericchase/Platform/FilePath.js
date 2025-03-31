@@ -70,9 +70,6 @@ export class CPath {
   }
 }
 export function Path(...paths) {
-  if (paths.length === 1 && paths[0] instanceof CPath) {
-    return paths[0];
-  }
   return new CPath(...paths);
 }
 export function NormalizedPath(...paths) {
