@@ -3,6 +3,7 @@ import { BinarySearch } from '../../../src/lib/ericchase/Algorithm/Search/Binary
 import { GetRelativePath, Path } from '../../../src/lib/ericchase/Platform/FilePath.js';
 import { Logger } from '../../../src/lib/ericchase/Utility/Logger.js';
 import { BuilderInternal, ProcessorModule, ProjectFile } from '../Builder.js';
+import { ts_tsx_js_jsx } from './TypeScript-GenericBundler.js';
 
 // Modules that import other modules will end up with broken import urls. These
 // urls will need to be fixed (remapped) to the correct output file path. This
@@ -20,7 +21,7 @@ class CProcessor_TypeScript_GenericBundlerImportRemapper implements ProcessorMod
   alias_cache = new Map<string, string>();
   async onAdd(builder: BuilderInternal, files: Set<ProjectFile>): Promise<void> {
     for (const file of files) {
-      if (file.src_path.endsWith('.module.ts') || file.src_path.endsWith('.module.tsx')) {
+      if (builder.platform.Utility.globMatch(file.src_path.standard, `**/*{.module}${ts_tsx_js_jsx}`)) {
         file.addProcessor(this, this.onProcess);
       }
     }
