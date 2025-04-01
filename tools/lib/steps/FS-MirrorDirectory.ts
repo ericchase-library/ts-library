@@ -30,6 +30,10 @@ class CStep_MirrorDirectory implements Step {
   ) {}
   async onRun(builder: BuilderInternal): Promise<void> {
     this.channel.log('Mirror Directory');
+    if (this.options.from.equals(this.options.to)) {
+      // same directory, skip
+      return;
+    }
     try {
       await builder.platform.Path.getStats(this.options.from);
     } catch (error) {
