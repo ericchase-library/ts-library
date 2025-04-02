@@ -1,4 +1,5 @@
 import { SetLoggerOptions } from '../src/lib/ericchase/Utility/Logger.js';
+import { Step_Project_PushLib } from './lib-library/steps/Step-Dev-Project-PushLib.js';
 import { Builder } from './lib/Builder.js';
 import { Step_Bun_Run } from './lib/steps/Bun-Run.js';
 import { Step_Format } from './lib/steps/FS-Format.js';
@@ -6,7 +7,6 @@ import { Step_Lint } from './lib/steps/FS-Lint.js';
 import { Step_MirrorDirectory } from './lib/steps/FS-MirrorDirectory.js';
 import { Step_Async } from './lib/steps/Steps-Async.js';
 import { Step_Log } from './lib/steps/Steps-Log.js';
-import { Step_Project_PushLib } from './Step-Dev-Project-PushLib.js';
 import project_paths from './synced-projects.jsonc' assert { type: 'jsonc' };
 
 SetLoggerOptions({ ceremony: false });

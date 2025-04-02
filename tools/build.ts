@@ -1,3 +1,4 @@
+import { Step_Project_PushLib } from './lib-library/steps/Step-Dev-Project-PushLib.js';
 import { Builder } from './lib/Builder.js';
 import { Processor_BasicWriter } from './lib/processors/FS-BasicWriter.js';
 import { pattern } from './lib/processors/TypeScript-GenericBundler.js';
@@ -7,7 +8,6 @@ import { Step_CleanDirectory } from './lib/steps/FS-CleanDirectory.js';
 import { Step_Format } from './lib/steps/FS-Format.js';
 import { Step_Lint } from './lib/steps/FS-Lint.js';
 import { Step_MirrorDirectory } from './lib/steps/FS-MirrorDirectory.js';
-import { Step_Project_PushLib } from './Step-Dev-Project-PushLib.js';
 
 const builder = new Builder(Bun.argv[2] === '--watch' ? 'watch' : 'build');
 

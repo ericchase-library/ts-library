@@ -1,8 +1,8 @@
-import { CPath, Path } from '../src/lib/ericchase/Platform/FilePath.js';
-import { Logger } from '../src/lib/ericchase/Utility/Logger.js';
-import { BuilderInternal, Safe$Step$onCleanUp, Safe$Step$onRun, Safe$Step$onStartUp, Step } from './lib/Builder.js';
-import { Step_CopyFiles } from './lib/steps/FS-CopyFiles.js';
-import { Step_MirrorDirectory } from './lib/steps/FS-MirrorDirectory.js';
+import { CPath, Path } from '../../../src/lib/ericchase/Platform/FilePath.js';
+import { Logger } from '../../../src/lib/ericchase/Utility/Logger.js';
+import { BuilderInternal, Safe$Step$onCleanUp, Safe$Step$onRun, Safe$Step$onStartUp, Step } from '../../lib/Builder.js';
+import { Step_CopyFiles } from '../../lib/steps/FS-CopyFiles.js';
+import { Step_MirrorDirectory } from '../../lib/steps/FS-MirrorDirectory.js';
 
 const logger = Logger(Step_Project_PushLib.name);
 
