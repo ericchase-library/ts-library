@@ -13,7 +13,7 @@ var Kind;
   Kind[Kind["Log"] = 1] = "Log";
 })(Kind ||= {});
 
-class CLogger {
+export class CLogger {
   uuid;
   channel;
   name;

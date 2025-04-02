@@ -1,5 +1,5 @@
 import { Path } from '../../../src/lib/ericchase/Platform/FilePath.js';
-import { Logger } from '../../../src/lib/ericchase/Utility/Logger.js';
+import { CLogger, Logger } from '../../../src/lib/ericchase/Utility/Logger.js';
 import { BuilderInternal, ProcessorModule, ProjectFile } from '../Builder.js';
 
 const logger = Logger(Processor_TypeScript_GenericBundler.name);
@@ -81,7 +81,7 @@ class CProcessor_TypeScript_GenericBundler implements ProcessorModule {
   }
 
   async onProcessModule(builder: BuilderInternal, file: ProjectFile): Promise<void> {
-    await this.processBuildResults(
+    await ProcessBunBuildResults(
       builder,
       file,
       Bun.build({
@@ -98,11 +98,12 @@ class CProcessor_TypeScript_GenericBundler implements ProcessorModule {
         sourcemap: this.config.sourcemap,
         target: this.config.target,
       }),
+      this.channel,
     );
   }
 
   async onProcessIIFEScript(builder: BuilderInternal, file: ProjectFile): Promise<void> {
-    await this.processBuildResults(
+    await ProcessBunBuildResults(
       builder,
       file,
       Bun.build({
@@ -121,54 +122,55 @@ class CProcessor_TypeScript_GenericBundler implements ProcessorModule {
         banner: '(() => {\n',
         footer: '})();',
       }),
+      this.channel,
     );
   }
+}
 
-  async processBuildResults(builder: BuilderInternal, file: ProjectFile, buildtask: Promise<Bun.BuildOutput>) {
-    try {
-      const results = await buildtask;
-      if (results.success === true) {
-        for (const artifact of results.outputs) {
-          switch (artifact.kind) {
-            case 'entry-point': {
-              const text = await artifact.text();
-              file.setText(text);
-              for (const [, ...paths] of text.matchAll(/\n?\/\/ (src\/.*)\n?/g)) {
-                for (const path of paths) {
-                  if (file.src_path.equals(path) === false) {
-                    builder.addDependency(builder.getFile(Path(path)), file);
-                  }
+export async function ProcessBunBuildResults(builder: BuilderInternal, file: ProjectFile, buildtask: Promise<Bun.BuildOutput>, logchannel: CLogger) {
+  try {
+    const results = await buildtask;
+    if (results.success === true) {
+      for (const artifact of results.outputs) {
+        switch (artifact.kind) {
+          case 'entry-point': {
+            const text = await artifact.text();
+            file.setText(text);
+            for (const [, ...paths] of text.matchAll(/\n?\/\/ (src\/.*)\n?/g)) {
+              for (const path of paths) {
+                if (file.src_path.equals(path) === false) {
+                  builder.addDependency(builder.getFile(Path(path)), file);
                 }
               }
-              break;
             }
-            // for any non-code imports. there's probably a more elegant
-            // way to do this, but this is temporary
-            // case 'asset':
-            // case 'sourcemap':
-            default: {
-              const text = await artifact.text();
-              await builder.platform.File.writeText(Path(builder.dir.out, artifact.path), text);
-            }
+            break;
+          }
+          // for any non-code imports. there's probably a more elegant
+          // way to do this, but this is temporary
+          // case 'asset':
+          // case 'sourcemap':
+          default: {
+            const text = await artifact.text();
+            await builder.platform.File.writeText(Path(builder.dir.out, artifact.path), text);
           }
         }
-      } else {
-        this.channel.error(`File: ${file.src_path.raw}, Warnings: [`);
-        for (const log of results.logs) {
-          this.channel.error(' ', log);
-        }
-        this.channel.error(']');
       }
-    } catch (error) {
-      this.channel.error(`File: ${file.src_path.raw}, Errors: [`);
-      if (error instanceof AggregateError) {
-        for (const e of error.errors) {
-          this.channel.error(' ', e);
-        }
-      } else {
-        this.channel.error(error);
+    } else {
+      logchannel.error(`File: ${file.src_path.raw}, Warnings: [`);
+      for (const log of results.logs) {
+        logchannel.error(' ', log);
       }
-      this.channel.error(']');
+      logchannel.error(']');
     }
+  } catch (error) {
+    logchannel.error(`File: ${file.src_path.raw}, Errors: [`);
+    if (error instanceof AggregateError) {
+      for (const e of error.errors) {
+        logchannel.error(' ', e);
+      }
+    } else {
+      logchannel.error(error);
+    }
+    logchannel.error(']');
   }
 }
