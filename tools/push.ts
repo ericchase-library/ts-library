@@ -7,7 +7,8 @@ import { Step_Lint } from './lib/steps/FS-Lint.js';
 import { Step_MirrorDirectory } from './lib/steps/FS-MirrorDirectory.js';
 import { Step_Async } from './lib/steps/Steps-Async.js';
 import { Step_Log } from './lib/steps/Steps-Log.js';
-import project_paths from './synced-projects.jsonc' assert { type: 'jsonc' };
+
+import project_paths from './lib-library/synced-projects.jsonc' assert { type: 'jsonc' };
 
 SetLoggerOptions({ ceremony: false });
 
