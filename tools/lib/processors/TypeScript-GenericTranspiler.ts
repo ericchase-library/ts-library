@@ -1,4 +1,4 @@
-import { CPath, Path } from '../../../src/lib/ericchase/Platform/FilePath.js';
+import { CPath, IntoPattern } from '../../../src/lib/ericchase/Platform/FilePath.js';
 import { globMatch } from '../../../src/lib/ericchase/Platform/Glob_Utility.js';
 import { Logger } from '../../../src/lib/ericchase/Utility/Logger.js';
 import { BuilderInternal, ProcessorModule, ProjectFile } from '../Builder.js';
@@ -13,8 +13,8 @@ interface Config {
 
 export function Processor_TypeScript_GenericTranspiler(include_patterns: (CPath | string)[], exclude_patterns: (CPath | string)[], config: Config): ProcessorModule {
   return new CProcessor_TypeScript_GenericTranspiler(
-    include_patterns.map((pattern) => Path(pattern).standard),
-    exclude_patterns.map((pattern) => Path(pattern).standard),
+    include_patterns.map((pattern) => IntoPattern(pattern)),
+    exclude_patterns.map((pattern) => IntoPattern(pattern)),
     config,
   );
 }
@@ -29,7 +29,7 @@ class CProcessor_TypeScript_GenericTranspiler implements ProcessorModule {
   ) {}
   async onAdd(builder: BuilderInternal, files: Set<ProjectFile>): Promise<void> {
     for (const file of files) {
-      if (globMatch(builder.platform, file.src_path.standard, this.include_patterns, this.exclude_patterns) === true) {
+      if (globMatch(builder.platform, IntoPattern(file.src_path), this.include_patterns, this.exclude_patterns) === true) {
         file.out_path.ext = '.js';
         file.addProcessor(this, this.onProcess);
       }

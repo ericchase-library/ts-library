@@ -75,9 +75,15 @@ export function Path(...paths) {
 export function NormalizedPath(...paths) {
   return Path(node_path.normalize(Path(...paths).standard));
 }
+export function ResolvePath(...paths) {
+  return Path(node_path.resolve(Path(...paths).standard));
+}
 export function GetRelativePath(from_path, from_is_file, to_path) {
   return Path(node_path.relative(from_is_file === true ? Path(from_path).parentpath.raw : Path(from_path).raw, Path(to_path).raw));
 }
 export function GetSanitizedFileName(name) {
   return Path(name).standard.replace(/ /g, "-").replace(/[^a-z0-9\.\_\-]/gi, "_").toLowerCase();
+}
+export function IntoPattern(...paths) {
+  return new CPath(...paths).standard;
 }

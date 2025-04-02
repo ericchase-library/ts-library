@@ -1,4 +1,4 @@
-import { Path } from '../../../src/lib/ericchase/Platform/FilePath.js';
+import { IntoPattern, Path } from '../../../src/lib/ericchase/Platform/FilePath.js';
 import { CLogger, Logger } from '../../../src/lib/ericchase/Utility/Logger.js';
 import { BuilderInternal, ProcessorModule, ProjectFile } from '../Builder.js';
 
@@ -40,19 +40,20 @@ class CProcessor_TypeScript_GenericBundler implements ProcessorModule {
   async onAdd(builder: BuilderInternal, files: Set<ProjectFile>): Promise<void> {
     let trigger_reprocess = false;
     for (const file of files) {
-      if (builder.platform.Utility.globMatch(file.src_path.standard, `**/*${pattern.module}`)) {
+      const file_pattern = IntoPattern(file.src_path);
+      if (builder.platform.Utility.globMatch(file_pattern, `**/*${pattern.module}`)) {
         file.out_path.ext = '.js';
         file.addProcessor(this, this.onProcessModule);
         this.bundlefile_set.add(file);
         continue;
       }
-      if (builder.platform.Utility.globMatch(file.src_path.standard, `**/*${pattern.iife}`)) {
+      if (builder.platform.Utility.globMatch(file_pattern, `**/*${pattern.iife}`)) {
         file.out_path.ext = '.js';
         file.addProcessor(this, this.onProcessIIFEScript);
         this.bundlefile_set.add(file);
         continue;
       }
-      if (builder.platform.Utility.globMatch(file.src_path.standard, `**/*${pattern.tstsxjsjsx}`)) {
+      if (builder.platform.Utility.globMatch(file_pattern, `**/*${pattern.tstsxjsjsx}`)) {
         trigger_reprocess = true;
       }
     }
@@ -65,11 +66,12 @@ class CProcessor_TypeScript_GenericBundler implements ProcessorModule {
   async onRemove(builder: BuilderInternal, files: Set<ProjectFile>): Promise<void> {
     let trigger_reprocess = false;
     for (const file of files) {
-      if (builder.platform.Utility.globMatch(file.src_path.standard, `**/*${pattern.moduleoriife}`)) {
+      const file_pattern = IntoPattern(file.src_path);
+      if (builder.platform.Utility.globMatch(file_pattern, `**/*${pattern.moduleoriife}`)) {
         this.bundlefile_set.delete(file);
         continue;
       }
-      if (builder.platform.Utility.globMatch(file.src_path.standard, `**/*${pattern.tstsxjsjsx}`)) {
+      if (builder.platform.Utility.globMatch(file_pattern, `**/*${pattern.tstsxjsjsx}`)) {
         trigger_reprocess = true;
       }
     }
