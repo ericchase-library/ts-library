@@ -4,20 +4,24 @@ import { BuilderInternal, ProcessorModule, ProjectFile } from '../Builder.js';
 
 const logger = Logger(Processor_TypeScript_GenericBundler.name);
 
-export const module_script = '{.module,.script}';
-export const ts_tsx_js_jsx = '{.ts,.tsx,.js,.jsx}';
+export const pattern = {
+  module: '.module{.ts,.tsx,.js,.jsx}',
+  iife: '.iife{.ts,.tsx,.js,.jsx}',
+  moduleoriife: '{.module,.iife}{.ts,.tsx,.js,.jsx}',
+  tstsxjsjsx: '{.ts,.tsx,.js,.jsx}',
+};
 
-type BuildParams = Parameters<typeof Bun.build>[0];
-interface BuildConfig {
-  define?: BuildParams['define'] | (() => BuildParams['define']);
-  env?: BuildParams['env'];
-  external?: BuildParams['external'];
-  sourcemap?: BuildParams['sourcemap'];
-  target?: BuildParams['target'];
+type Options = Parameters<typeof Bun.build>[0];
+interface Config {
+  define?: Options['define'] | (() => Options['define']);
+  env?: Options['env'];
+  external?: Options['external'];
+  sourcemap?: Options['sourcemap'];
+  target?: Options['target'];
 }
 
 // External pattern cannot contain more than one "*" wildcard.
-export function Processor_TypeScript_GenericBundler(config: BuildConfig): ProcessorModule {
+export function Processor_TypeScript_GenericBundler(config: Config): ProcessorModule {
   return new CProcessor_TypeScript_GenericBundler(config);
 }
 
@@ -26,21 +30,29 @@ class CProcessor_TypeScript_GenericBundler implements ProcessorModule {
 
   bundlefile_set = new Set<ProjectFile>();
 
-  constructor(readonly config: BuildConfig) {
-    this.config.env ??= 'inline';
+  constructor(readonly config: Config) {
+    this.config.env ??= 'disable';
     this.config.external ??= [];
     this.config.external.push('*.module.js');
-    this.config.sourcemap ??= 'linked';
+    this.config.sourcemap ??= 'none';
     this.config.target ?? 'browser';
   }
   async onAdd(builder: BuilderInternal, files: Set<ProjectFile>): Promise<void> {
     let trigger_reprocess = false;
     for (const file of files) {
-      if (builder.platform.Utility.globMatch(file.src_path.standard, `**/*${module_script}${ts_tsx_js_jsx}`)) {
+      if (builder.platform.Utility.globMatch(file.src_path.standard, `**/*${pattern.module}`)) {
         file.out_path.ext = '.js';
-        file.addProcessor(this, this.onProcess);
+        file.addProcessor(this, this.onProcessModule);
         this.bundlefile_set.add(file);
-      } else if (builder.platform.Utility.globMatch(file.src_path.standard, `**/*${ts_tsx_js_jsx}`)) {
+        continue;
+      }
+      if (builder.platform.Utility.globMatch(file.src_path.standard, `**/*${pattern.iife}`)) {
+        file.out_path.ext = '.js';
+        file.addProcessor(this, this.onProcessIIFEScript);
+        this.bundlefile_set.add(file);
+        continue;
+      }
+      if (builder.platform.Utility.globMatch(file.src_path.standard, `**/*${pattern.tstsxjsjsx}`)) {
         trigger_reprocess = true;
       }
     }
@@ -53,9 +65,11 @@ class CProcessor_TypeScript_GenericBundler implements ProcessorModule {
   async onRemove(builder: BuilderInternal, files: Set<ProjectFile>): Promise<void> {
     let trigger_reprocess = false;
     for (const file of files) {
-      if (builder.platform.Utility.globMatch(file.src_path.standard, `**/*${module_script}${ts_tsx_js_jsx}`)) {
+      if (builder.platform.Utility.globMatch(file.src_path.standard, `**/*${pattern.moduleoriife}`)) {
         this.bundlefile_set.delete(file);
-      } else if (builder.platform.Utility.globMatch(file.src_path.standard, `**/*${ts_tsx_js_jsx}`)) {
+        continue;
+      }
+      if (builder.platform.Utility.globMatch(file.src_path.standard, `**/*${pattern.tstsxjsjsx}`)) {
         trigger_reprocess = true;
       }
     }
@@ -66,13 +80,35 @@ class CProcessor_TypeScript_GenericBundler implements ProcessorModule {
     }
   }
 
-  async onProcess(builder: BuilderInternal, file: ProjectFile): Promise<void> {
-    try {
-      const results = await Bun.build({
+  async onProcessModule(builder: BuilderInternal, file: ProjectFile): Promise<void> {
+    await this.processBuildResults(
+      builder,
+      file,
+      Bun.build({
         define: typeof this.config.define === 'function' ? this.config.define() : this.config.define,
         entrypoints: [file.src_path.raw],
         env: this.config.env,
-        external: builder.platform.Utility.globMatch(file.src_path.standard, `**/*{.module}${ts_tsx_js_jsx}`) ? this.config.external : [],
+        external: this.config.external,
+        format: 'esm',
+        minify: {
+          identifiers: false,
+          syntax: false,
+          whitespace: false,
+        },
+        sourcemap: this.config.sourcemap,
+        target: this.config.target,
+      }),
+    );
+  }
+
+  async onProcessIIFEScript(builder: BuilderInternal, file: ProjectFile): Promise<void> {
+    await this.processBuildResults(
+      builder,
+      file,
+      Bun.build({
+        define: typeof this.config.define === 'function' ? this.config.define() : this.config.define,
+        entrypoints: [file.src_path.raw],
+        env: this.config.env,
         format: 'esm',
         minify: {
           identifiers: false,
@@ -82,9 +118,15 @@ class CProcessor_TypeScript_GenericBundler implements ProcessorModule {
         sourcemap: this.config.sourcemap,
         target: this.config.target,
         // add iife around scripts
-        banner: builder.platform.Utility.globMatch(file.src_path.standard, `**/*{.script}${ts_tsx_js_jsx}`) ? '(() => {\n' : undefined,
-        footer: builder.platform.Utility.globMatch(file.src_path.standard, `**/*{.script}${ts_tsx_js_jsx}`) ? '})();' : undefined,
-      });
+        banner: '(() => {\n',
+        footer: '})();',
+      }),
+    );
+  }
+
+  async processBuildResults(builder: BuilderInternal, file: ProjectFile, buildtask: Promise<Bun.BuildOutput>) {
+    try {
+      const results = await buildtask;
       if (results.success === true) {
         for (const artifact of results.outputs) {
           switch (artifact.kind) {
@@ -111,7 +153,7 @@ class CProcessor_TypeScript_GenericBundler implements ProcessorModule {
           }
         }
       } else {
-        this.channel.error(`File: ${file.src_path.raw}, Errors: [`);
+        this.channel.error(`File: ${file.src_path.raw}, Warnings: [`);
         for (const log of results.logs) {
           this.channel.error(' ', log);
         }

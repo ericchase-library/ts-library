@@ -1,7 +1,7 @@
 import { Builder } from './lib/Builder.js';
 import { Processor_BasicWriter } from './lib/processors/FS-BasicWriter.js';
-import { ts_tsx_js_jsx } from './lib/processors/TypeScript-GenericBundler.js';
-import { Processor_TypeScript_GenericCompiler } from './lib/processors/TypeScript-GenericCompiler.js';
+import { pattern } from './lib/processors/TypeScript-GenericBundler.js';
+import { Processor_TypeScript_GenericTranspiler } from './lib/processors/TypeScript-GenericTranspiler.js';
 import { Step_Bun_Run } from './lib/steps/Bun-Run.js';
 import { Step_CleanDirectory } from './lib/steps/FS-CleanDirectory.js';
 import { Step_Format } from './lib/steps/FS-Format.js';
@@ -21,8 +21,8 @@ builder.setStartUpSteps(
 );
 
 builder.setProcessorModules(
-  Processor_TypeScript_GenericCompiler([`**/*${ts_tsx_js_jsx}`], [`**/*{.deprecated,.example,.module,.script,.test}${ts_tsx_js_jsx}`]),
-  Processor_BasicWriter([`**/*${ts_tsx_js_jsx}`], [`**/*{.deprecated,.example,.module,.script,.test}${ts_tsx_js_jsx}`]),
+  Processor_TypeScript_GenericTranspiler([`**/*${pattern.tstsxjsjsx}`], [`**/*{.deprecated,.example,.module,.script,.test}${pattern.tstsxjsjsx}`], {}),
+  Processor_BasicWriter([`**/*${pattern.tstsxjsjsx}`], [`**/*{.deprecated,.example,.module,.script,.test}${pattern.tstsxjsjsx}`]),
   //
 );
 
