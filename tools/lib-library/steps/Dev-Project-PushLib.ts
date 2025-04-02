@@ -18,17 +18,24 @@ class CStep_Project_PushLib implements Step {
   constructor(readonly external_directory: CPath | string) {}
   async onStartUp(builder: BuilderInternal): Promise<void> {
     this.steps = [
+      Step_CopyFiles({
+        from: Path('src/@types'),
+        to: Path(this.external_directory, 'src/@types'),
+        include_patterns: ['**/*.ts'],
+        exclude_patterns: ['**/*{.deprecated,.example,.test}.ts'],
+        overwrite: false,
+      }),
       Step_MirrorDirectory({
         from: Path('src/lib/ericchase'),
         to: Path(this.external_directory, 'src/lib/ericchase'),
         include_patterns: ['**/*.ts'],
-        exclude_patterns: ['**/*{.deprecated,.example,.test}.ts'], //
+        exclude_patterns: ['**/*{.deprecated,.example,.test}.ts'],
       }),
       Step_MirrorDirectory({
         from: Path('tools/lib'),
         to: Path(this.external_directory, 'tools/lib'),
         include_patterns: ['**/*.ts'],
-        exclude_patterns: ['**/*{.deprecated,.example,.test}.ts'], //
+        exclude_patterns: ['**/*{.deprecated,.example,.test}.ts'],
       }),
       Step_CopyFiles({
         from: './',

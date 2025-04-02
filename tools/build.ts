@@ -1,4 +1,4 @@
-import { Step_Project_PushLib } from './lib-library/steps/Step-Dev-Project-PushLib.js';
+import { Step_Project_PushLib } from './lib-library/steps/Dev-Project-PushLib.js';
 import { Builder } from './lib/Builder.js';
 import { Processor_BasicWriter } from './lib/processors/FS-BasicWriter.js';
 import { pattern } from './lib/processors/TypeScript-GenericBundler.js';
