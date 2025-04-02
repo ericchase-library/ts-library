@@ -7,11 +7,18 @@ const logger = Logger(Processor_TypeScript_GenericBundler.name);
 export const module_script = '{.module,.script}';
 export const ts_tsx_js_jsx = '{.ts,.tsx,.js,.jsx}';
 
-type BuildConfig = Pick<Parameters<typeof Bun.build>[0], 'define' | 'external' | 'sourcemap' | 'target'>;
+type BuildParams = Parameters<typeof Bun.build>[0];
+interface BuildConfig {
+  define?: BuildParams['define'] | (() => BuildParams['define']);
+  env?: BuildParams['env'];
+  external?: BuildParams['external'];
+  sourcemap?: BuildParams['sourcemap'];
+  target?: BuildParams['target'];
+}
 
 // External pattern cannot contain more than one "*" wildcard.
-export function Processor_TypeScript_GenericBundler({ define = {}, external = [], sourcemap = 'linked', target = 'browser' }: BuildConfig): ProcessorModule {
-  return new CProcessor_TypeScript_GenericBundler({ define, external, sourcemap, target });
+export function Processor_TypeScript_GenericBundler(config: BuildConfig): ProcessorModule {
+  return new CProcessor_TypeScript_GenericBundler(config);
 }
 
 class CProcessor_TypeScript_GenericBundler implements ProcessorModule {
@@ -19,8 +26,12 @@ class CProcessor_TypeScript_GenericBundler implements ProcessorModule {
 
   bundlefile_set = new Set<ProjectFile>();
 
-  constructor(readonly config: Required<BuildConfig>) {
+  constructor(readonly config: BuildConfig) {
+    this.config.env ??= 'inline';
+    this.config.external ??= [];
     this.config.external.push('*.module.js');
+    this.config.sourcemap ??= 'linked';
+    this.config.target ?? 'browser';
   }
   async onAdd(builder: BuilderInternal, files: Set<ProjectFile>): Promise<void> {
     let trigger_reprocess = false;
@@ -58,8 +69,9 @@ class CProcessor_TypeScript_GenericBundler implements ProcessorModule {
   async onProcess(builder: BuilderInternal, file: ProjectFile): Promise<void> {
     try {
       const results = await Bun.build({
-        define: this.config.define,
+        define: typeof this.config.define === 'function' ? this.config.define() : this.config.define,
         entrypoints: [file.src_path.raw],
+        env: this.config.env,
         external: builder.platform.Utility.globMatch(file.src_path.standard, `**/*{.module}${ts_tsx_js_jsx}`) ? this.config.external : [],
         format: 'esm',
         minify: {
