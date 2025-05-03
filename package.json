@@ -6,9 +6,9 @@
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
     "@types/adm-zip": "^0.5.7",
-    "@types/bun": "^1.2.8",
-    "@types/chrome": "^0.0.313",
-    "@types/node": "^22.13.17",
+    "@types/bun": "^1.2.11",
+    "@types/chrome": "^0.0.318",
+    "@types/node": "^22.15.3",
     "adm-zip": "^0.5.16",
     "node-html-parser": "^7.0.1",
     "prettier": "^3.5.3",
