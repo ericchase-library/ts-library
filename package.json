@@ -10,13 +10,12 @@
     "@types/chrome": "^0.0.318",
     "@types/node": "^22.15.3",
     "adm-zip": "^0.5.16",
-    "node-html-parser": "^7.0.1",
     "prettier": "^3.5.3",
     "xxhash-wasm": "^1.1.0"
   },
   "scripts": {
     "build": "bun run tools/build.ts",
-    "dev": "bun run tools/build.ts --watch",
+    "dev": "bun run tools/build.ts --dev",
     "lint": "biome lint --error-on-warnings --write",
     "pull": "bun run tools/pull.ts"
   },

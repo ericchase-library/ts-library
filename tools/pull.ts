@@ -1,14 +1,14 @@
-import { Builder } from './lib/Builder.js';
-import { Step_Bun_Run } from './lib/steps/Bun-Run.js';
-import { Step_Project_PullLib } from './lib/steps/Dev-Project-PullLib.js';
+import { Builder } from './core/Builder.js';
+import { Step_Bun_Run } from './core/step/Step_Bun_Run.js';
+import { Step_Dev_Project_Pull_Lib } from './core/step/Step_Dev_Project_Pull_Lib.js';
 
 // This script pulls base lib files from another project. I use it for quickly
 // updating templates and concrete projects.
-const builder = new Builder();
+const builder = Builder();
 
 builder.setStartUpSteps(
-  Step_Bun_Run({ cmd: ['bun', 'install'] }, 'quiet'),
-  Step_Project_PullLib('C:/Code/Base/JavaScript-TypeScript/@Template'),
+  Step_Bun_Run({ cmd: ['bun', 'install'], showlogs: false }),
+  Step_Dev_Project_Pull_Lib('C:/Code/Base/JavaScript-TypeScript/@Template'),
   //
 );
 

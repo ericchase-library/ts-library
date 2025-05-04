@@ -1,3 +1,36 @@
+## 2025-05-03
+
+### Releasing beta version of build tools v3.
+
+Version 2 didn't work out. For version 3, I am focusing on simplicity and cutting down the number of files. I've also experimented with bundling external packages and writing typescript wrappers around them.
+
+The first completed bundle wraps `css-select` and `htmlparser2`, along with their indirect dependencies. The bundle and declaration files (along with license notices) can be found under `tools/lib-web/bundle/htmlutil.d.ts`. I will eventually put the projects that build the bundles online.
+
+### New Library Structure
+
+**src/lib/ericchase/core.ts**
+
+- I've merged all the modules I've written that are commonly used in my projects under a single namespace called `Core`. The structure I've developed cuts down on library files and import statements.
+- I will continue writing unit tests when I have time.
+
+**src/lib/ericchase/platform-bun.ts**
+**src/lib/ericchase/platform-node.ts**
+**src/lib/ericchase/platform-web.ts**
+
+- Each JavaScript runtime/platform have their own individual file with their own namespaces like `BunPlatform`, `NodePlatform`, `WebPlatform`. The API is extremely minimal; I only include functions that are used in my projects. I will add more functionality over time.
+- Testing these modules is a much more difficult task.
+
+### New Build Tools Structure
+
+**tools/core**
+
+- Similar to the new library structure, this structure focuses on less files and less import statements. The bulk of the build system can be found in `Builder.ts`. The caching and logging system I came up with are in `Cacher.ts` and `Logger.ts`.
+- All other functionality can be found in Processor and Step files. Many of these files are in this folder; but I have also started grouping files together under individual `lib-` folders, based on functionality.
+
+**tools/build.ts**
+
+- As before, this is the main file you, the user, will be interested in. I've put a ton of effort in keeping this file as short and concise as possible. There are still improvements to be made, but I've done as much as I can think of for now.
+
 ## 2025-03-12
 
 ### Releasing beta version of build tools v2.
