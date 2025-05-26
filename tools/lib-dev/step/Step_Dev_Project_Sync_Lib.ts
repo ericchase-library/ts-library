@@ -62,7 +62,7 @@ class Class implements Builder.Step {
         from: NodePlatform_Path_Join(this.from_directory, 'server'),
         to: NodePlatform_Path_Join(this.to_directory, 'server'),
         include_patterns: ['**/*'],
-        exclude_patterns: ['.git/**/*', 'node_modules/**/*', 'bun.lock'],
+        exclude_patterns: ['.git/**/*', 'node_modules/**/*'],
       }),
     ];
     // Tools
