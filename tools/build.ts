@@ -3,11 +3,11 @@ import { Builder } from './core/Builder.js';
 import { Processor_Basic_Writer } from './core/processor/Processor_Basic_Writer.js';
 import { Processor_TypeScript_Generic_Transpiler } from './core/processor/Processor_TypeScript_Generic_Transpiler.js';
 import { Step_Bun_Run } from './core/step/Step_Bun_Run.js';
-import { Step_Dev_Format } from './core/step/Step_Dev_Format.js';
-import { Step_Dev_Lint } from './core/step/Step_Dev_Lint.js';
 import { Step_FS_Clean_Directory } from './core/step/Step_FS_Clean_Directory.js';
-import { Step_Mirror_Directory } from './core/step/Step_FS_Mirror_Directory.js';
-import { Step_Dev_Project_Push_Lib } from './lib-library/step/Step_Dev_Project_Push_Lib.js';
+import { Step_FS_Mirror_Directory } from './core/step/Step_FS_Mirror_Directory.js';
+import { Step_Dev_Format } from './lib-dev/step/Step_Dev_Format.js';
+import { Step_Dev_Lint } from './lib-dev/step/Step_Dev_Lint.js';
+import { Step_Dev_Project_Sync_Lib } from './lib-dev/step/Step_Dev_Project_Sync_Lib.js';
 import { Step_Dev_Server } from './lib-web/step/Step_Dev_Server.js';
 
 const builder = Builder({
@@ -26,7 +26,7 @@ builder.setStartUpSteps(
 
 builder.setProcessorModules(
   Processor_TypeScript_Generic_Transpiler(['**/*.ts'], ['**/*.d.ts', '**/*{.deprecated,.example,.test}.ts'], { target: 'browser' }),
-  Processor_Basic_Writer(['**/*.ts'], ['**/*{.deprecated,.example,.test}.ts']),
+  Processor_Basic_Writer(['**/*.ts'], ['**/*{.deprecated,.example,.test}.ts'], { exclude_libdir: false }),
   //
 );
 
@@ -37,9 +37,9 @@ builder.setAfterProcessingSteps(
 
 builder.setCleanUpSteps(
   // Update Local Server Files
-  Step_Mirror_Directory({ from: 'src/lib/ericchase/', to: 'server/src/lib/ericchase/', include_patterns: ['core.ts', 'platform-node.ts'] }),
+  Step_FS_Mirror_Directory({ from: 'src/lib/ericchase/', to: 'server/src/lib/ericchase/', include_patterns: ['core.ts', 'platform-node.ts'] }),
   // Update Template Project
-  Step_Dev_Project_Push_Lib('../@Template'),
+  Step_Dev_Project_Sync_Lib('./', 'C:/Code/Base/JavaScript-TypeScript/@Template'),
   //
 );
 

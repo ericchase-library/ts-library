@@ -2,7 +2,7 @@ import { Core } from '../../src/lib/ericchase/core.js';
 import { BunPlatform } from '../../src/lib/ericchase/platform-bun.js';
 import { NODE_FS, NodePlatform } from '../../src/lib/ericchase/platform-node.js';
 import { CACHELOCK, FILESTATS } from './Cacher.js';
-import { AddLoggerOutputDirectory, Logger } from './Logger.js';
+import { AddLoggerOutputDirectory, Logger, WaitForLogger } from './Logger.js';
 
 await AddLoggerOutputDirectory('cache');
 
@@ -108,6 +108,24 @@ export namespace Builder {
       await this.$internal.start();
     }
   }
+  namespace logs {
+    export const _file_added_ = (p0: string) => `[add] "${p0}"`;
+    export const _file_refreshed_ = (p0: string) => `[refresh] "${p0}"`;
+    export const _file_removed_ = (p0: string) => `[remov] "${p0}"`;
+    export const _file_updated_ = (p0: string) => `[update] "${p0}"`;
+    export const _phase_begin_ = (p0: string) => `[begin] ${p0}`;
+    export const _phase_end_ = (p0: string) => `[end] ${p0}`;
+    export const _processor_onadd_ = (p0: string) => `[onAdd] ${p0}`;
+    export const _processor_oncleanup_ = (p0: string) => `[onCleanUp] ${p0}`;
+    export const _processor_onprocess_ = (p0: string, p1: string) => `[onProcess] ${p0} [for] "${p1}"`;
+    export const _processor_onremove_ = (p0: string) => `[onRemove] ${p0}`;
+    export const _processor_onstartup_ = (p0: string) => `[onStartUp] ${p0}`;
+    export const _step_oncleanup_ = (p0: string) => `[onCleanUp] ${p0}`;
+    export const _step_onrun_ = (p0: string) => `[onRun] ${p0}`;
+    export const _step_onstartup_ = (p0: string) => `[onStartUp] ${p0}`;
+    export const _user_command_ = (p0: string) => `[command] "${p0}"`;
+    export const _watching_dir_ = (p0: string) => `[watch] "${p0}"`;
+  }
   export class Internal {
     channel = Logger('Builder').newChannel();
 
@@ -144,14 +162,12 @@ export namespace Builder {
 
     addDependency(upstream: SourceFile, downstream: SourceFile) {
       if (upstream === downstream) {
-        const msg = `dependency cycle "${upstream.src_path.value}": a file cannot depend on itself`;
-        this.channel.error(msg);
-        throw new Error(msg);
+        this.channel.error(`dependency cycle "${upstream.src_path.value}": a file cannot depend on itself`);
+        throw new Error();
       }
       if (this.$map_downstream_to_upstream.get(upstream)?.has(downstream)) {
-        const msg = `dependency cycle between upstream "${upstream.src_path.value}" and downstream "${downstream.src_path.value}"`;
-        this.channel.error(msg);
-        throw new Error(msg);
+        this.channel.error(`dependency cycle between upstream "${upstream.src_path.value}" and downstream "${downstream.src_path.value}"`);
+        throw new Error();
       }
       Core.Map.GetOrDefault(this.$map_downstream_to_upstream, downstream, () => new Set<SourceFile>()).add(upstream);
       Core.Map.GetOrDefault(this.$map_upstream_to_downstream, upstream, () => new Set<SourceFile>()).add(downstream);
@@ -181,14 +197,15 @@ export namespace Builder {
     get paths(): Set<string> {
       return new Set(this.$set_paths);
     }
-    hasFile(project_file: SourceFile): boolean {
+    hasFile(file: SourceFile): boolean {
       // @debug-start
-      const stored_file = this.$map_path_to_file.get(project_file.src_path.value);
-      if (stored_file !== undefined && stored_file !== project_file) {
-        throw new Error(`file "${project_file.src_path.value}" different from stored file "${stored_file.src_path.value}"`);
+      const stored_file = this.$map_path_to_file.get(file.src_path.value);
+      if (stored_file !== undefined && stored_file !== file) {
+        this.channel.error(`file "${file.src_path.value}" different from stored file "${stored_file.src_path.value}"`);
+        throw new Error();
       }
       // @debug-end
-      return this.$map_path_to_file.has(project_file.src_path.value);
+      return this.$map_path_to_file.has(file.src_path.value);
     }
     hasPath(src_path: ClassRawPath): boolean {
       return this.$map_path_to_file.has(src_path.value);
@@ -196,7 +213,8 @@ export namespace Builder {
     getFile(src_path: ClassRawPath): SourceFile {
       const project_file = this.$map_path_to_file.get(src_path.value);
       if (project_file === undefined) {
-        throw new Error(`file "${src_path.value}" does not exist`);
+        this.channel.error(`file "${src_path.value}" does not exist`);
+        throw new Error();
       }
       return project_file;
     }
@@ -204,7 +222,8 @@ export namespace Builder {
     addPath(src_path: ClassRawPath, out_path: ClassRawPath) {
       // @debug-start
       if (this.$map_path_to_file.has(src_path.value)) {
-        throw new Error(`file "${src_path.value}" already added`);
+        this.channel.error(`file "${src_path.value}" already added`);
+        throw new Error();
       }
       // @debug-end
       const file = new SourceFile(this, src_path, out_path);
@@ -212,12 +231,16 @@ export namespace Builder {
       this.$set_files.add(file);
       this.$set_paths.add(src_path.value);
       this.$set_unprocessed_added_files.add(file);
+      if (this.verbosity >= LOG_VERBOSITY._1_LOG) {
+        this.channel.log(logs._file_added_(src_path.value));
+      }
       return file;
     }
     removePath(src_path: ClassRawPath) {
       // @debug-start
       if (this.$map_path_to_file.has(src_path.value) === false) {
-        throw new Error(`file "${src_path.value}" already removed`);
+        this.channel.error(`file "${src_path.value}" already removed`);
+        throw new Error();
       }
       // @debug-end
       const file = this.getFile(src_path);
@@ -233,20 +256,26 @@ export namespace Builder {
       }
       this.$map_downstream_to_upstream.delete(file);
       this.$map_upstream_to_downstream.delete(file);
+      if (this.verbosity >= LOG_VERBOSITY._1_LOG) {
+        this.channel.log(logs._file_removed_(src_path.value));
+      }
       return file;
     }
     updatePath(src_path: ClassRawPath) {
       const file = this.getFile(src_path);
       this.$set_unprocessed_updated_files.add(file);
+      this.channel.log(logs._file_updated_(src_path.value));
       return file;
     }
 
     refreshFile(file: SourceFile) {
       this.$set_unprocessed_added_files.add(file); // trigger a first run
       this.$set_unprocessed_updated_files.add(file);
+      // this.channel.log(logs._file_refreshed_(file.src_path.value));
     }
     updateFile(file: SourceFile) {
       this.$set_unprocessed_updated_files.add(file);
+      // this.channel.log(logs._file_updated_file_(file.src_path.value));
     }
 
     // Source Watcher
@@ -270,27 +299,33 @@ export namespace Builder {
           event_paths.clear();
 
           for (const path of event_paths_copy) {
-            const src_path = new ClassRawPath(this.dir.src, path);
+            const src_path = RawPath(this.dir.src, path);
             const stats = await this.getStats(src_path);
             if (stats?.isFile() === true) {
               if (this.hasPath(src_path)) {
+                console.log('updating', src_path.value);
                 this.updatePath(src_path);
               } else {
-                this.addPath(src_path, new ClassRawPath(this.dir.out, path));
+                console.log('adding', src_path.value);
+                this.addPath(src_path, RawPath(this.dir.out, path));
               }
             }
           }
 
-          const scan_paths = new Set(await Array.fromAsync(BunPlatform.Glob.AsyncGen_Scan('./', `${NodePlatform.Path.JoinStandard(this.dir.src)}**/*`)));
-          const this_paths = new Set(Array.from(this.$map_path_to_file.keys()).map((str) => NodePlatform.Path.Join(str)));
-          for (const path of scan_paths.difference(this_paths)) {
-            this.addPath(new ClassRawPath(path), new ClassRawPath(this.dir.out, NodePlatform.Path.Slice(path, 1)));
+          const scan_paths = new Set<string>();
+          for await (const path of BunPlatform.Glob.AsyncGen_Scan('./', RawPath(`${this.dir.src}/**/*`).toStandard())) {
+            scan_paths.add(path);
+            if (this.$map_path_to_file.has(path) === false) {
+              this.addPath(RawPath(path), RawPath(this.dir.out, NodePlatform.Path.Slice(path, 1)));
+            }
           }
-          for (const path of this_paths.difference(scan_paths)) {
-            this.removePath(new ClassRawPath(path));
+          for (const [path] of this.$map_path_to_file) {
+            if (scan_paths.has(path) === false) {
+              this.removePath(RawPath(path));
+            }
           }
 
-          // process files
+          // Process Files
           await this.$processUnprocessedFiles();
 
           releaseRef();
@@ -300,7 +335,7 @@ export namespace Builder {
           Core.Promise.Orphan(processEvents());
         });
         if (this.verbosity >= LOG_VERBOSITY._1_LOG) {
-          this.channel.log(`Watching "${this.dir.src}"`);
+          this.channel.log(logs._watching_dir_(this.dir.src));
         }
       }
     }
@@ -334,7 +369,7 @@ export namespace Builder {
             if (text === 'q') {
               removeSelf();
               if (this.verbosity >= LOG_VERBOSITY._1_LOG) {
-                this.channel.log('User Command: Quit');
+                this.channel.log(logs._user_command_('Quit'));
               }
               await this.$idle.onZeroRefs();
               this.$unwatchSource?.();
@@ -345,11 +380,11 @@ export namespace Builder {
               releaseStdIn();
             }
           });
-          NodePlatform.Shell.StdIn.AddListener(async (bytes, text, removeSelf) => {
+          NodePlatform.Shell.StdIn.AddListener((bytes, text, removeSelf) => {
             if (text === NodePlatform.Shell.KEYS.SIGINT) {
               removeSelf();
               if (this.verbosity >= LOG_VERBOSITY._1_LOG) {
-                this.channel.log('User Command: Force Quit');
+                this.channel.log(logs._user_command_('Force Quit'));
               }
               this.$unwatchSource?.();
               releaseStdIn();
@@ -361,7 +396,7 @@ export namespace Builder {
 
         await this.$runStartUpPhase();
 
-        // Processor Modules
+        // Process Files
         await this.$processUnprocessedFiles();
 
         if (this.buildmode === BUILD_MODE.BUILD) {
@@ -373,14 +408,15 @@ export namespace Builder {
 
         releaseRef();
       } catch (error) {
-        this.channel.error(error, 'Unhandled exception in Builder:');
-        throw error;
+        await WaitForLogger();
+        throw 'Errors during build. Check logs.';
       }
     }
 
     async $runStartUpPhase() {
       if (this.verbosity >= LOG_VERBOSITY._1_LOG) {
-        this.channel.log('[Phase] StartUp');
+        this.channel.log('...');
+        this.channel.log(logs._phase_begin_('StartUp'));
       }
       // All Steps onStartUp
       for (const step of this.all_steps) {
@@ -395,13 +431,14 @@ export namespace Builder {
         await this.safe_processor_onStartUp(processor);
       }
       if (this.verbosity >= LOG_VERBOSITY._1_LOG) {
-        this.channel.log('[Phase] StartUp\n...');
+        this.channel.log(logs._phase_end_('StartUp'));
+        this.channel.log('...');
       }
     }
 
     async $runCleanUpPhase() {
       if (this.verbosity >= LOG_VERBOSITY._1_LOG) {
-        this.channel.log('[Phase] CleanUp');
+        this.channel.log(logs._phase_begin_('CleanUp'));
       }
       // All Processors onCleanUp
       for (const processor of this.processor_modules) {
@@ -416,7 +453,8 @@ export namespace Builder {
         await this.safe_step_onCleanUp(step);
       }
       if (this.verbosity >= LOG_VERBOSITY._1_LOG) {
-        this.channel.log('[Phase] CleanUp');
+        this.channel.log(logs._phase_end_('CleanUp'));
+        this.channel.log('...');
       }
     }
 
@@ -440,185 +478,183 @@ export namespace Builder {
       for (const step of this.after_steps) {
         await this.safe_step_onRun(step);
       }
+      this.channel.newLine();
     }
 
     // always call processUpdatedFiles after this
     async $processAddedFiles() {
       if (this.verbosity >= LOG_VERBOSITY._1_LOG) {
-        this.channel.log('[Phase] Process Added Files');
+        this.channel.log(logs._phase_begin_('Process Added Files'));
       }
+      const unprocessed_set = new Set(this.$set_unprocessed_added_files);
+      this.$set_unprocessed_added_files.clear();
       for (const processor of this.processor_modules) {
-        await this.safe_processor_onAdd(processor);
+        await this.safe_processor_onAdd(processor, unprocessed_set);
       }
       const tasks: Promise<void>[] = [];
-      for (const file of this.$set_unprocessed_added_files) {
-        tasks.push(this.firstRunProcessorList(file));
+
+      for (const file of unprocessed_set) {
+        file.resetBytes();
+        for (const { processor, method } of file.$processor_list) {
+          await this.safe_processor_onProcess(processor, method, file);
+        }
       }
-      await Promise.all(tasks);
-      this.$set_unprocessed_added_files.clear();
+      await Promise.allSettled(tasks);
       if (this.verbosity >= LOG_VERBOSITY._1_LOG) {
-        this.channel.log('[Phase] Process Added Files\n...');
+        this.channel.log(logs._phase_end_('Process Added Files'));
+        this.channel.log('...');
       }
     }
 
     // always call processUpdatedFiles after this
     async $processRemovedFiles() {
       if (this.verbosity >= LOG_VERBOSITY._1_LOG) {
-        this.channel.log('[Phase] Process Removed Files');
+        this.channel.log(logs._phase_begin_('Process Removed Files'));
       }
-      for (const processor of this.processor_modules) {
-        await this.safe_processor_onRemove(processor);
-      }
+      const unprocessed_set = new Set(this.$set_unprocessed_removed_files);
       this.$set_unprocessed_removed_files.clear();
+      for (const processor of this.processor_modules) {
+        await this.safe_processor_onRemove(processor, unprocessed_set);
+      }
       if (this.verbosity >= LOG_VERBOSITY._1_LOG) {
-        this.channel.log('[Phase] Process Removed Files\n...');
+        this.channel.log(logs._phase_end_('Process Removed Files'));
+        this.channel.log('...');
       }
     }
 
     async $processUpdatedFiles() {
       if (this.verbosity >= LOG_VERBOSITY._1_LOG) {
-        this.channel.log('[Phase] Process Updated Files');
+        this.channel.log(logs._phase_begin_('Process Updated Files'));
       }
-      const defers = new Map<SourceFile, Core.Utility.Class_Defer<void>>();
-      // add defers for updated file and all downstream files
-      for (const file of this.$set_unprocessed_updated_files) {
-        if (defers.has(file) === false) {
-          defers.set(file, Core.Utility.Class_Defer());
-        }
-        for (const downstream of this.getDownstream(file)) {
-          if (defers.has(downstream) === false) {
-            defers.set(downstream, Core.Utility.Class_Defer());
+
+      const unprocessed_file_set: Set<SourceFile> = (() => {
+        const set = new Set<SourceFile>();
+        for (const file of this.$set_unprocessed_updated_files) {
+          set.add(file);
+          for (const downstream_file of this.getDownstream(file)) {
+            set.add(downstream_file);
           }
         }
-      }
-      // wait on all upstream defers
-      const tasks: Promise<void>[] = [];
-      for (const [file, defer] of defers) {
-        const waitlist: Promise<void>[] = [];
-        for (const upstream of this.getUpstream(file)) {
-          const upstream_defer = defers.get(upstream);
-          if (upstream_defer) {
-            if (this.verbosity >= LOG_VERBOSITY._2_DEBUG) {
-              this.channel.log(`${file.src_path.value} waiting on ${upstream.src_path.value}`);
+        this.$set_unprocessed_updated_files.clear();
+        return set;
+      })();
+
+      const checkcount_map = new Map<SourceFile, number>();
+      while (unprocessed_file_set.size > 0) {
+        outer: for (const file of unprocessed_file_set) {
+          checkcount_map.set(file, Core.Map.GetOrDefault(checkcount_map, file, () => 0) + 1);
+          for (const upstream of this.getUpstream(file)) {
+            if (unprocessed_file_set.has(upstream)) {
+              continue outer;
             }
-            waitlist.push(upstream_defer.promise);
           }
+          file.resetBytes();
+          for (const { processor, method } of file.$processor_list) {
+            await this.safe_processor_onProcess(processor, method, file);
+          }
+          unprocessed_file_set.delete(file);
         }
-        tasks.push(this.runProcessorList(file, waitlist, defer));
       }
       if (this.verbosity >= LOG_VERBOSITY._2_DEBUG) {
-        this.channel.log('[Phase] Process Updated Files [waiting]');
+        this.channel.log('  Dependency Tree Check Counter');
+        for (const [file, count] of checkcount_map) {
+          this.channel.log(`  - ${count.toString().padStart(2, '0')} "${file.src_path.value}"`);
+        }
       }
-      await Promise.all(tasks);
-      this.$set_unprocessed_updated_files.clear();
+
       if (this.verbosity >= LOG_VERBOSITY._1_LOG) {
-        this.channel.log('[Phase] Process Updated Files\n...');
+        this.channel.log(logs._phase_end_('Process Updated Files'));
+        this.channel.log('...');
       }
     }
-
-    async firstRunProcessorList(file: SourceFile) {
-      file.resetBytes();
-      for (const { processor, method } of file.$processor_list) {
-        await this.safe_processor_onProcess(processor, method, file);
-      }
-    }
-
-    async runProcessorList(file: SourceFile, waitlist: Promise<void>[], defer?: Core.Utility.Class_Defer<void>) {
-      if (this.verbosity >= LOG_VERBOSITY._2_DEBUG) {
-        this.channel.log(`[waiting] ${file.src_path.value}`);
-      }
-      await Promise.all(waitlist);
-      file.resetBytes();
-      for (const { processor, method } of file.$processor_list) {
-        await this.safe_processor_onProcess(processor, method, file);
-      }
-      defer?.resolve();
-      if (this.verbosity >= LOG_VERBOSITY._2_DEBUG) {
-        this.channel.log(`[done] ${file.src_path.value}`);
-      }
-    }
-
-    // safe functions for catching errors. write your own if you want them
 
     private async safe_processor_onStartUp(processor: Processor) {
       try {
         if (this.verbosity >= LOG_VERBOSITY._2_DEBUG) {
-          this.channel.log(`  ${processor.ProcessorName} onStartUp`);
+          this.channel.log(logs._processor_onstartup_(processor.ProcessorName));
         }
         await processor.onStartUp?.(this);
       } catch (error) {
         this.channel.error(error, `Unhandled exception in ${processor.ProcessorName} onStartUp:`);
+        throw new Error();
       }
     }
-    private async safe_processor_onAdd(processor: Processor) {
+    private async safe_processor_onAdd(processor: Processor, unprocessed_set: Set<SourceFile>) {
       try {
         if (this.verbosity >= LOG_VERBOSITY._2_DEBUG) {
-          this.channel.log(`  ${processor.ProcessorName} onAdd`);
+          this.channel.log(logs._processor_onadd_(processor.ProcessorName));
         }
-        await processor.onAdd?.(this, this.$set_unprocessed_added_files);
+        await processor.onAdd?.(this, unprocessed_set);
       } catch (error) {
         this.channel.error(error, `Unhandled exception in ${processor.ProcessorName} onAdd:`);
+        throw new Error();
       }
     }
     private async safe_processor_onProcess(processor: Processor, method: ProcessorMethod, file: SourceFile) {
       try {
         if (this.verbosity >= LOG_VERBOSITY._2_DEBUG) {
-          this.channel.log(`  ${processor.ProcessorName} for "${file.src_path.value}"`);
+          this.channel.log(logs._processor_onprocess_(processor.ProcessorName, file.src_path.value));
         }
         await method.call(processor, this, file);
       } catch (error) {
         this.channel.error(error, `Unhandled exception in ${processor.ProcessorName} for "${file.src_path.value}":`);
+        throw new Error();
       }
     }
-    private async safe_processor_onRemove(processor: Processor) {
+    private async safe_processor_onRemove(processor: Processor, unprocessed_set: Set<SourceFile>) {
       try {
         if (this.verbosity >= LOG_VERBOSITY._2_DEBUG) {
-          this.channel.log(`  ${processor.ProcessorName} onRemove`);
+          this.channel.log(logs._processor_onremove_(processor.ProcessorName));
         }
-        await processor.onRemove?.(this, this.$set_unprocessed_removed_files);
+        await processor.onRemove?.(this, unprocessed_set);
       } catch (error) {
         this.channel.error(error, `Unhandled exception in ${processor.ProcessorName} onRemove:`);
+        throw new Error();
       }
     }
     private async safe_processor_onCleanUp(processor: Processor) {
       try {
         if (this.verbosity >= LOG_VERBOSITY._2_DEBUG) {
-          this.channel.log(`  ${processor.ProcessorName} onCleanUp`);
+          this.channel.log(logs._processor_oncleanup_(processor.ProcessorName));
         }
         await processor.onCleanUp?.(this);
       } catch (error) {
         this.channel.error(error, `Unhandled exception in ${processor.ProcessorName} onCleanUp:`);
+        throw new Error();
       }
     }
 
     private async safe_step_onStartUp(step: Step) {
       try {
         if (this.verbosity >= LOG_VERBOSITY._2_DEBUG) {
-          this.channel.log(`  ${step.StepName} onStartUp`);
+          this.channel.log(logs._step_onstartup_(step.StepName));
         }
         await step.onStartUp?.(this);
       } catch (error) {
         this.channel.error(error, `Unhandled exception in ${step.StepName} onStartUp:`);
+        throw new Error();
       }
     }
     private async safe_step_onRun(step: Step) {
       try {
         if (this.verbosity >= LOG_VERBOSITY._2_DEBUG) {
-          this.channel.log(`  ${step.StepName} onRun`);
+          this.channel.log(logs._step_onrun_(step.StepName));
         }
         await step.onRun?.(this);
       } catch (error) {
         this.channel.error(error, `Unhandled exception in ${step.StepName} onRun:`);
+        throw new Error();
       }
     }
     private async safe_step_onCleanUp(step: Step) {
       try {
         if (this.verbosity >= LOG_VERBOSITY._2_DEBUG) {
-          this.channel.log(`  ${step.StepName} onCleanUp`);
+          this.channel.log(logs._step_oncleanup_(step.StepName));
         }
         await step.onCleanUp?.(this);
       } catch (error) {
         this.channel.error(error, `Unhandled exception in ${step.StepName} onCleanUp:`);
+        throw new Error();
       }
     }
   }

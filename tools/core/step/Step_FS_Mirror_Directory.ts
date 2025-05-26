@@ -4,9 +4,9 @@ import { Builder } from '../../core/Builder.js';
 import { FILESTATS } from '../../core/Cacher.js';
 import { Logger } from '../../core/Logger.js';
 
-// !! WARNING: This can DELETE entire directories. Use with caution!!
+// !! WARNING: This step can DELETE entire directories. Use with caution!!
 
-export function Step_Mirror_Directory(options: { from: string; to: string; include_patterns?: string[]; exclude_patterns?: string[] }): Builder.Step {
+export function Step_FS_Mirror_Directory(options: { from: string; to: string; include_patterns?: string[]; exclude_patterns?: string[] }): Builder.Step {
   return new Class({
     from: NodePlatform.Path.Join(options.from),
     to: NodePlatform.Path.Join(options.to),
@@ -15,7 +15,7 @@ export function Step_Mirror_Directory(options: { from: string; to: string; inclu
   });
 }
 class Class implements Builder.Step {
-  StepName = Step_Mirror_Directory.name;
+  StepName = Step_FS_Mirror_Directory.name;
   channel = Logger(this.StepName).newChannel();
 
   constructor(

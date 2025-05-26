@@ -4,26 +4,16 @@ import { NODE_PATH, NODE_URL, NodePlatform } from '../../../src/lib/ericchase/pl
 import { Builder } from '../../core/Builder.js';
 import { ClassLogger, Logger } from '../../core/Logger.js';
 
-export const PathPattern = {
-  module: '.module{.ts,.tsx,.js,.jsx}',
-  iife: '.iife{.ts,.tsx,.js,.jsx}',
-  module_or_iife: '{.module,.iife}{.ts,.tsx,.js,.jsx}',
-  ts_tsx_js_jsx: '{.ts,.tsx,.js,.jsx}',
+export const PATTERN = {
+  MODULE: '.module{.ts,.tsx,.js,.jsx}',
+  IIFE: '.iife{.ts,.tsx,.js,.jsx}',
+  MODULE_IIFE: '{.module,.iife}{.ts,.tsx,.js,.jsx}',
+  TS_TSX_JS_JSX: '{.ts,.tsx,.js,.jsx}',
 };
 
-type Options = Parameters<typeof Bun.build>[0];
-interface Config {
-  define?: Options['define'] | (() => Options['define']);
-  env?: Options['env'];
-  external?: Options['external'];
-  sourcemap?: Options['sourcemap'];
-  target?: Options['target'];
-}
-interface Extras {
-  remap_imports?: boolean;
-}
-
-// External pattern cannot contain more than one "*" wildcard.
+/**
+ * External pattern cannot contain more than one "*" wildcard.
+ */
 export function Processor_TypeScript_Generic_Bundler(config?: Config, extras?: Extras): Builder.Processor {
   return new Class(config ?? {}, extras ?? {});
 }
@@ -31,7 +21,7 @@ class Class implements Builder.Processor {
   ProcessorName = Processor_TypeScript_Generic_Bundler.name;
   channel = Logger(this.ProcessorName).newChannel();
 
-  bundlefile_set = new Set<Builder.SourceFile>();
+  bundle_set = new Set<Builder.SourceFile>();
 
   constructor(
     readonly config: Config,
@@ -47,24 +37,24 @@ class Class implements Builder.Processor {
     let trigger_reprocess = false;
     for (const file of files) {
       const query = file.src_path.toStandard();
-      if (BunPlatform.Glob.Match(query, `**/*${PathPattern.module}`)) {
+      if (BunPlatform.Glob.Match(query, `**/*${PATTERN.MODULE}`)) {
         file.out_path.value = NodePlatform.Path.NewExtension(file.out_path.value, '.js');
         file.addProcessor(this, this.onProcessModule);
-        this.bundlefile_set.add(file);
+        this.bundle_set.add(file);
         continue;
       }
-      if (BunPlatform.Glob.Match(query, `**/*${PathPattern.iife}`)) {
+      if (BunPlatform.Glob.Match(query, `**/*${PATTERN.IIFE}`)) {
         file.out_path.value = NodePlatform.Path.NewExtension(file.out_path.value, '.js');
         file.addProcessor(this, this.onProcessIIFEScript);
-        this.bundlefile_set.add(file);
+        this.bundle_set.add(file);
         continue;
       }
-      if (BunPlatform.Glob.Match(query, `**/*${PathPattern.ts_tsx_js_jsx}`)) {
+      if (BunPlatform.Glob.Match(query, `**/*${PATTERN.TS_TSX_JS_JSX}`)) {
         trigger_reprocess = true;
       }
     }
     if (trigger_reprocess === true) {
-      for (const file of this.bundlefile_set) {
+      for (const file of this.bundle_set) {
         builder.refreshFile(file);
       }
     }
@@ -73,16 +63,16 @@ class Class implements Builder.Processor {
     let trigger_reprocess = false;
     for (const file of files) {
       const query = file.src_path.toStandard();
-      if (BunPlatform.Glob.Match(query, `**/*${PathPattern.module_or_iife}`)) {
-        this.bundlefile_set.delete(file);
+      if (BunPlatform.Glob.Match(query, `**/*${PATTERN.MODULE_IIFE}`)) {
+        this.bundle_set.delete(file);
         continue;
       }
-      if (BunPlatform.Glob.Match(query, `**/*${PathPattern.ts_tsx_js_jsx}`)) {
+      if (BunPlatform.Glob.Match(query, `**/*${PATTERN.TS_TSX_JS_JSX}`)) {
         trigger_reprocess = true;
       }
     }
     if (trigger_reprocess === true) {
-      for (const file of this.bundlefile_set) {
+      for (const file of this.bundle_set) {
         builder.refreshFile(file);
       }
     }
@@ -135,7 +125,6 @@ class Class implements Builder.Processor {
     );
   }
 }
-
 async function processBuildResults(builder: Builder.Internal, file: Builder.SourceFile, buildtask: Promise<Bun.BuildOutput>, channel: ClassLogger) {
   try {
     const results = await buildtask;
@@ -184,7 +173,6 @@ async function processBuildResults(builder: Builder.Internal, file: Builder.Sour
     channel.error(']');
   }
 }
-
 async function remapModuleImports(file: Builder.SourceFile, channel: ClassLogger) {
   const text = await file.getText();
   // can't do lines, because import statements will become multiline if long enough
@@ -221,7 +209,6 @@ async function remapModuleImports(file: Builder.SourceFile, channel: ClassLogger
     file.setText(text_parts.join(''));
   }
 }
-
 function getRelativePath(file_path: string, item_source_path: string, item_import_path: string) {
   if (item_import_path.startsWith('.') === true) {
     item_import_path = NodePlatform.Path.JoinStandard(NodePlatform.Path.GetParentPath(item_source_path), item_import_path);
@@ -237,3 +224,14 @@ function getRelativePath(file_path: string, item_source_path: string, item_impor
   }
   return NodePlatform.Path.Slice(relative, 0, 1) === '..' ? NodePlatform.Path.JoinStandard(relative) : `./${NodePlatform.Path.JoinStandard(relative)}`;
 }
+interface Config {
+  define?: Options['define'] | (() => Options['define']);
+  env?: Options['env'];
+  external?: Options['external'];
+  sourcemap?: Options['sourcemap'];
+  target?: Options['target'];
+}
+interface Extras {
+  remap_imports?: boolean;
+}
+type Options = Parameters<typeof Bun.build>[0];

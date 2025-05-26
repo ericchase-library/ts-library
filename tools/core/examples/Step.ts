@@ -22,7 +22,6 @@ class Class implements Builder.Step {
   }
   async onRun(builder: Builder.Internal): Promise<void> {
     // Do whatever you want here.
-    this.channel.log('Example Step');
   }
   async onCleanUp(builder: Builder.Internal): Promise<void> {
     // Use this to do the majority of cleanup for this processor instance. This

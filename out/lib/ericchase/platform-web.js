@@ -109,10 +109,7 @@ class ClassDomAttributeObserver {
 }
 
 class ClassDomCharacterDataObserver {
-  constructor({
-    source = document.documentElement,
-    options = { characterDataOldValue: true, subtree: true }
-  }) {
+  constructor({ source = document.documentElement, options = { characterDataOldValue: true, subtree: true } }) {
     this.mutationObserver = new MutationObserver((mutationRecords) => {
       for (const record of mutationRecords) {
         this.send(record);
@@ -171,12 +168,7 @@ class ClassDomChildListObserver {
 }
 
 class ClassDomElementAddedObserver {
-  constructor({
-    source = document.documentElement,
-    options = { subtree: true },
-    selector,
-    includeExistingElements = true
-  }) {
+  constructor({ source = document.documentElement, options = { subtree: true }, selector, includeExistingElements = true }) {
     this.mutationObserver = new MutationObserver((mutationRecords) => {
       for (const record of mutationRecords) {
         if (record.target instanceof Element && record.target.matches(selector)) {
@@ -333,24 +325,13 @@ function dom__class_attributeobserver({
 }) {
   return new ClassDomAttributeObserver({ options, source });
 }
-function dom__class_characterdataobserver({
-  options = { characterDataOldValue: true, subtree: true },
-  source = document.documentElement
-}) {
+function dom__class_characterdataobserver({ options = { characterDataOldValue: true, subtree: true }, source = document.documentElement }) {
   return new ClassDomCharacterDataObserver({ options, source });
 }
-function dom__class_childlistobserver({
-  options = { subtree: true },
-  source = document.documentElement
-}) {
+function dom__class_childlistobserver({ options = { subtree: true }, source = document.documentElement }) {
   return new ClassDomChildListObserver({ options, source });
 }
-function dom__class_elementaddedobserver({
-  includeExistingElements = true,
-  options = { subtree: true },
-  selector,
-  source = document.documentElement
-}) {
+function dom__class_elementaddedobserver({ includeExistingElements = true, options = { subtree: true }, selector, source = document.documentElement }) {
   return new ClassDomElementAddedObserver({ includeExistingElements, options, selector, source });
 }
 function dom__injectcss(styles) {
@@ -368,12 +349,12 @@ function dom__injectscript(code) {
 function blob__classcompat_blob(blob) {
   return new ClassCompatBlob(blob);
 }
-async function blob__async_readsome(blob, count) {
+function blob__async_readsome(blob, count) {
   const stream = blob__classcompat_blob(blob).stream();
   if (stream !== undefined) {
     return Core.Stream.Uint8.Async_ReadSome(stream, count);
   }
-  return new Uint8Array;
+  return Promise.resolve(new Uint8Array);
 }
 function datatransfer__classcompat_datatransfer(dataTransfer) {
   return new ClassCompatDataTransfer(dataTransfer);
@@ -407,7 +388,7 @@ function datatransferitem__classcompat_datatransferitem(item) {
 function file__classcompat_file(file) {
   return new ClassCompatFile(file);
 }
-async function filesystementry__async_getfile(entry) {
+function filesystementry__async_getfile(entry) {
   return new Promise((resolve, reject) => {
     entry.file((file) => {
       resolve(file);

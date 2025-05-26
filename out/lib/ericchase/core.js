@@ -142,7 +142,7 @@ function* array__gen_zip(...iterables) {
   let mock_count = 0;
   const mock_iterable = {
     next() {
-      return { value: undefined, done: true };
+      return { value: undefined, done: false };
     },
     [Symbol.iterator]() {
       return this;
@@ -152,24 +152,25 @@ function* array__gen_zip(...iterables) {
     const values = [];
     for (let index = 0;index < iterators.length; index++) {
       const next = iterators[index].next();
-      if ("done" in next && next.done) {
+      if ("done" in next && next.done === true) {
         mock_count++;
         iterators[index] = mock_iterable;
+        values[index] = undefined;
+      } else {
+        values[index] = "value" in next ? next.value : undefined;
       }
-      values[index] = "value" in next ? next.value : undefined;
     }
     return values;
   }
-  const iterators = iterables.map((iterable) => {
-    if (iterable != null && typeof iterable[Symbol.iterator] === "function") {
-      const iterator = iterable[Symbol.iterator]();
-      if (iterator && "next" in iterator) {
-        return iterator;
-      }
+  const iterators = [];
+  for (const iterable of iterables) {
+    try {
+      iterators.push(iterable[Symbol.iterator]());
+    } catch (error) {
+      mock_count++;
+      iterators.push(mock_iterable[Symbol.iterator]());
     }
-    mock_count++;
-    return mock_iterable;
-  });
+  }
   let values = process_iterators(iterators);
   while (mock_count < iterators.length) {
     yield values;
@@ -415,11 +416,13 @@ function assert__equal(value1, value2) {
   if (value1 !== value2) {
     throw new Error(`Assertion Failed: value1(${value1}) should equal value2(${value2})`);
   }
+  return true;
 }
 function assert__notequal(value1, value2) {
   if (value1 === value2) {
     throw new Error(`Assertion Failed: value1(${value1}) should not equal value2(${value2})`);
   }
+  return true;
 }
 function assert__bigint(value) {
   if (typeof value !== "bigint") {
@@ -548,15 +551,12 @@ function json__merge(...sources) {
 function json__parserawstring(str) {
   return JSON.parse(`"${str}"`);
 }
-function map__guard(map, key, value) {
-  return map.has(key);
-}
 function map__getordefault(map, key, newValue) {
-  let value = map.get(key);
-  if (!map__guard(map, key, value)) {
-    value = newValue();
-    map.set(key, value);
+  if (map.has(key)) {
+    return map.get(key);
   }
+  const value = newValue();
+  map.set(key, value);
   return value;
 }
 function* math__gen_cartesianproduct(array_a, array_b) {
@@ -741,26 +741,6 @@ async function* stream__asyncgen_readchunks(stream) {
     reader.releaseLock();
   }
 }
-async function* stream__asyncgen_readlines(stream) {
-  const reader = stream.pipeThrough(new TextDecoderStream).getReader();
-  try {
-    let buffer = "";
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) {
-        if (buffer.length > 0) {
-          yield [buffer];
-        }
-        return;
-      }
-      const lines = string__splitlines(buffer + value);
-      buffer = lines[lines.length - 1] ?? "";
-      yield lines.slice(0, -1);
-    }
-  } finally {
-    reader.releaseLock();
-  }
-}
 async function stream__uint8__async_compare(stream1, stream2) {
   const one = stream__uint8__class_reader(stream1.getReader());
   const two = stream__uint8__class_reader(stream2.getReader());
@@ -813,7 +793,7 @@ async function stream__uint8__async_readall(stream) {
   }
 }
 async function stream__uint8__async_readlines(stream, callback) {
-  for await (const lines of stream__asyncgen_readlines(stream)) {
+  for await (const lines of stream__uint8__asyncgen_readlines(stream)) {
     for (const line of lines) {
       if (await callback(line) === false) {
         return;
@@ -841,6 +821,47 @@ async function stream__uint8__async_readsome(stream, count) {
       }
     }
     return array__uint8__take(array__uint8__concat(chunks), count)[0];
+  } finally {
+    reader.releaseLock();
+  }
+}
+async function* stream__uint8__asyncgen_readlines(stream) {
+  const textDecoderStream = new TextDecoderStream;
+  const textDecoderReader = textDecoderStream.readable.getReader();
+  const textDecoderWriter = textDecoderStream.writable.getWriter();
+  const readable = new ReadableStream({
+    async pull(controller) {
+      const { done, value } = await textDecoderReader.read();
+      if (done !== true) {
+        controller.enqueue(value);
+      } else {
+        controller.close();
+      }
+    }
+  });
+  const writable = new WritableStream({
+    async close() {
+      await textDecoderWriter.close();
+    },
+    async write(chunk) {
+      await textDecoderWriter.write(chunk.slice());
+    }
+  });
+  const reader = stream.pipeThrough({ readable, writable }).getReader();
+  try {
+    let buffer = "";
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) {
+        if (buffer.length > 0) {
+          yield [buffer];
+        }
+        return;
+      }
+      const lines = string__splitlines(buffer + value);
+      buffer = lines[lines.length - 1] ?? "";
+      yield lines.slice(0, -1);
+    }
   } finally {
     reader.releaseLock();
   }
@@ -1014,7 +1035,6 @@ export var Core;
   })(JSON = Core.JSON ||= {});
   let Map;
   ((Map) => {
-    Map.Guard = map__guard;
     Map.GetOrDefault = map__getordefault;
   })(Map = Core.Map ||= {});
   let Math;
@@ -1043,10 +1063,10 @@ export var Core;
       Uint8.Async_ReadAll = stream__uint8__async_readall;
       Uint8.Async_ReadLines = stream__uint8__async_readlines;
       Uint8.Async_ReadSome = stream__uint8__async_readsome;
+      Uint8.AsyncGen_ReadLines = stream__uint8__asyncgen_readlines;
       Uint8.Class_Reader = stream__uint8__class_reader;
     })(Uint8 = Stream.Uint8 ||= {});
     Stream.AsyncGen_ReadChunks = stream__asyncgen_readchunks;
-    Stream.AsyncGen_ReadLines = stream__asyncgen_readlines;
   })(Stream = Core.Stream ||= {});
   let String;
   ((String) => {

@@ -106,13 +106,7 @@ class ClassDomAttributeObserver {
   }
 }
 class ClassDomCharacterDataObserver {
-  constructor({
-    source = document.documentElement,
-    options = { characterDataOldValue: true, subtree: true },
-  }: {
-    source?: Node;
-    options?: { characterDataOldValue?: boolean; subtree?: boolean };
-  }) {
+  constructor({ source = document.documentElement, options = { characterDataOldValue: true, subtree: true } }: { source?: Node; options?: { characterDataOldValue?: boolean; subtree?: boolean } }) {
     this.mutationObserver = new MutationObserver((mutationRecords: MutationRecord[]) => {
       for (const record of mutationRecords) {
         this.send(record);
@@ -169,17 +163,7 @@ class ClassDomChildListObserver {
   }
 }
 class ClassDomElementAddedObserver {
-  constructor({
-    source = document.documentElement,
-    options = { subtree: true },
-    selector,
-    includeExistingElements = true,
-  }: {
-    source?: Node;
-    options?: { subtree?: boolean };
-    selector: string;
-    includeExistingElements?: boolean;
-  }) {
+  constructor({ source = document.documentElement, options = { subtree: true }, selector, includeExistingElements = true }: { source?: Node; options?: { subtree?: boolean }; selector: string; includeExistingElements?: boolean }) {
     this.mutationObserver = new MutationObserver((mutationRecords: MutationRecord[]) => {
       for (const record of mutationRecords) {
         if (record.target instanceof Element && record.target.matches(selector)) {
@@ -318,15 +302,15 @@ class ClassNodeReferenceList extends Array<ClassNodeReference> {
 
 // CSS
 
-function css__toadjustedem(em: number, root: HTMLElement | SVGElement = document.documentElement) {
+function css__toadjustedem(em: number, root: HTMLElement | SVGElement = document.documentElement): number {
   const fontSizePx = Number.parseInt(getComputedStyle(root).fontSize);
   return (16 / fontSizePx) * em;
 }
-function css__torelativeem(em: number, root: HTMLElement | SVGElement = document.documentElement) {
+function css__torelativeem(em: number, root: HTMLElement | SVGElement = document.documentElement): number {
   const fontSizePx = Number.parseInt(getComputedStyle(root).fontSize);
   return (fontSizePx / 16) * em;
 }
-function css__torelativepx(px: number, root: HTMLElement | SVGElement = document.documentElement) {
+function css__torelativepx(px: number, root: HTMLElement | SVGElement = document.documentElement): number {
   const fontSizePx = Number.parseInt(getComputedStyle(root).fontSize);
   return (fontSizePx / 16) * px;
 }
@@ -343,38 +327,16 @@ function dom__class_attributeobserver({
     subtree?: boolean;
   };
   source?: Node;
-}) {
+}): ClassDomAttributeObserver {
   return new ClassDomAttributeObserver({ options, source });
 }
-function dom__class_characterdataobserver({
-  options = { characterDataOldValue: true, subtree: true },
-  source = document.documentElement,
-}: {
-  options?: { characterDataOldValue?: boolean; subtree?: boolean };
-  source?: Node;
-}) {
+function dom__class_characterdataobserver({ options = { characterDataOldValue: true, subtree: true }, source = document.documentElement }: { options?: { characterDataOldValue?: boolean; subtree?: boolean }; source?: Node }): ClassDomCharacterDataObserver {
   return new ClassDomCharacterDataObserver({ options, source });
 }
-function dom__class_childlistobserver({
-  options = { subtree: true },
-  source = document.documentElement,
-}: {
-  options?: { subtree?: boolean };
-  source?: Node;
-}) {
+function dom__class_childlistobserver({ options = { subtree: true }, source = document.documentElement }: { options?: { subtree?: boolean }; source?: Node }): ClassDomChildListObserver {
   return new ClassDomChildListObserver({ options, source });
 }
-function dom__class_elementaddedobserver({
-  includeExistingElements = true,
-  options = { subtree: true },
-  selector,
-  source = document.documentElement,
-}: {
-  includeExistingElements?: boolean;
-  options?: { subtree?: boolean };
-  selector: string;
-  source?: Node;
-}) {
+function dom__class_elementaddedobserver({ includeExistingElements = true, options = { subtree: true }, selector, source = document.documentElement }: { includeExistingElements?: boolean; options?: { subtree?: boolean }; selector: string; source?: Node }): ClassDomElementAddedObserver {
   return new ClassDomElementAddedObserver({ includeExistingElements, options, selector, source });
 }
 
@@ -393,21 +355,21 @@ function dom__injectscript(code: string): HTMLScriptElement {
 
 // Blob
 
-function blob__classcompat_blob(blob: Blob) {
+function blob__classcompat_blob(blob: Blob): ClassCompatBlob {
   return new ClassCompatBlob(blob);
 }
 
-async function blob__async_readsome(blob: Blob, count: number): Promise<Uint8Array> {
+function blob__async_readsome(blob: Blob, count: number): Promise<Uint8Array> {
   const stream = blob__classcompat_blob(blob).stream();
   if (stream !== undefined) {
     return Core.Stream.Uint8.Async_ReadSome(stream, count);
   }
-  return new Uint8Array();
+  return Promise.resolve(new Uint8Array());
 }
 
 // DataTransfer
 
-function datatransfer__classcompat_datatransfer(dataTransfer: DataTransfer) {
+function datatransfer__classcompat_datatransfer(dataTransfer: DataTransfer): ClassCompatDataTransfer {
   return new ClassCompatDataTransfer(dataTransfer);
 }
 
@@ -441,19 +403,19 @@ async function* datatransfer__asyncgen_getfiles(dataTransfer: DataTransfer): Asy
 
 // DataTransferItem
 
-function datatransferitem__classcompat_datatransferitem(item: DataTransferItem) {
+function datatransferitem__classcompat_datatransferitem(item: DataTransferItem): ClassCompatDataTransferItem {
   return new ClassCompatDataTransferItem(item);
 }
 
 // File
 
-function file__classcompat_file(file: File) {
+function file__classcompat_file(file: File): ClassCompatFile {
   return new ClassCompatFile(file);
 }
 
 // FileSystemEntry
 
-async function filesystementry__async_getfile(entry: FileSystemFileEntry) {
+function filesystementry__async_getfile(entry: FileSystemFileEntry): Promise<File> {
   return new Promise<File>((resolve, reject) => {
     entry.file(
       (file) => {
@@ -494,16 +456,16 @@ function htmlinputelement__webkitdirectoryissupported(): boolean {
 }
 
 // Node
-function node__class_nodereference(node?: Node | null) {
+function node__class_nodereference(node?: Node | null): ClassNodeReference {
   return new ClassNodeReference(node);
 }
-function node__class_nodelistreference(nodes?: NodeList | Node[] | null) {
+function node__class_nodelistreference(nodes?: NodeList | Node[] | null): ClassNodeReferenceList {
   return new ClassNodeReferenceList(nodes);
 }
-function node__selectelement(selector: string) {
+function node__selectelement(selector: string): ClassNodeReference {
   return node__class_nodereference(document.querySelector(selector));
 }
-function node__selectelements(...selectors: string[]) {
+function node__selectelements(...selectors: string[]): ClassNodeReferenceList {
   return node__class_nodelistreference(document.querySelectorAll(selectors.join(',')));
 }
 
@@ -515,13 +477,13 @@ function utility__deviceismobile(): boolean {
 function utility__download(
   data: {
     blob?: Blob;
-    bytes?: Uint8Array;
+    bytes?: Uint8Array<ArrayBuffer>;
     json?: string;
     text?: string;
     url?: string;
   },
   filename: string,
-) {
+): void {
   const dataurl = (() => {
     if (data.blob !== undefined) {
       return URL.createObjectURL(data.blob);
@@ -552,7 +514,7 @@ function utility__openwindow(
   url: string, //
   onLoad?: (proxy: Window, event: Event) => void,
   onUnload?: (proxy: Window, event: Event) => void,
-) {
+): void {
   const proxy = window.open(url, '_blank');
   if (proxy) {
     if (onLoad) {

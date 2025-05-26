@@ -3,7 +3,10 @@ import { NodePlatform } from "./platform-node.js";
 function args__has(arg) {
   return Bun.argv.includes(arg);
 }
-async function file__async__copy(frompath, topath, overwrite = false) {
+function file__async_compare(frompath, topath) {
+  return Core.Stream.Uint8.Async_Compare(Bun.file(NodePlatform.Path.Join(frompath)).stream(), Bun.file(NodePlatform.Path.Join(topath)).stream());
+}
+async function file__async_copy(frompath, topath, overwrite = false) {
   if (NodePlatform.Path.Join(frompath) === NodePlatform.Path.Join(topath)) {
     return false;
   }
@@ -11,13 +14,13 @@ async function file__async__copy(frompath, topath, overwrite = false) {
     return false;
   }
   await Bun.write(Bun.file(NodePlatform.Path.Join(topath)), Bun.file(NodePlatform.Path.Join(frompath)));
-  return file__compare(NodePlatform.Path.Join(frompath), NodePlatform.Path.Join(topath));
+  return file__async_compare(NodePlatform.Path.Join(frompath), NodePlatform.Path.Join(topath));
 }
-async function file__async__delete(path) {
+async function file__async_delete(path) {
   await Bun.file(NodePlatform.Path.Join(path)).delete();
   return await Bun.file(NodePlatform.Path.Join(path)).exists() === false;
 }
-async function file__async__move(frompath, topath, overwrite = false) {
+async function file__async_move(frompath, topath, overwrite = false) {
   if (NodePlatform.Path.Join(frompath) === NodePlatform.Path.Join(topath)) {
     return false;
   }
@@ -25,31 +28,28 @@ async function file__async__move(frompath, topath, overwrite = false) {
     return false;
   }
   await Bun.write(Bun.file(NodePlatform.Path.Join(topath)), Bun.file(NodePlatform.Path.Join(frompath)));
-  if (await file__compare(NodePlatform.Path.Join(frompath), NodePlatform.Path.Join(topath)) === false) {
+  if (await file__async_compare(NodePlatform.Path.Join(frompath), NodePlatform.Path.Join(topath)) === false) {
     return false;
   }
-  return file__async__delete(NodePlatform.Path.Join(frompath));
+  return file__async_delete(NodePlatform.Path.Join(frompath));
 }
-async function file__async__readbytes(path) {
-  return await Bun.file(NodePlatform.Path.Join(path)).bytes();
+function file__async_readbytes(path) {
+  return Bun.file(NodePlatform.Path.Join(path)).bytes();
 }
-async function file__async__readtext(path) {
-  return await Bun.file(NodePlatform.Path.Join(path)).text();
+function file__async_readtext(path) {
+  return Bun.file(NodePlatform.Path.Join(path)).text();
 }
-async function file__async__writebytes(path, bytes, createpath = true) {
+async function file__async_writebytes(path, bytes, createpath = true) {
   if (createpath === true) {
     await NodePlatform.Directory.Async_Create(NodePlatform.Path.GetParentPath(NodePlatform.Path.Join(path)));
   }
   return Bun.write(NodePlatform.Path.Join(path), bytes);
 }
-async function file__async__writetext(path, text, createpath = true) {
+async function file__async_writetext(path, text, createpath = true) {
   if (createpath === true) {
     await NodePlatform.Directory.Async_Create(NodePlatform.Path.GetParentPath(NodePlatform.Path.Join(path)));
   }
   return Bun.write(NodePlatform.Path.Join(path), text);
-}
-function file__compare(frompath, topath) {
-  return Core.Stream.Uint8.Async_Compare(Bun.file(NodePlatform.Path.Join(frompath)).stream(), Bun.file(NodePlatform.Path.Join(topath)).stream());
 }
 async function* glob__asyncgen_scan(path, pattern, options) {
   for await (const value of new Bun.Glob(pattern).scan({
@@ -99,14 +99,14 @@ export var BunPlatform;
   })(Args = BunPlatform.Args ||= {});
   let File;
   ((File) => {
-    File.Async_Copy = file__async__copy;
-    File.Async_Delete = file__async__delete;
-    File.Async_Move = file__async__move;
-    File.Async_ReadBytes = file__async__readbytes;
-    File.Async_ReadText = file__async__readtext;
-    File.Async_WriteBytes = file__async__writebytes;
-    File.Async_WriteText = file__async__writetext;
-    File.Compare = file__compare;
+    File.Async_Compare = file__async_compare;
+    File.Async_Copy = file__async_copy;
+    File.Async_Delete = file__async_delete;
+    File.Async_Move = file__async_move;
+    File.Async_ReadBytes = file__async_readbytes;
+    File.Async_ReadText = file__async_readtext;
+    File.Async_WriteBytes = file__async_writebytes;
+    File.Async_WriteText = file__async_writetext;
   })(File = BunPlatform.File ||= {});
   let Glob;
   ((Glob) => {

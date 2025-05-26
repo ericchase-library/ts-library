@@ -3,12 +3,6 @@ import { NodePlatform } from '../../../src/lib/ericchase/platform-node.js';
 import { Builder } from '../../core/Builder.js';
 import { Logger } from '../../core/Logger.js';
 
-type Options = Bun.TranspilerOptions;
-interface Config {
-  define?: Options['define'] | (() => Options['define']);
-  target?: Options['target'];
-}
-
 export function Processor_TypeScript_Generic_Transpiler(include_patterns: string[], exclude_patterns: string[], config: Config): Builder.Processor {
   return new Class(include_patterns, exclude_patterns, config);
 }
@@ -52,3 +46,8 @@ class Class implements Builder.Processor {
     }
   }
 }
+interface Config {
+  define?: Options['define'] | (() => Options['define']);
+  target?: Options['target'];
+}
+type Options = Bun.TranspilerOptions;

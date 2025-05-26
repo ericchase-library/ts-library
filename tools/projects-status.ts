@@ -3,7 +3,7 @@ import { SetLoggerOptions } from './core/Logger.js';
 import { Step_Bun_Run } from './core/step/Step_Bun_Run.js';
 import { Step_Sync } from './core/step/Step_Sync.js';
 
-import project_paths from './lib-library/synced-projects.jsonc' assert { type: 'jsonc' };
+import project_paths from './synced-projects.jsonc' assert { type: 'jsonc' };
 
 SetLoggerOptions({ ceremony: false });
 

@@ -1,6 +1,283 @@
 import { describe, expect, test } from 'bun:test';
 import { Core } from './core.js';
 
+describe('Array', () => {
+  describe(Core.Array.Gen_BufferToBytes.name, () => {
+    test('[1, 2, 3, 4]', () => {
+      expect([...Core.Array.Gen_BufferToBytes(Uint8Array.from([1, 2, 3, 4]).buffer)]).toEqual([1, 2, 3, 4]);
+    });
+    test('[0x12345678]', () => {
+      // Does not adjust for endianness
+      expect([...Core.Array.Gen_BufferToBytes(Uint32Array.from([0x12345678]).buffer)]).toEqual([0x78, 0x56, 0x34, 0x12]);
+    });
+    test('[0x78563412]', () => {
+      expect([...Core.Array.Gen_BufferToBytes(Uint32Array.from([0x78563412]).buffer)]).toEqual([0x12, 0x34, 0x56, 0x78]);
+    });
+  });
+  describe(Core.Array.Gen_Chunks.name, () => {
+    test('[] returns []', () => {
+      expect([...Core.Array.Gen_Chunks([], [].length)]).toEqual([{ begin: 0, end: 0, slice: [] }]);
+    });
+    test('count < 1 returns []', () => {
+      for (const arr of [[], [1], [1, 2], [1, 2, 3], [1, 2, 3, 4]]) {
+        expect([...Core.Array.Gen_Chunks(arr, 0)]).toEqual([{ begin: 0, end: 0, slice: [] }]);
+      }
+    });
+    test('count >= length returns copy of array', () => {
+      for (const arr of [[1], [1, 2], [1, 2, 3], [1, 2, 3, 4]]) {
+        expect([...Core.Array.Gen_Chunks(arr, arr.length)]).toEqual([
+          { begin: 0, end: arr.length, slice: arr }, //
+        ]);
+      }
+      for (const arr of [[1], [1, 2], [1, 2, 3], [1, 2, 3, 4]]) {
+        expect([...Core.Array.Gen_Chunks(arr, arr.length + 1)]).toEqual([
+          { begin: 0, end: arr.length, slice: arr }, //
+        ]);
+      }
+    });
+    test('count evenly divides length, returns full chunks', () => {
+      expect([...Core.Array.Gen_Chunks([1, 2, 3, 4], 1)]).toEqual([
+        { begin: 0, end: 1, slice: [1] },
+        { begin: 1, end: 2, slice: [2] },
+        { begin: 2, end: 3, slice: [3] },
+        { begin: 3, end: 4, slice: [4] },
+      ]);
+      expect([...Core.Array.Gen_Chunks([1, 2, 3, 4], 2)]).toEqual([
+        { begin: 0, end: 2, slice: [1, 2] },
+        { begin: 2, end: 4, slice: [3, 4] },
+      ]);
+      expect([...Core.Array.Gen_Chunks([1, 2, 3, 4, 5, 6], 2)]).toEqual([
+        { begin: 0, end: 2, slice: [1, 2] },
+        { begin: 2, end: 4, slice: [3, 4] },
+        { begin: 4, end: 6, slice: [5, 6] },
+      ]);
+      expect([...Core.Array.Gen_Chunks([1, 2, 3, 4, 5, 6], 3)]).toEqual([
+        { begin: 0, end: 3, slice: [1, 2, 3] },
+        { begin: 3, end: 6, slice: [4, 5, 6] },
+      ]);
+    });
+    test('count does not evenly divide length, returns partial chunk', () => {
+      expect([...Core.Array.Gen_Chunks([1], 2)]).toEqual([
+        { begin: 0, end: 1, slice: [1] }, //
+      ]);
+      expect([...Core.Array.Gen_Chunks([1, 2, 3], 2)]).toEqual([
+        { begin: 0, end: 2, slice: [1, 2] },
+        { begin: 2, end: 3, slice: [3] },
+      ]);
+      expect([...Core.Array.Gen_Chunks([1, 2, 3, 4, 5], 2)]).toEqual([
+        { begin: 0, end: 2, slice: [1, 2] },
+        { begin: 2, end: 4, slice: [3, 4] },
+        { begin: 4, end: 5, slice: [5] },
+      ]);
+      expect([...Core.Array.Gen_Chunks([1], 3)]).toEqual([
+        { begin: 0, end: 1, slice: [1] }, //
+      ]);
+      expect([...Core.Array.Gen_Chunks([1, 2], 3)]).toEqual([
+        { begin: 0, end: 2, slice: [1, 2] }, //
+      ]);
+      expect([...Core.Array.Gen_Chunks([1, 2, 3, 4], 3)]).toEqual([
+        { begin: 0, end: 3, slice: [1, 2, 3] },
+        { begin: 3, end: 4, slice: [4] },
+      ]);
+    });
+  });
+  describe(Core.Array.Gen_SlidingWindow.name, () => {
+    test('[] returns []', () => {
+      expect([...Core.Array.Gen_SlidingWindow([], [].length)]).toEqual([]);
+    });
+    test('count < 1 returns []', () => {
+      for (const arr of [[], [1], [1, 2], [1, 2, 3], [1, 2, 3, 4]]) {
+        expect([...Core.Array.Gen_SlidingWindow(arr, 0)]).toEqual([]);
+      }
+    });
+    test('count >= length returns copy of array', () => {
+      for (const arr of [[1], [1, 2], [1, 2, 3], [1, 2, 3, 4]]) {
+        expect([...Core.Array.Gen_SlidingWindow(arr, arr.length)]).toEqual([
+          { begin: 0, end: arr.length, slice: arr }, //
+        ]);
+      }
+      for (const arr of [[1], [1, 2], [1, 2, 3], [1, 2, 3, 4]]) {
+        expect([...Core.Array.Gen_SlidingWindow(arr, arr.length + 1)]).toEqual([
+          { begin: 0, end: arr.length, slice: arr }, //
+        ]);
+      }
+    });
+    test('count = 1 returns single item arrays', () => {
+      expect([...Core.Array.Gen_SlidingWindow([1], 1)]).toEqual([
+        { begin: 0, end: 1, slice: [1] }, //
+      ]);
+      expect([...Core.Array.Gen_SlidingWindow([1, 2, 3], 1)]).toEqual([
+        { begin: 0, end: 1, slice: [1] },
+        { begin: 1, end: 2, slice: [2] },
+        { begin: 2, end: 3, slice: [3] },
+      ]);
+      expect([...Core.Array.Gen_SlidingWindow([1, 2, 3, 4, 5], 1)]).toEqual([
+        { begin: 0, end: 1, slice: [1] },
+        { begin: 1, end: 2, slice: [2] },
+        { begin: 2, end: 3, slice: [3] },
+        { begin: 3, end: 4, slice: [4] },
+        { begin: 4, end: 5, slice: [5] },
+      ]);
+    });
+    test('count = 2 returns arrays of 2', () => {
+      expect([...Core.Array.Gen_SlidingWindow([1, 2, 3, 4], 2)]).toEqual([
+        { begin: 0, end: 2, slice: [1, 2] },
+        { begin: 1, end: 3, slice: [2, 3] },
+        { begin: 2, end: 4, slice: [3, 4] },
+      ]);
+      expect([...Core.Array.Gen_SlidingWindow([1, 2, 3, 4, 5], 2)]).toEqual([
+        { begin: 0, end: 2, slice: [1, 2] },
+        { begin: 1, end: 3, slice: [2, 3] },
+        { begin: 2, end: 4, slice: [3, 4] },
+        { begin: 3, end: 5, slice: [4, 5] },
+      ]);
+    });
+    test('count = 3 returns arrays of 3', () => {
+      expect([...Core.Array.Gen_SlidingWindow([1, 2, 3, 4], 3)]).toEqual([
+        { begin: 0, end: 3, slice: [1, 2, 3] },
+        { begin: 1, end: 4, slice: [2, 3, 4] },
+      ]);
+      expect([...Core.Array.Gen_SlidingWindow([1, 2, 3, 4, 5], 3)]).toEqual([
+        { begin: 0, end: 3, slice: [1, 2, 3] },
+        { begin: 1, end: 4, slice: [2, 3, 4] },
+        { begin: 2, end: 5, slice: [3, 4, 5] },
+      ]);
+    });
+  });
+  describe(Core.Array.Gen_Zip.name, () => {
+    test('[1,2,3] [a,b,c]', () => {
+      expect(Array.from(Core.Array.Gen_Zip([1, 2, 3], ['a', 'b', 'c']))).toEqual([
+        [1, 'a'],
+        [2, 'b'],
+        [3, 'c'],
+      ]);
+    });
+    test('[1,2,3] [a]', () => {
+      expect(Array.from(Core.Array.Gen_Zip([1, 2, 3], ['a']))).toEqual([
+        [1, 'a'],
+        [2, undefined],
+        [3, undefined],
+      ]);
+    });
+    test('[1] [a,b,c]', () => {
+      expect(Array.from(Core.Array.Gen_Zip([1], ['a', 'b', 'c']))).toEqual([
+        [1, 'a'],
+        [undefined, 'b'],
+        [undefined, 'c'],
+      ]);
+    });
+    test('[1,2,3] 0', () => {
+      expect(Array.from(Core.Array.Gen_Zip([1, 2, 3], 0 as unknown as Array<string>))).toEqual([
+        [1, undefined],
+        [2, undefined],
+        [3, undefined],
+      ]);
+    });
+    test('[1,2,3], 0, [a,b,c]', () => {
+      expect(Array.from(Core.Array.Gen_Zip([1, 2, 3], 0 as unknown as Array<undefined>, ['a', 'b', 'c']))).toEqual([
+        [1, undefined, 'a'],
+        [2, undefined, 'b'],
+        [3, undefined, 'c'],
+      ]);
+    });
+  });
+  describe(Core.Array.AreEqual.name, () => {
+    const cases = [
+      Uint8Array.from([]), //
+      Uint8Array.from([1, 2]),
+      Uint8Array.from([1, 2, 3, 4]),
+      Uint8ClampedArray.from([]), //
+      Uint8ClampedArray.from([1, 2]),
+      Uint8ClampedArray.from([1, 2, 3, 4]),
+      [],
+      [1, 2],
+      [1, 2, 3, 4],
+      ['a'],
+      ['a', 'b'],
+      ['a', 'b', 'c'],
+    ] as const;
+    for (const input of cases) {
+      test(input.toString(), () => {
+        expect(Core.Array.AreEqual(input, input)).toBe(true);
+      });
+    }
+    test('Unequal Arrays Fail', () => {
+      expect(Core.Array.AreEqual([1], [1, 2])).toBe(false);
+    });
+  });
+  describe(Core.Array.Shuffle.name, () => {
+    test('[]', () => {
+      expect(Core.Array.Shuffle([])).toEqual([]);
+    });
+    test('[1]', () => {
+      expect(Core.Array.Shuffle([1])).toEqual([1]);
+    });
+    test('[1, 2]', () => {
+      const possible = [
+        [1, 2],
+        [2, 1],
+      ];
+      for (let i = 0; i < 10; i++) {
+        expect(possible).toContainEqual(Core.Array.Shuffle([1, 2]));
+      }
+    });
+    test('[1, 2, 3]', () => {
+      const possible = [
+        [1, 2, 3],
+        [1, 3, 2],
+        [2, 1, 3],
+        [2, 3, 1],
+        [3, 1, 2],
+        [3, 2, 1],
+      ];
+      for (let i = 0; i < 20; i++) {
+        expect(possible).toContainEqual(Core.Array.Shuffle([1, 2, 3]));
+      }
+    });
+  });
+  describe(Core.Array.Split.name, () => {
+    test('[]', () => {
+      expect(Core.Array.Split([], -1)).toEqual([[]]);
+      expect(Core.Array.Split([], 0)).toEqual([[]]);
+      expect(Core.Array.Split([], 1)).toEqual([[]]);
+    });
+    test('[1]', () => {
+      expect(Core.Array.Split([1], -1)).toEqual([[]]);
+      expect(Core.Array.Split([1], 0)).toEqual([[]]);
+      expect(Core.Array.Split([1], 1)).toEqual([[1]]);
+    });
+    test('[1, 2]', () => {
+      expect(Core.Array.Split([1, 2], -1)).toEqual([[]]);
+      expect(Core.Array.Split([1, 2], 0)).toEqual([[]]);
+      expect(Core.Array.Split([1, 2], 1)).toEqual([[1], [2]]);
+    });
+    test('[1, 2, 3] split 1', () => {
+      expect(Core.Array.Split([1, 2, 3], 1)).toEqual([[1], [2], [3]]);
+    });
+    test('[1, 2] split 2', () => {
+      expect(Core.Array.Split([1, 2], 2)).toEqual([[1, 2]]);
+    });
+    test('[1, 2, 3, 4] split 2', () => {
+      expect(Core.Array.Split([1, 2, 3, 4], 2)).toEqual([
+        [1, 2],
+        [3, 4],
+      ]);
+    });
+    test('[1, 2, 3, 4, 5, 6] split 2', () => {
+      expect(Core.Array.Split([1, 2, 3, 4, 5, 6], 2)).toEqual([
+        [1, 2],
+        [3, 4],
+        [5, 6],
+      ]);
+    });
+    test('[1, 2, 3, 4] split 6', () => {
+      expect(Core.Array.Split([1, 2, 3, 4], 6)).toEqual([[1, 2, 3, 4]]);
+    });
+    test('[] split 1', () => {
+      expect(Core.Array.Split([], 1)).toEqual([[]]);
+    });
+  });
+});
 describe('Array BinarySearch', () => {
   describe('[0, 2, 4, 6, 8]', () => {
     const nums = [0, 2, 4, 6, 8];
@@ -354,6 +631,24 @@ describe('Array Uint8', () => {
       });
     }
   });
+  describe(Core.Array.Uint8.ToLines.name, () => {
+    test('123\\n456\\n789', () => {
+      expect(Core.Array.Uint8.ToLines(Core.Array.Uint8.FromString('123\n456\n789'))).toEqual(['123', '456', '789']);
+    });
+  });
+  describe(Core.Array.Uint8.ToString.name, () => {
+    const cases = [
+      [Uint8Array.from([49, 50, 51]), '123'],
+      [Uint8Array.from([97, 98, 99]), 'abc'],
+      [Uint8Array.from([65, 66, 67]), 'ABC'],
+      [Uint8Array.from([0x49, 0x44, 0x41, 0x54]), 'IDAT'],
+    ] as const;
+    for (const [input, expected] of cases) {
+      test(expected, () => {
+        expect(Core.Array.Uint8.ToString(input)).toEqual(expected);
+      });
+    }
+  });
 });
 describe('Array Uint32', () => {
   describe(Core.Array.Uint8.ToHex.name, () => {
@@ -370,253 +665,117 @@ describe('Array Uint32', () => {
     }
   });
 });
-describe('Array', () => {
-  describe(Core.Array.Gen_BufferToBytes.name, () => {
-    test('[1, 2, 3, 4]', () => {
-      expect([...Core.Array.Gen_BufferToBytes(Uint8Array.from([1, 2, 3, 4]).buffer)]).toEqual([1, 2, 3, 4]);
-    });
-    test('[0x12345678]', () => {
-      // Does not adjust for endianness
-      expect([...Core.Array.Gen_BufferToBytes(Uint32Array.from([0x12345678]).buffer)]).toEqual([0x78, 0x56, 0x34, 0x12]);
-    });
-    test('[0x78563412]', () => {
-      expect([...Core.Array.Gen_BufferToBytes(Uint32Array.from([0x78563412]).buffer)]).toEqual([0x12, 0x34, 0x56, 0x78]);
-    });
+describe('Assert', () => {
+  test(Core.Assert.Equal.name, () => {
+    expect(Core.Assert.Equal(true, true)).toBeTrue();
+    expect(() => Core.Assert.Equal(true, false)).toThrow();
   });
-  describe(Core.Array.Gen_Chunks.name, () => {
-    test('[] returns []', () => {
-      expect([...Core.Array.Gen_Chunks([], [].length)]).toEqual([{ begin: 0, end: 0, slice: [] }]);
-    });
-    test('count < 1 returns []', () => {
-      for (const arr of [[], [1], [1, 2], [1, 2, 3], [1, 2, 3, 4]]) {
-        expect([...Core.Array.Gen_Chunks(arr, 0)]).toEqual([{ begin: 0, end: 0, slice: [] }]);
-      }
-    });
-    test('count >= length returns copy of array', () => {
-      for (const arr of [[1], [1, 2], [1, 2, 3], [1, 2, 3, 4]]) {
-        expect([...Core.Array.Gen_Chunks(arr, arr.length)]).toEqual([
-          { begin: 0, end: arr.length, slice: arr }, //
-        ]);
-      }
-      for (const arr of [[1], [1, 2], [1, 2, 3], [1, 2, 3, 4]]) {
-        expect([...Core.Array.Gen_Chunks(arr, arr.length + 1)]).toEqual([
-          { begin: 0, end: arr.length, slice: arr }, //
-        ]);
-      }
-    });
-    test('count evenly divides length, returns full chunks', () => {
-      expect([...Core.Array.Gen_Chunks([1, 2, 3, 4], 1)]).toEqual([
-        { begin: 0, end: 1, slice: [1] },
-        { begin: 1, end: 2, slice: [2] },
-        { begin: 2, end: 3, slice: [3] },
-        { begin: 3, end: 4, slice: [4] },
-      ]);
-      expect([...Core.Array.Gen_Chunks([1, 2, 3, 4], 2)]).toEqual([
-        { begin: 0, end: 2, slice: [1, 2] },
-        { begin: 2, end: 4, slice: [3, 4] },
-      ]);
-      expect([...Core.Array.Gen_Chunks([1, 2, 3, 4, 5, 6], 2)]).toEqual([
-        { begin: 0, end: 2, slice: [1, 2] },
-        { begin: 2, end: 4, slice: [3, 4] },
-        { begin: 4, end: 6, slice: [5, 6] },
-      ]);
-      expect([...Core.Array.Gen_Chunks([1, 2, 3, 4, 5, 6], 3)]).toEqual([
-        { begin: 0, end: 3, slice: [1, 2, 3] },
-        { begin: 3, end: 6, slice: [4, 5, 6] },
-      ]);
-    });
-    test('count does not evenly divide length, returns partial chunk', () => {
-      expect([...Core.Array.Gen_Chunks([1], 2)]).toEqual([
-        { begin: 0, end: 1, slice: [1] }, //
-      ]);
-      expect([...Core.Array.Gen_Chunks([1, 2, 3], 2)]).toEqual([
-        { begin: 0, end: 2, slice: [1, 2] },
-        { begin: 2, end: 3, slice: [3] },
-      ]);
-      expect([...Core.Array.Gen_Chunks([1, 2, 3, 4, 5], 2)]).toEqual([
-        { begin: 0, end: 2, slice: [1, 2] },
-        { begin: 2, end: 4, slice: [3, 4] },
-        { begin: 4, end: 5, slice: [5] },
-      ]);
-      expect([...Core.Array.Gen_Chunks([1], 3)]).toEqual([
-        { begin: 0, end: 1, slice: [1] }, //
-      ]);
-      expect([...Core.Array.Gen_Chunks([1, 2], 3)]).toEqual([
-        { begin: 0, end: 2, slice: [1, 2] }, //
-      ]);
-      expect([...Core.Array.Gen_Chunks([1, 2, 3, 4], 3)]).toEqual([
-        { begin: 0, end: 3, slice: [1, 2, 3] },
-        { begin: 3, end: 4, slice: [4] },
-      ]);
-    });
+  test(Core.Assert.NotEqual.name, () => {
+    expect(Core.Assert.NotEqual(true, false)).toBeTrue();
+    expect(() => Core.Assert.NotEqual(true, true)).toThrow();
   });
-  describe(Core.Array.Gen_SlidingWindow.name, () => {
-    test('[] returns []', () => {
-      expect([...Core.Array.Gen_SlidingWindow([], [].length)]).toEqual([]);
-    });
-    test('count < 1 returns []', () => {
-      for (const arr of [[], [1], [1, 2], [1, 2, 3], [1, 2, 3, 4]]) {
-        expect([...Core.Array.Gen_SlidingWindow(arr, 0)]).toEqual([]);
-      }
-    });
-    test('count >= length returns copy of array', () => {
-      for (const arr of [[1], [1, 2], [1, 2, 3], [1, 2, 3, 4]]) {
-        expect([...Core.Array.Gen_SlidingWindow(arr, arr.length)]).toEqual([
-          { begin: 0, end: arr.length, slice: arr }, //
-        ]);
-      }
-      for (const arr of [[1], [1, 2], [1, 2, 3], [1, 2, 3, 4]]) {
-        expect([...Core.Array.Gen_SlidingWindow(arr, arr.length + 1)]).toEqual([
-          { begin: 0, end: arr.length, slice: arr }, //
-        ]);
-      }
-    });
-    test('count = 1 returns single item arrays', () => {
-      expect([...Core.Array.Gen_SlidingWindow([1], 1)]).toEqual([
-        { begin: 0, end: 1, slice: [1] }, //
-      ]);
-      expect([...Core.Array.Gen_SlidingWindow([1, 2, 3], 1)]).toEqual([
-        { begin: 0, end: 1, slice: [1] },
-        { begin: 1, end: 2, slice: [2] },
-        { begin: 2, end: 3, slice: [3] },
-      ]);
-      expect([...Core.Array.Gen_SlidingWindow([1, 2, 3, 4, 5], 1)]).toEqual([
-        { begin: 0, end: 1, slice: [1] },
-        { begin: 1, end: 2, slice: [2] },
-        { begin: 2, end: 3, slice: [3] },
-        { begin: 3, end: 4, slice: [4] },
-        { begin: 4, end: 5, slice: [5] },
-      ]);
-    });
-    test('count = 2 returns arrays of 2', () => {
-      expect([...Core.Array.Gen_SlidingWindow([1, 2, 3, 4], 2)]).toEqual([
-        { begin: 0, end: 2, slice: [1, 2] },
-        { begin: 1, end: 3, slice: [2, 3] },
-        { begin: 2, end: 4, slice: [3, 4] },
-      ]);
-      expect([...Core.Array.Gen_SlidingWindow([1, 2, 3, 4, 5], 2)]).toEqual([
-        { begin: 0, end: 2, slice: [1, 2] },
-        { begin: 1, end: 3, slice: [2, 3] },
-        { begin: 2, end: 4, slice: [3, 4] },
-        { begin: 3, end: 5, slice: [4, 5] },
-      ]);
-    });
-    test('count = 3 returns arrays of 3', () => {
-      expect([...Core.Array.Gen_SlidingWindow([1, 2, 3, 4], 3)]).toEqual([
-        { begin: 0, end: 3, slice: [1, 2, 3] },
-        { begin: 1, end: 4, slice: [2, 3, 4] },
-      ]);
-      expect([...Core.Array.Gen_SlidingWindow([1, 2, 3, 4, 5], 3)]).toEqual([
-        { begin: 0, end: 3, slice: [1, 2, 3] },
-        { begin: 1, end: 4, slice: [2, 3, 4] },
-        { begin: 2, end: 5, slice: [3, 4, 5] },
-      ]);
-    });
+  //
+  test(Core.Assert.BigInt.name, () => {
+    expect(Core.Assert.BigInt(BigInt(64))).toBeTrue();
+    expect(() => Core.Assert.BigInt('64')).toThrow();
+    expect(() => Core.Assert.BigInt({})).toThrow();
+    expect(() => Core.Assert.BigInt(64)).toThrow();
+    // expect(() => Core.Assert.BigInt(BigInt(64))).toThrow();
+    expect(() => Core.Assert.BigInt(null)).toThrow();
+    expect(() => Core.Assert.BigInt(Symbol('64'))).toThrow();
+    expect(() => Core.Assert.BigInt(true)).toThrow();
+    expect(() => Core.Assert.BigInt(undefined)).toThrow();
   });
-  describe(Core.Array.Gen_Zip.name, () => {
-    test('[1,2,3] [a,b,c]', () => {
-      expect(Array.from(Core.Array.Gen_Zip([1, 2, 3], ['a', 'b', 'c']))).toEqual([
-        [1, 'a'],
-        [2, 'b'],
-        [3, 'c'],
-      ]);
-    });
+  test(Core.Assert.Boolean.name, () => {
+    expect(Core.Assert.Boolean(true)).toBeTrue();
+    expect(Core.Assert.Boolean(false)).toBeTrue();
+    expect(() => Core.Assert.Boolean('64')).toThrow();
+    expect(() => Core.Assert.Boolean({})).toThrow();
+    expect(() => Core.Assert.Boolean(64)).toThrow();
+    expect(() => Core.Assert.Boolean(BigInt(64))).toThrow();
+    expect(() => Core.Assert.Boolean(null)).toThrow();
+    expect(() => Core.Assert.Boolean(Symbol('64'))).toThrow();
+    expect(() => Core.Assert.Boolean(undefined)).toThrow();
   });
-  describe(Core.Array.AreEqual.name, () => {
-    const cases = [
-      Uint8Array.from([]), //
-      Uint8Array.from([1, 2]),
-      Uint8Array.from([1, 2, 3, 4]),
-      Uint8ClampedArray.from([]), //
-      Uint8ClampedArray.from([1, 2]),
-      Uint8ClampedArray.from([1, 2, 3, 4]),
-      [],
-      [1, 2],
-      [1, 2, 3, 4],
-      ['a'],
-      ['a', 'b'],
-      ['a', 'b', 'c'],
-    ] as const;
-    for (const input of cases) {
-      test(input.toString(), () => {
-        expect(Core.Array.AreEqual(input, input)).toBe(true);
-      });
-    }
-    test('Unequal Arrays Fail', () => {
-      expect(Core.Array.AreEqual([1], [1, 2])).toBe(false);
-    });
+  test(Core.Assert.Function.name, () => {
+    expect(Core.Assert.Function(() => {})).toBeTrue();
+    expect(() => Core.Assert.Function('64')).toThrow();
+    expect(() => Core.Assert.Function({})).toThrow();
+    expect(() => Core.Assert.Function(64)).toThrow();
+    expect(() => Core.Assert.Function(BigInt(64))).toThrow();
+    expect(() => Core.Assert.Function(null)).toThrow();
+    expect(() => Core.Assert.Function(Symbol('64'))).toThrow();
+    expect(() => Core.Assert.Function(true)).toThrow();
+    expect(() => Core.Assert.Function(undefined)).toThrow();
   });
-  describe(Core.Array.Shuffle.name, () => {
-    test('[]', () => {
-      expect(Core.Array.Shuffle([])).toEqual([]);
-    });
-    test('[1]', () => {
-      expect(Core.Array.Shuffle([1])).toEqual([1]);
-    });
-    test('[1, 2]', () => {
-      const possible = [
-        [1, 2],
-        [2, 1],
-      ];
-      for (let i = 0; i < 10; i++) {
-        expect(possible).toContainEqual(Core.Array.Shuffle([1, 2]));
-      }
-    });
-    test('[1, 2, 3]', () => {
-      const possible = [
-        [1, 2, 3],
-        [1, 3, 2],
-        [2, 1, 3],
-        [2, 3, 1],
-        [3, 1, 2],
-        [3, 2, 1],
-      ];
-      for (let i = 0; i < 20; i++) {
-        expect(possible).toContainEqual(Core.Array.Shuffle([1, 2, 3]));
-      }
-    });
+  test(Core.Assert.Number.name, () => {
+    expect(Core.Assert.Number(64)).toBeTrue();
+    expect(() => Core.Assert.Number('64')).toThrow();
+    expect(() => Core.Assert.Number({})).toThrow();
+    // expect(() => Core.Assert.Number(64)).toThrow();
+    expect(() => Core.Assert.Number(BigInt(64))).toThrow();
+    expect(() => Core.Assert.Number(null)).toThrow();
+    expect(() => Core.Assert.Number(Symbol('64'))).toThrow();
+    expect(() => Core.Assert.Number(true)).toThrow();
+    expect(() => Core.Assert.Number(undefined)).toThrow();
   });
-  describe(Core.Array.Split.name, () => {
-    test('[]', () => {
-      expect(Core.Array.Split([], -1)).toEqual([[]]);
-      expect(Core.Array.Split([], 0)).toEqual([[]]);
-      expect(Core.Array.Split([], 1)).toEqual([[]]);
-    });
-    test('[1]', () => {
-      expect(Core.Array.Split([1], -1)).toEqual([[]]);
-      expect(Core.Array.Split([1], 0)).toEqual([[]]);
-      expect(Core.Array.Split([1], 1)).toEqual([[1]]);
-    });
-    test('[1, 2]', () => {
-      expect(Core.Array.Split([1, 2], -1)).toEqual([[]]);
-      expect(Core.Array.Split([1, 2], 0)).toEqual([[]]);
-      expect(Core.Array.Split([1, 2], 1)).toEqual([[1], [2]]);
-    });
-    test('[1, 2, 3] split 1', () => {
-      expect(Core.Array.Split([1, 2, 3], 1)).toEqual([[1], [2], [3]]);
-    });
-    test('[1, 2] split 2', () => {
-      expect(Core.Array.Split([1, 2], 2)).toEqual([[1, 2]]);
-    });
-    test('[1, 2, 3, 4] split 2', () => {
-      expect(Core.Array.Split([1, 2, 3, 4], 2)).toEqual([
-        [1, 2],
-        [3, 4],
-      ]);
-    });
-    test('[1, 2, 3, 4, 5, 6] split 2', () => {
-      expect(Core.Array.Split([1, 2, 3, 4, 5, 6], 2)).toEqual([
-        [1, 2],
-        [3, 4],
-        [5, 6],
-      ]);
-    });
-    test('[1, 2, 3, 4] split 6', () => {
-      expect(Core.Array.Split([1, 2, 3, 4], 6)).toEqual([[1, 2, 3, 4]]);
-    });
-    test('[] split 1', () => {
-      expect(Core.Array.Split([], 1)).toEqual([[]]);
-    });
+  test(Core.Assert.Object.name, () => {
+    expect(Core.Assert.Object({})).toBeTrue();
+    expect(() => Core.Assert.Object('64')).toThrow();
+    // expect(() => Core.Assert.Object({})).toThrow();
+    expect(() => Core.Assert.Object(64)).toThrow();
+    expect(() => Core.Assert.Object(BigInt(64))).toThrow();
+    // expect(() => Core.Assert.Object(null)).toThrow(); // null is actually considered an object
+    expect(() => Core.Assert.Object(Symbol('64'))).toThrow();
+    expect(() => Core.Assert.Object(true)).toThrow();
+    expect(() => Core.Assert.Object(undefined)).toThrow();
+  });
+  test(Core.Assert.String.name, () => {
+    expect(Core.Assert.String('64')).toBeTrue();
+    // expect(() => Core.Assert.String('64')).toThrow();
+    expect(() => Core.Assert.String({})).toThrow();
+    expect(() => Core.Assert.String(64)).toThrow();
+    expect(() => Core.Assert.String(BigInt(64))).toThrow();
+    expect(() => Core.Assert.String(null)).toThrow();
+    expect(() => Core.Assert.String(Symbol('64'))).toThrow();
+    expect(() => Core.Assert.String(true)).toThrow();
+    expect(() => Core.Assert.String(undefined)).toThrow();
+  });
+  test(Core.Assert.Symbol.name, () => {
+    expect(Core.Assert.Symbol(Symbol('64'))).toBeTrue();
+    expect(() => Core.Assert.Symbol('64')).toThrow();
+    expect(() => Core.Assert.Symbol({})).toThrow();
+    expect(() => Core.Assert.Symbol(64)).toThrow();
+    expect(() => Core.Assert.Symbol(BigInt(64))).toThrow();
+    expect(() => Core.Assert.Symbol(null)).toThrow();
+    // expect(() => Core.Assert.Symbol(Symbol('64'))).toThrow();
+    expect(() => Core.Assert.Symbol(true)).toThrow();
+    expect(() => Core.Assert.Symbol(undefined)).toThrow();
+  });
+  test(Core.Assert.Undefined.name, () => {
+    expect(Core.Assert.Undefined(undefined)).toBeTrue();
+    expect(() => Core.Assert.Undefined('64')).toThrow();
+    expect(() => Core.Assert.Undefined({})).toThrow();
+    expect(() => Core.Assert.Undefined(64)).toThrow();
+    expect(() => Core.Assert.Undefined(BigInt(64))).toThrow();
+    expect(() => Core.Assert.Undefined(null)).toThrow();
+    expect(() => Core.Assert.Undefined(Symbol('64'))).toThrow();
+    expect(() => Core.Assert.Undefined(true)).toThrow();
+    // expect(() => Core.Assert.Undefined(undefined)).toThrow();
+  });
+});
+describe('Console', () => {
+  test(Core.Console.Error.name, () => {
+    expect(Core.Console.Error('Test Error')).toBeEmpty();
+  });
+  test(Core.Console.ErrorWithDate.name, () => {
+    expect(Core.Console.ErrorWithDate('Test ErrorWithDate')).toBeEmpty();
+  });
+  test(Core.Console.Log.name, () => {
+    expect(Core.Console.Log('Test Log')).toBeEmpty();
+  });
+  test(Core.Console.LogWithDate.name, () => {
+    expect(Core.Console.LogWithDate('Test LogWithDate')).toBeEmpty();
   });
 });
 describe('JSON', () => {
@@ -771,6 +930,16 @@ describe('JSON', () => {
       expect(Core.JSON.Merge({ a: [1, 2, 3] }, { a: ['a', 'b', 'c'] }, {})).toEqual({ a: [1, 2, 3, 'a', 'b', 'c'] });
       expect(Core.JSON.Merge({}, {}, {}, {}, { val: 1, arr: [1, 2, 3], obj: { val: 1, arr: [1, 2, 3] } }, {}, {}, {}, {}, { val: 'a', arr: ['a', 'b', 'c'], obj: { val: 'a', arr: ['a', 'b', 'c'] } }, {}, {}, {}, {})).toEqual({ val: 'a', arr: [1, 2, 3, 'a', 'b', 'c'], obj: { val: 'a', arr: [1, 2, 3, 'a', 'b', 'c'] } });
     });
+  });
+  describe(Core.JSON.ParseRawString.name, () => {
+    test('returns exact same string', () => {
+      expect(Core.JSON.ParseRawString(String.raw`abc`)).toBe('abc');
+    });
+  });
+});
+describe('Map', () => {
+  test(Core.Map.GetOrDefault.name, () => {
+    expect(Core.Map.GetOrDefault(new Map<number, string>(), 0, () => 'a')).toBe('a');
   });
 });
 describe('Math', () => {
@@ -1729,7 +1898,109 @@ describe('Math', () => {
     }
   });
 });
+describe('Promise', () => {
+  test(Core.Promise.Async_CountFulfilled.name, async () => {
+    const count = await Core.Promise.Async_CountFulfilled([
+      Promise.resolve(1),
+      Promise.resolve(2),
+      Promise.resolve(3),
+      Promise.reject(1),
+      Promise.reject(2),
+      Promise.reject(3),
+      //
+    ]);
+    expect(count).toBe(3);
+  });
+  test(Core.Promise.Async_CountRejected.name, async () => {
+    const count = await Core.Promise.Async_CountRejected([
+      Promise.resolve(1),
+      Promise.resolve(2),
+      Promise.resolve(3),
+      Promise.reject(1),
+      Promise.reject(2),
+      Promise.reject(3),
+      //
+    ]);
+    expect(count).toBe(3);
+  });
+  test(Core.Promise.CallAndOrphan.name, () => {
+    expect(Core.Promise.CallAndOrphan(async () => {})).toBeEmpty();
+  });
+  test(Core.Promise.Orphan.name, () => {
+    expect(Core.Promise.Orphan((async () => {})())).toBeEmpty();
+  });
+});
+describe('Stream', () => {
+  describe(Core.Stream.AsyncGen_ReadChunks.name, () => {
+    test('123 456 789', async () => {
+      const stream = new ReadableStream<Uint8Array>({
+        async start(controller) {
+          controller.enqueue(new Uint8Array([1, 2, 3]));
+          await Core.Utility.Async_Sleep(0);
+          controller.enqueue(new Uint8Array([4, 5, 6]));
+          await Core.Utility.Async_Sleep(0);
+          controller.enqueue(new Uint8Array([7, 8, 9]));
+          await Core.Utility.Async_Sleep(0);
+          controller.close();
+        },
+      });
+      expect(await Array.fromAsync(Core.Stream.AsyncGen_ReadChunks(stream))).toEqual([
+        new Uint8Array([1, 2, 3]),
+        new Uint8Array([4, 5, 6]),
+        new Uint8Array([7, 8, 9]),
+        //
+      ]);
+    });
+  });
+});
 describe('Stream Uint8', () => {
+  describe(Core.Stream.Uint8.Async_Compare.name, () => {
+    test('returns true for equal stream', async () => {
+      const stream1 = new ReadableStream({
+        start(controller) {
+          controller.enqueue(Uint8Array.from([1, 2, 3, 4]));
+          controller.close();
+        },
+      });
+      const stream2 = new ReadableStream({
+        start(controller) {
+          controller.enqueue(Uint8Array.from([1, 2, 3, 4]));
+          controller.close();
+        },
+      });
+      expect(await Core.Stream.Uint8.Async_Compare(stream1, stream2)).toBeTrue();
+    });
+    test('returns false for unequal lengths', async () => {
+      const stream1 = new ReadableStream({
+        start(controller) {
+          controller.enqueue(Uint8Array.from([1, 2, 3]));
+          controller.close();
+        },
+      });
+      const stream2 = new ReadableStream({
+        start(controller) {
+          controller.enqueue(Uint8Array.from([1, 2, 3, 4]));
+          controller.close();
+        },
+      });
+      expect(await Core.Stream.Uint8.Async_Compare(stream1, stream2)).toBeFalse();
+    });
+    test('returns false for unequal streams', async () => {
+      const stream1 = new ReadableStream({
+        start(controller) {
+          controller.enqueue(Uint8Array.from([1, 2, 3, 4]));
+          controller.close();
+        },
+      });
+      const stream2 = new ReadableStream({
+        start(controller) {
+          controller.enqueue(Uint8Array.from([2, 3, 4, 5]));
+          controller.close();
+        },
+      });
+      expect(await Core.Stream.Uint8.Async_Compare(stream1, stream2)).toBeFalse();
+    });
+  });
   describe(Core.Stream.Uint8.Async_ReadAll.name, () => {
     test('[1, 2, 3, 4]', async () => {
       const bytes = Uint8Array.from([1, 2, 3, 4]);
@@ -1753,6 +2024,22 @@ describe('Stream Uint8', () => {
         },
       });
       expect((await Core.Stream.Uint8.Async_ReadAll(stream)).byteLength).toBe(10000);
+    });
+  });
+  describe(Core.Stream.Uint8.Async_ReadLines.name, () => {
+    test('[1, 2, 3, \\n, 4, 5, 6, \\n, 7, 8, 9]', async () => {
+      const bytes = Core.Array.Uint8.FromString('123\n456\n789');
+      const stream = new ReadableStream({
+        start(controller) {
+          controller.enqueue(bytes);
+          controller.close();
+        },
+      });
+      const lines: string[] = [];
+      await Core.Stream.Uint8.Async_ReadLines(stream, (line: string) => {
+        lines.push(line);
+      });
+      expect(lines.flat()).toEqual(['123', '456', '789']);
     });
   });
   describe(Core.Stream.Uint8.Async_ReadSome.name, () => {
@@ -1779,6 +2066,19 @@ describe('Stream Uint8', () => {
       });
       expect((await Core.Stream.Uint8.Async_ReadSome(stream, 1234)).byteLength).toBe(1234);
     });
+  });
+  describe(Core.Stream.Uint8.AsyncGen_ReadLines.name, () => {
+    test('[1, 2, 3, \\n, 4, 5, 6, \\n, 7, 8, 9]', async () => {
+      const bytes = Core.Array.Uint8.FromString('123\n456\n789');
+      const stream = new ReadableStream({
+        start(controller) {
+          controller.enqueue(bytes);
+          controller.close();
+        },
+      });
+      expect((await Array.fromAsync(Core.Stream.Uint8.AsyncGen_ReadLines(stream))).flat()).toEqual(['123', '456', '789']);
+    });
+    test('cancel', () => {});
   });
 });
 describe('String', () => {
@@ -1826,6 +2126,39 @@ describe('String', () => {
       }
     });
   });
+  describe(Core.String.RemoveWhiteSpaceOnlyLines.name, () => {
+    test('Empty', () => {
+      expect(Core.String.RemoveWhiteSpaceOnlyLines('')).toEqual([]);
+    });
+    test('Whitespace only lines.', () => {
+      for (const ch of ' \t\n') {
+        expect(Core.String.RemoveWhiteSpaceOnlyLines(ch)).toEqual([]);
+      }
+      for (const permu of [...Core.Math.Gen_NChooseRPermutations([' ', '\t', '\n'], 2)]) {
+        expect(Core.String.RemoveWhiteSpaceOnlyLines(permu.join(''))).toEqual([]);
+      }
+      for (const permu of [...Core.Math.Gen_NChooseRPermutations([' ', '\t', '\n'], 3)]) {
+        expect(Core.String.RemoveWhiteSpaceOnlyLines(permu.join(''))).toEqual([]);
+      }
+      for (const permu of [...Core.Math.Gen_NChooseRPermutations([' ', '\t', '\n', ' ', '\t', '\n'], 3)]) {
+        expect(Core.String.RemoveWhiteSpaceOnlyLines(permu.join(''))).toEqual([]);
+      }
+      for (const permu of [...Core.Math.Gen_NChooseRPermutations([' ', '\t', '\n', ' ', '\t', '\n'], 6)]) {
+        expect(Core.String.RemoveWhiteSpaceOnlyLines(permu.join(''))).toEqual([]);
+      }
+      expect(Core.String.RemoveWhiteSpaceOnlyLines('\n\n\n')).toEqual([]);
+      expect(Core.String.RemoveWhiteSpaceOnlyLines(' \n \n \n ')).toEqual([]);
+      expect(Core.String.RemoveWhiteSpaceOnlyLines(' \t\n\t \t\n \n ')).toEqual([]);
+    });
+    test('Text surrounded with whitespace lines.', () => {
+      expect(Core.String.RemoveWhiteSpaceOnlyLines('\nasdf\n')).toEqual(['asdf']);
+      expect(Core.String.RemoveWhiteSpaceOnlyLines(' \nasdf\n ')).toEqual(['asdf']);
+      expect(Core.String.RemoveWhiteSpaceOnlyLines('\t \nasdf\n \t')).toEqual(['asdf']);
+      expect(Core.String.RemoveWhiteSpaceOnlyLines('\nas\ndf\n')).toEqual(['as', 'df']);
+      expect(Core.String.RemoveWhiteSpaceOnlyLines(' \nas\n \ndf\n ')).toEqual(['as', 'df']);
+      expect(Core.String.RemoveWhiteSpaceOnlyLines('\t \nas\n\t\ndf\n \t')).toEqual(['as', 'df']);
+    });
+  });
   describe(Core.String.RemoveWhiteSpaceOnlyLinesFromTopAndBottom.name, () => {
     test('Empty', () => {
       expect(Core.String.RemoveWhiteSpaceOnlyLinesFromTopAndBottom('')).toEqual([]);
@@ -1854,6 +2187,9 @@ describe('String', () => {
       expect(Core.String.RemoveWhiteSpaceOnlyLinesFromTopAndBottom('\nasdf\n')).toEqual(['asdf']);
       expect(Core.String.RemoveWhiteSpaceOnlyLinesFromTopAndBottom(' \nasdf\n ')).toEqual(['asdf']);
       expect(Core.String.RemoveWhiteSpaceOnlyLinesFromTopAndBottom('\t \nasdf\n \t')).toEqual(['asdf']);
+      expect(Core.String.RemoveWhiteSpaceOnlyLinesFromTopAndBottom('\nas\ndf\n')).toEqual(['as', 'df']);
+      expect(Core.String.RemoveWhiteSpaceOnlyLinesFromTopAndBottom(' \nas\n \ndf\n ')).toEqual(['as', ' ', 'df']);
+      expect(Core.String.RemoveWhiteSpaceOnlyLinesFromTopAndBottom('\t \nas\n\t\ndf\n \t')).toEqual(['as', '\t', 'df']);
     });
   });
   describe(Core.String.Split.name, () => {
@@ -1956,6 +2292,16 @@ describe('String', () => {
   });
 });
 describe('Utility', () => {
+  describe(Core.Utility.DecodeBytes.name, () => {
+    test('[49,50,51]', () => {
+      expect(Core.Utility.DecodeBytes(new Uint8Array([49, 50, 51]))).toBe('123');
+    });
+  });
+  describe(Core.Utility.EncodeText.name, () => {
+    test('123', () => {
+      expect(Core.Utility.EncodeText('123')).toEqual(new Uint8Array([49, 50, 51]));
+    });
+  });
   describe(Core.Utility.CRC32.name, () => {
     const cases = [
       // Trivial one.

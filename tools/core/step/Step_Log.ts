@@ -6,7 +6,7 @@ export function Step_Log(...items: any[]): Builder.Step {
 }
 class Class implements Builder.Step {
   StepName = Step_Log.name;
-  logger = Logger(Step_Log.name);
+  logger = Logger(this.StepName).newChannel();
 
   constructor(readonly items: any[]) {}
   async onRun(builder: Builder.Internal): Promise<void> {
