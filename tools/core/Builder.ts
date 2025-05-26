@@ -1,6 +1,17 @@
-import { Core } from '../../src/lib/ericchase/core.js';
-import { BunPlatform } from '../../src/lib/ericchase/platform-bun.js';
-import { NODE_FS, NodePlatform } from '../../src/lib/ericchase/platform-node.js';
+import { Core_Map_GetOrDefault, Core_Promise_Orphan, Core_Utility_Debounce } from '../../src/lib/ericchase/core.js';
+import { BunPlatform_File_Async_ReadBytes, BunPlatform_File_Async_ReadText, BunPlatform_File_Async_WriteBytes, BunPlatform_File_Async_WriteText, BunPlatform_Glob_AsyncGen_Scan } from '../../src/lib/ericchase/platform-bun.js';
+import {
+  NODE_FS,
+  NodePlatform_Directory_Watch,
+  NodePlatform_Path_Async_GetStats,
+  NodePlatform_Path_Join,
+  NodePlatform_Path_JoinStandard,
+  NodePlatform_Path_Slice,
+  NodePlatform_Shell_Keys,
+  NodePlatform_Shell_StdIn_AddListener,
+  NodePlatform_Shell_StdIn_LockReader,
+  NodePlatform_Shell_StdIn_StartReaderInRawMode,
+} from '../../src/lib/ericchase/platform-node.js';
 import { CACHELOCK, FILESTATS } from './Cacher.js';
 import { AddLoggerOutputDirectory, Logger, WaitForLogger } from './Logger.js';
 
@@ -9,10 +20,10 @@ await AddLoggerOutputDirectory('cache');
 class ClassRawPath {
   value: string;
   constructor(...paths: string[]) {
-    this.value = NodePlatform.Path.Join(...paths);
+    this.value = NodePlatform_Path_Join(...paths);
   }
   toStandard() {
-    return NodePlatform.Path.JoinStandard(this.value);
+    return NodePlatform_Path_JoinStandard(this.value);
   }
 }
 class ClassRefCounter {
@@ -169,12 +180,12 @@ export namespace Builder {
         this.channel.error(`dependency cycle between upstream "${upstream.src_path.value}" and downstream "${downstream.src_path.value}"`);
         throw new Error();
       }
-      Core.Map.GetOrDefault(this.$map_downstream_to_upstream, downstream, () => new Set<SourceFile>()).add(upstream);
-      Core.Map.GetOrDefault(this.$map_upstream_to_downstream, upstream, () => new Set<SourceFile>()).add(downstream);
+      Core_Map_GetOrDefault(this.$map_downstream_to_upstream, downstream, () => new Set<SourceFile>()).add(upstream);
+      Core_Map_GetOrDefault(this.$map_upstream_to_downstream, upstream, () => new Set<SourceFile>()).add(downstream);
     }
     removeDependency(upstream: SourceFile, downstream: SourceFile) {
-      Core.Map.GetOrDefault(this.$map_downstream_to_upstream, downstream, () => new Set<SourceFile>()).delete(upstream);
-      Core.Map.GetOrDefault(this.$map_upstream_to_downstream, upstream, () => new Set<SourceFile>()).delete(downstream);
+      Core_Map_GetOrDefault(this.$map_downstream_to_upstream, downstream, () => new Set<SourceFile>()).delete(upstream);
+      Core_Map_GetOrDefault(this.$map_upstream_to_downstream, upstream, () => new Set<SourceFile>()).delete(downstream);
     }
     getDownstream(file: SourceFile): Set<SourceFile> {
       return this.$map_upstream_to_downstream.get(file) ?? new Set();
@@ -283,7 +294,7 @@ export namespace Builder {
     $unwatchSource?: () => void;
     async getStats(path: ClassRawPath): Promise<NODE_FS.Stats | undefined> {
       try {
-        return await NodePlatform.Path.Async_GetStats(path.value);
+        return await NodePlatform_Path_Async_GetStats(path.value);
       } catch (error) {
         return undefined;
       }
@@ -291,7 +302,7 @@ export namespace Builder {
     setupSourceWatcher() {
       if (this.$unwatchSource === undefined) {
         const event_paths = new Set<string>();
-        const processEvents = Core.Utility.Debounce(async () => {
+        const processEvents = Core_Utility_Debounce(async () => {
           const releaseRef = this.$idle.getRef();
 
           // copy the set and clear it
@@ -313,10 +324,10 @@ export namespace Builder {
           }
 
           const scan_paths = new Set<string>();
-          for await (const path of BunPlatform.Glob.AsyncGen_Scan('./', RawPath(`${this.dir.src}/**/*`).toStandard())) {
+          for await (const path of BunPlatform_Glob_AsyncGen_Scan('./', RawPath(`${this.dir.src}/**/*`).toStandard())) {
             scan_paths.add(path);
             if (this.$map_path_to_file.has(path) === false) {
-              this.addPath(RawPath(path), RawPath(this.dir.out, NodePlatform.Path.Slice(path, 1)));
+              this.addPath(RawPath(path), RawPath(this.dir.out, NodePlatform_Path_Slice(path, 1)));
             }
           }
           for (const [path] of this.$map_path_to_file) {
@@ -330,9 +341,9 @@ export namespace Builder {
 
           releaseRef();
         }, 100);
-        this.$unwatchSource = NodePlatform.Directory.Watch(this.dir.src, (event, path) => {
+        this.$unwatchSource = NodePlatform_Directory_Watch(this.dir.src, (event, path) => {
           event_paths.add(path);
-          Core.Promise.Orphan(processEvents());
+          Core_Promise_Orphan(processEvents());
         });
         if (this.verbosity >= LOG_VERBOSITY._1_LOG) {
           this.channel.log(logs._watching_dir_(this.dir.src));
@@ -356,7 +367,7 @@ export namespace Builder {
       try {
         const releaseRef = this.$idle.getRef();
 
-        for await (const path of BunPlatform.Glob.AsyncGen_Scan(this.dir.src, '**/*')) {
+        for await (const path of BunPlatform_Glob_AsyncGen_Scan(this.dir.src, '**/*')) {
           this.addPath(new ClassRawPath(this.dir.src, path), new ClassRawPath(this.dir.out, path));
         }
 
@@ -364,8 +375,8 @@ export namespace Builder {
           // Setup Source Watcher
           this.setupSourceWatcher();
           // Setup Stdin Reader
-          const releaseStdIn = NodePlatform.Shell.StdIn.LockReader();
-          NodePlatform.Shell.StdIn.AddListener(async (bytes, text, removeSelf) => {
+          const releaseStdIn = NodePlatform_Shell_StdIn_LockReader();
+          NodePlatform_Shell_StdIn_AddListener(async (bytes, text, removeSelf) => {
             if (text === 'q') {
               removeSelf();
               if (this.verbosity >= LOG_VERBOSITY._1_LOG) {
@@ -380,8 +391,8 @@ export namespace Builder {
               releaseStdIn();
             }
           });
-          NodePlatform.Shell.StdIn.AddListener((bytes, text, removeSelf) => {
-            if (text === NodePlatform.Shell.KEYS.SIGINT) {
+          NodePlatform_Shell_StdIn_AddListener((bytes, text, removeSelf) => {
+            if (text === NodePlatform_Shell_Keys.SIGINT) {
               removeSelf();
               if (this.verbosity >= LOG_VERBOSITY._1_LOG) {
                 this.channel.log(logs._user_command_('Force Quit'));
@@ -391,7 +402,7 @@ export namespace Builder {
               process.exit();
             }
           });
-          NodePlatform.Shell.StdIn.StartReaderInRawMode();
+          NodePlatform_Shell_StdIn_StartReaderInRawMode();
         }
 
         await this.$runStartUpPhase();
@@ -542,7 +553,7 @@ export namespace Builder {
       const checkcount_map = new Map<SourceFile, number>();
       while (unprocessed_file_set.size > 0) {
         outer: for (const file of unprocessed_file_set) {
-          checkcount_map.set(file, Core.Map.GetOrDefault(checkcount_map, file, () => 0) + 1);
+          checkcount_map.set(file, Core_Map_GetOrDefault(checkcount_map, file, () => 0) + 1);
           for (const upstream of this.getUpstream(file)) {
             if (unprocessed_file_set.has(upstream)) {
               continue outer;
@@ -682,7 +693,7 @@ export namespace Builder {
     async getBytes(): Promise<Uint8Array> {
       if (this.$bytes === undefined) {
         if (this.$text === undefined) {
-          this.$bytes = await BunPlatform.File.Async_ReadBytes(this.src_path.value);
+          this.$bytes = await BunPlatform_File_Async_ReadBytes(this.src_path.value);
         } else {
           this.$bytes = new TextEncoder().encode(this.$text);
           this.$text = undefined;
@@ -694,7 +705,7 @@ export namespace Builder {
     async getText(): Promise<string> {
       if (this.$text === undefined) {
         if (this.$bytes === undefined) {
-          this.$text = await BunPlatform.File.Async_ReadText(this.src_path.value);
+          this.$text = await BunPlatform_File_Async_ReadText(this.src_path.value);
         } else {
           this.$text = new TextDecoder().decode(this.$bytes);
           this.$bytes = undefined;
@@ -733,9 +744,9 @@ export namespace Builder {
     async write(): Promise<number> {
       let byteswritten = 0;
       if (this.$text !== undefined) {
-        byteswritten = await BunPlatform.File.Async_WriteText(this.out_path.value, this.$text);
+        byteswritten = await BunPlatform_File_Async_WriteText(this.out_path.value, this.$text);
       } else {
-        byteswritten = await BunPlatform.File.Async_WriteBytes(this.out_path.value, await this.getBytes());
+        byteswritten = await BunPlatform_File_Async_WriteBytes(this.out_path.value, await this.getBytes());
       }
       return byteswritten;
     }

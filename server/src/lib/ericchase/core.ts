@@ -21,8 +21,6 @@ for (let i = 0; i < 256; i++) {
   }
 }
 
-// classes
-
 class ClassArrayUint8Group {
   arrays = new Array<Uint8Array>();
   byteLength = 0;
@@ -62,6 +60,7 @@ class ClassArrayUint8Group {
     return out;
   }
 }
+
 class ClassStreamUint8Reader {
   done = false;
   i = 0;
@@ -83,6 +82,7 @@ class ClassStreamUint8Reader {
     this.reader.releaseLock();
   }
 }
+
 class ClassUtilityCRC32 {
   $state = new Uint32Array([0xffffffff]);
   update(bytes: Uint8Array): void {
@@ -94,6 +94,7 @@ class ClassUtilityCRC32 {
     return (this.$state[0] ^ (0xffffffff >>> 0)) >>> 0;
   }
 }
+
 class ClassUtilityDefer<T> {
   promise: Promise<T>;
   resolve!: (value: T | PromiseLike<T>) => void;
@@ -109,15 +110,69 @@ class ClassUtilityDefer<T> {
   }
 }
 
-// functions
+// Exports
 
-function* array__gen_buffertobytes(buffer: ArrayBufferLike): Generator<number> {
+export type Core_Type_JSON_Array = (Core_Type_JSON_Array | Core_Type_JSON_Object | Core_Type_JSON_Primitive)[];
+export type Core_Type_JSON_Object = Core_Type_Record_Recursive<string, Core_Type_JSON_Array | Core_Type_JSON_Primitive>;
+export type Core_Type_JSON_ParseResult = Core_Type_JSON_Array | Core_Type_JSON_Object | Core_Type_JSON_Primitive;
+export type Core_Type_JSON_Primitive = null | boolean | number | string;
+export type Core_Type_Record_Empty = Record<string, never>;
+export type Core_Type_Record_Recursive<K extends keyof any, T> = { [P in K]: T | Core_Type_Record_Recursive<K, T> };
+export type Core_Type_Utility_Class_Defer<T> = ClassUtilityDefer<T>;
+
+export function Core_Array_AreEqual(array: ArrayLike<unknown>, other: ArrayLike<unknown>): boolean {
+  if (array.length !== other.length) {
+    return false;
+  }
+  for (let i = 0; i < array.length; i++) {
+    if (array[i] !== other[i]) {
+      return false;
+    }
+  }
+  return true;
+}
+
+export function Core_Array_BinarySearch_ExactMatch<T>(array: T[], target: T, isOrdered: (a: T, b: T) => boolean = (a: T, b: T) => a < b): number {
+  /** Returns index of item that "equals" target; otherwise, -1. */
+  let [begin, end] = Core_Array_GetEndpoints(array);
+  let middle = Core_Math_GetMidpoint(begin, end);
+  while (begin < end) {
+    if (isOrdered(target, array[middle])) {
+      end = middle;
+    } else {
+      begin = middle + 1;
+    }
+    middle = Core_Math_GetMidpoint(begin, end);
+  }
+  if (isOrdered(array[middle - 1], target) === false) {
+    return middle - 1;
+  }
+  return -1;
+}
+
+export function Core_Array_BinarySearch_InsertionIndex<T>(array: T[], target: T, isOrdered: (a: T, b: T) => boolean = (a: T, b: T) => a < b): number {
+  /** Returns index of item that "equals" target; otherwise, index of item "less" than target. */
+  let [begin, end] = Core_Array_GetEndpoints(array);
+  let middle = Core_Math_GetMidpoint(begin, end);
+  while (begin < end) {
+    if (isOrdered(target, array[middle])) {
+      end = middle;
+    } else {
+      begin = middle + 1;
+    }
+    middle = Core_Math_GetMidpoint(begin, end);
+  }
+  return middle - 1;
+}
+
+export function* Core_Array_Gen_BufferToBytes(buffer: ArrayBufferLike): Generator<number> {
   const view = new DataView(buffer);
   for (let i = 0; i < view.byteLength; i++) {
     yield view.getUint8(i) >>> 0;
   }
 }
-function* array__gen_chunks<T>(array: T[], count: number): Generator<{ begin: number; end: number; slice: T[] }> {
+
+export function* Core_Array_Gen_Chunks<T>(array: T[], count: number): Generator<{ begin: number; end: number; slice: T[] }> {
   if (count > array.length) {
     yield { begin: 0, end: array.length, slice: array.slice() };
   } else if (count > 0) {
@@ -130,7 +185,8 @@ function* array__gen_chunks<T>(array: T[], count: number): Generator<{ begin: nu
     yield { begin: 0, end: 0, slice: [] };
   }
 }
-function* array__gen_slidingwindow<T extends unknown[]>(array: T, count: number): Generator<{ begin: number; end: number; slice: T }> {
+
+export function* Core_Array_Gen_SlidingWindow<T extends unknown[]>(array: T, count: number): Generator<{ begin: number; end: number; slice: T }> {
   if (count > 0) {
     if (count < array.length) {
       let i = count;
@@ -143,7 +199,8 @@ function* array__gen_slidingwindow<T extends unknown[]>(array: T, count: number)
     }
   }
 }
-function* array__gen_zip<T extends readonly Iterable<any>[]>(...iterables: T): Generator<{ [K in keyof T]: T[K] extends Iterable<infer U> ? U | undefined : undefined }> {
+
+export function* Core_Array_Gen_Zip<T extends readonly Iterable<any>[]>(...iterables: T): Generator<{ [K in keyof T]: T[K] extends Iterable<infer U> ? U | undefined : undefined }> {
   let mock_count = 0;
   const mock_iterable: IterableIterator<any> = {
     next() {
@@ -183,24 +240,14 @@ function* array__gen_zip<T extends readonly Iterable<any>[]>(...iterables: T): G
   }
 }
 
-function array__areequal(array: ArrayLike<unknown>, other: ArrayLike<unknown>): boolean {
-  if (array.length !== other.length) {
-    return false;
-  }
-  for (let i = 0; i < array.length; i++) {
-    if (array[i] !== other[i]) {
-      return false;
-    }
-  }
-  return true;
-}
-function array__getendpoints(array: ArrayLike<unknown>): [number, number] {
+export function Core_Array_GetEndpoints(array: ArrayLike<unknown>): [number, number] {
   if (!Array.isArray(array) || array.length < 1) {
     return [-1, -1];
   }
   return [0, array.length];
 }
-function array__shuffle<T>(items: T[], in_place = true): T[] {
+
+export function Core_Array_Shuffle<T>(items: T[], in_place = true): T[] {
   const last = items.length - 1;
   for (let i = 0; i < items.length; i++) {
     let random = Math.floor(Math.random() * last);
@@ -208,47 +255,20 @@ function array__shuffle<T>(items: T[], in_place = true): T[] {
   }
   return items;
 }
-function array__split<T>(array: T[], count: number): T[][] {
-  return [...array__gen_chunks(array, count)].map((chunk) => chunk.slice);
+
+export function Core_Array_Split<T>(array: T[], count: number): T[][] {
+  return [...Core_Array_Gen_Chunks(array, count)].map((chunk) => chunk.slice);
 }
 
-/** Returns index of item that "equals" target; otherwise, -1. */
-function array__binarysearch__exactmatch<T>(array: T[], target: T, isOrdered: (a: T, b: T) => boolean = (a: T, b: T) => a < b): number {
-  let [begin, end] = Core.Array.GetEndpoints(array);
-  let middle = Core.Math.GetMidpoint(begin, end);
-  while (begin < end) {
-    if (isOrdered(target, array[middle])) {
-      end = middle;
-    } else {
-      begin = middle + 1;
-    }
-    middle = Core.Math.GetMidpoint(begin, end);
-  }
-  if (isOrdered(array[middle - 1], target) === false) {
-    return middle - 1;
-  }
-  return -1;
-}
-/** Returns index of item that "equals" target; otherwise, index of item "less" than target. */
-function array__binarysearch__insertionorder<T>(array: T[], target: T, isOrdered: (a: T, b: T) => boolean = (a: T, b: T) => a < b): number {
-  let [begin, end] = Core.Array.GetEndpoints(array);
-  let middle = Core.Math.GetMidpoint(begin, end);
-  while (begin < end) {
-    if (isOrdered(target, array[middle])) {
-      end = middle;
-    } else {
-      begin = middle + 1;
-    }
-    middle = Core.Math.GetMidpoint(begin, end);
-  }
-  return middle - 1;
+export function Core_Array_Uint32_ToHex(uint: number): string[] {
+  return Core_Array_Uint8_ToHex(Core_Array_Uint8_FromUint32(uint));
 }
 
-function array__uint8__class_group(): ClassArrayUint8Group {
+export function Core_Array_Uint8_Class_Group(): ClassArrayUint8Group {
   return new ClassArrayUint8Group();
 }
 
-function array__uint8__concat(arrays: readonly Uint8Array[]): Uint8Array {
+export function Core_Array_Uint8_Concat(arrays: readonly Uint8Array[]): Uint8Array {
   let totalLength = 0;
   for (const array of arrays) {
     totalLength += array.length;
@@ -261,10 +281,12 @@ function array__uint8__concat(arrays: readonly Uint8Array[]): Uint8Array {
   }
   return result;
 }
-function array__uint8__copy(bytes: Uint8Array, count: number, offset = 0): Uint8Array {
+
+export function Core_Array_Uint8_Copy(bytes: Uint8Array, count: number, offset = 0): Uint8Array {
   return bytes.slice(offset, offset + count);
 }
-function array__uint8__frombase64(b64_str: string): Uint8Array {
+
+export function Core_Array_Uint8_FromBase64(b64_str: string): Uint8Array {
   if (b64_str.length % 4 === 0) {
     const b64_padding = (b64_str[b64_str.length - 1] === '=' ? 1 : 0) + (b64_str[b64_str.length - 2] === '=' ? 1 : 0);
     const b64_bytes = new Uint8Array(b64_str.length - b64_padding);
@@ -310,16 +332,19 @@ function array__uint8__frombase64(b64_str: string): Uint8Array {
   }
   return new Uint8Array(0);
 }
-function array__uint8__fromstring(from: string): Uint8Array {
+
+export function Core_Array_Uint8_FromString(from: string): Uint8Array {
   return new TextEncoder().encode(from);
 }
-function array__uint8__fromuint32(from: number): Uint8Array {
+
+export function Core_Array_Uint8_FromUint32(from: number): Uint8Array {
   const u8s = new Uint8Array(4);
   const view = new DataView(u8s.buffer);
   view.setUint32(0, from >>> 0, false);
   return u8s;
 }
-function array__uint8__split(bytes: Uint8Array, count: number): Uint8Array[] {
+
+export function Core_Array_Uint8_Split(bytes: Uint8Array, count: number): Uint8Array[] {
   if (count > bytes.byteLength) {
     return [bytes.slice()];
   }
@@ -332,7 +357,8 @@ function array__uint8__split(bytes: Uint8Array, count: number): Uint8Array[] {
   }
   return [bytes.slice()];
 }
-function array__uint8__take(bytes: Uint8Array, count: number): [Uint8Array, Uint8Array] {
+
+export function Core_Array_Uint8_Take(bytes: Uint8Array, count: number): [Uint8Array, Uint8Array] {
   if (count > bytes.byteLength) {
     return [bytes.slice(), new Uint8Array()];
   }
@@ -343,7 +369,8 @@ function array__uint8__take(bytes: Uint8Array, count: number): [Uint8Array, Uint
   }
   return [new Uint8Array(), bytes.slice()];
 }
-function array__uint8__takeend(bytes: Uint8Array, count: number): [Uint8Array, Uint8Array] {
+
+export function Core_Array_Uint8_TakeEnd(bytes: Uint8Array, count: number): [Uint8Array, Uint8Array] {
   if (count > bytes.byteLength) {
     return [bytes.slice(), new Uint8Array()];
   }
@@ -354,7 +381,8 @@ function array__uint8__takeend(bytes: Uint8Array, count: number): [Uint8Array, U
   }
   return [new Uint8Array(), bytes.slice()];
 }
-function array__uint8__toascii(bytes: Uint8Array): string {
+
+export function Core_Array_Uint8_ToASCII(bytes: Uint8Array): string {
   // appending to string has best overall performance for chrome and firefox
   let ascii = '';
   for (const byte of bytes) {
@@ -362,7 +390,8 @@ function array__uint8__toascii(bytes: Uint8Array): string {
   }
   return ascii;
 }
-function array__uint8__tobase64(u8_bytes: Uint8Array): string {
+
+export function Core_Array_Uint8_ToBase64(u8_bytes: Uint8Array): string {
   let b64_out = '';
   let u8_index = 0;
   while (u8_index + 3 <= u8_bytes.length) {
@@ -401,7 +430,8 @@ function array__uint8__tobase64(u8_bytes: Uint8Array): string {
   }
   return b64_out;
 }
-function array__uint8__todecimal(bytes: Uint8Array): string[] {
+
+export function Core_Array_Uint8_ToDecimal(bytes: Uint8Array): string[] {
   // Array[index] has best overall performance for chrome and firefox
   const decimal: string[] = new Array(bytes.byteLength);
   for (let i = 0; i < bytes.byteLength; i += 1) {
@@ -409,7 +439,8 @@ function array__uint8__todecimal(bytes: Uint8Array): string[] {
   }
   return decimal;
 }
-function array__uint8__tohex(bytes: Uint8Array): string[] {
+
+export function Core_Array_Uint8_ToHex(bytes: Uint8Array): string[] {
   // Array[index] has best overall performance for chrome and firefox
   const hex: string[] = new Array(bytes.byteLength);
   for (let i = 0; i < bytes.byteLength; i += 1) {
@@ -417,160 +448,172 @@ function array__uint8__tohex(bytes: Uint8Array): string[] {
   }
   return hex;
 }
-function array__uint8__tolines(bytes: Uint8Array): string[] {
+
+export function Core_Array_Uint8_ToLines(bytes: Uint8Array): string[] {
   // Array.split() beats Array[index] here for overall performance
-  return string__splitlines(array__uint8__tostring(bytes));
+  return Core_String_SplitLines(Core_Array_Uint8_ToString(bytes));
 }
-function array__uint8__tostring(bytes: Uint8Array): string {
+
+export function Core_Array_Uint8_ToString(bytes: Uint8Array): string {
   return new TextDecoder().decode(bytes);
 }
 
-function array__uint32__tohex(uint: number): string[] {
-  return array__uint8__tohex(array__uint8__fromuint32(uint));
-}
-
-function assert__equal(value1: any, value2: any): true {
-  if (value1 !== value2) {
-    throw new Error(`Assertion Failed: value1(${value1}) should equal value2(${value2})`);
-  }
-  return true;
-}
-function assert__notequal(value1: any, value2: any): true {
-  if (value1 === value2) {
-    throw new Error(`Assertion Failed: value1(${value1}) should not equal value2(${value2})`);
-  }
-  return true;
-}
-function assert__bigint(value: any): value is bigint {
+export function Core_Assert_BigInt(value: any): value is bigint {
   if (typeof value !== 'bigint') {
     throw new Error(`Assertion Failed: typeof value(${value}) should equal bigint`);
   }
   return true;
 }
-function assert__boolean(value: any): value is boolean {
+
+export function Core_Assert_Boolean(value: any): value is boolean {
   if (typeof value !== 'boolean') {
     throw new Error(`Assertion Failed: typeof value(${value}) should equal boolean`);
   }
   return true;
 }
-function assert__function<T>(value: any): value is T {
+
+export function Core_Assert_Equal(value1: any, value2: any): true {
+  if (value1 !== value2) {
+    throw new Error(`Assertion Failed: value1(${value1}) should equal value2(${value2})`);
+  }
+  return true;
+}
+
+export function Core_Assert_Function<T>(value: any): value is T {
   if (typeof value !== 'function') {
     throw new Error(`Assertion Failed: typeof value(${value}) should equal function`);
   }
   return true;
 }
-function assert__number(value: any): value is number {
+
+export function Core_Assert_NotEqual(value1: any, value2: any): true {
+  if (value1 === value2) {
+    throw new Error(`Assertion Failed: value1(${value1}) should not equal value2(${value2})`);
+  }
+  return true;
+}
+
+export function Core_Assert_Number(value: any): value is number {
   if (typeof value !== 'number') {
     throw new Error(`Assertion Failed: typeof value(${value}) should equal number`);
   }
   return true;
 }
-function assert__object(value: any): value is object {
+
+export function Core_Assert_Object(value: any): value is object {
   if (typeof value !== 'object') {
     throw new Error(`Assertion Failed: typeof value(${value}) should equal object`);
   }
   return true;
 }
-function assert__string(value: any): value is string {
+
+export function Core_Assert_String(value: any): value is string {
   if (typeof value !== 'string') {
     throw new Error(`Assertion Failed: typeof value(${value}) should equal string`);
   }
   return true;
 }
-function assert__symbol(value: any): value is symbol {
+
+export function Core_Assert_Symbol(value: any): value is symbol {
   if (typeof value !== 'symbol') {
     throw new Error(`Assertion Failed: typeof value(${value}) should equal symbol`);
   }
   return true;
 }
-function assert__undefined(value: any): value is undefined {
+
+export function Core_Assert_Undefined(value: any): value is undefined {
   if (typeof value !== 'undefined') {
     throw new Error(`Assertion Failed: typeof value(${value}) should equal undefined`);
   }
   return true;
 }
 
-function console__error(...items: any[]): void {
+export function Core_Console_Error(...items: any[]): void {
   console['error'](...items);
 }
-function console__errorwithdate(...items: any[]): void {
+
+export function Core_Console_ErrorWithDate(...items: any[]): void {
   console['error'](`[${new Date().toLocaleString()}]`, ...items);
 }
-function console__log(...items: any[]): void {
+
+export function Core_Console_Log(...items: any[]): void {
   console['log'](...items);
 }
-function console__logwithdate(...items: any[]): void {
+
+export function Core_Console_LogWithDate(...items: any[]): void {
   console['log'](`[${new Date().toLocaleString()}]`, ...items);
 }
 
-/** @param {any} obj - Any value that is ***NOT*** a JSON string. This function does ***NOT*** call `JSON.parse()`. */
-function json__analyze(obj: unknown): { source: Type.JSON.Array; type: 'array' } | { source: Type.JSON.Object; type: 'object' } | { source: Type.JSON.Primitive; type: 'primitive' } {
+export function Core_JSON_Analyze(obj: unknown): { source: Core_Type_JSON_Array; type: 'array' } | { source: Core_Type_JSON_Object; type: 'object' } | { source: Core_Type_JSON_Primitive; type: 'primitive' } {
+  /** @param {any} obj - Any value that is ***NOT*** a JSON string. This function does ***NOT*** call `JSON.parse()`. */
   if (Array.isArray(obj)) {
     for (const item of obj) {
-      json__analyze(item);
+      Core_JSON_Analyze(item);
     }
-    return { source: obj as Type.JSON.Array, type: 'array' };
+    return { source: obj as Core_Type_JSON_Array, type: 'array' };
   }
   if (obj === null || typeof obj === 'string' || typeof obj === 'number' || typeof obj === 'boolean') {
-    return { source: obj as Type.JSON.Primitive, type: 'primitive' };
+    return { source: obj as Core_Type_JSON_Primitive, type: 'primitive' };
   }
   if (obj === undefined || typeof obj === 'bigint' || typeof obj === 'symbol' || typeof obj === 'undefined' || typeof obj === 'function') {
     throw TypeError('Invalid');
   }
   for (const key in obj) {
     if (Object.hasOwn(obj, key)) {
-      json__analyze((obj as Type.JSON.Object)[key]);
+      Core_JSON_Analyze((obj as Core_Type_JSON_Object)[key]);
     }
   }
-  return { source: obj as Type.JSON.Object, type: 'object' };
+  return { source: obj as Core_Type_JSON_Object, type: 'object' };
 }
-function json__merge(...sources: unknown[]): Type.JSON.ParseResult {
+
+export function Core_JSON_Merge(...sources: unknown[]): Core_Type_JSON_ParseResult {
   if (sources.length === 0) return null;
-  if (sources.length === 1) return json__analyze(sources[0]).source;
-  const head = json__analyze(sources[0]);
+  if (sources.length === 1) return Core_JSON_Analyze(sources[0]).source;
+  const head = Core_JSON_Analyze(sources[0]);
   for (const source of sources.slice(1)) {
-    if (json__analyze(source).type !== head.type) {
+    if (Core_JSON_Analyze(source).type !== head.type) {
       throw TypeError('Cannot merge JSON strings of different types. Every JSON string must be all arrays, all objects, or all primitives.');
     }
   }
   if (head.type === 'array') {
-    const result: Type.JSON.Array = [];
-    for (const source of sources as Type.JSON.Array[]) {
+    const result: Core_Type_JSON_Array = [];
+    for (const source of sources as Core_Type_JSON_Array[]) {
       result.push(...source);
     }
     return result;
   }
   if (head.type === 'object') {
-    function mergeinto(result: Type.JSON.Object, source: Type.JSON.Object) {
+    function mergeinto(result: Core_Type_JSON_Object, source: Core_Type_JSON_Object) {
       for (const key in source) {
         if (Object.hasOwn(result, key) === false) {
           result[key] = {};
         }
-        const { type: r_type } = json__analyze(result[key]);
-        const { type: s_type } = json__analyze(source[key]);
+        const { type: r_type } = Core_JSON_Analyze(result[key]);
+        const { type: s_type } = Core_JSON_Analyze(source[key]);
         if (r_type === 'object' && s_type === 'object') {
-          mergeinto(result[key] as Type.JSON.Object, source[key] as Type.JSON.Object);
+          mergeinto(result[key] as Core_Type_JSON_Object, source[key] as Core_Type_JSON_Object);
         } else if (r_type === 'array' && s_type === 'array') {
-          result[key] = [...(result[key] as Type.JSON.Array[]), ...(source[key] as Type.JSON.Array[])];
+          result[key] = [...(result[key] as Core_Type_JSON_Array[]), ...(source[key] as Core_Type_JSON_Array[])];
         } else {
           result[key] = source[key];
         }
       }
       return result;
     }
-    const result: Type.JSON.Object = {};
-    for (const source of sources as Type.JSON.Object[]) {
+    const result: Core_Type_JSON_Object = {};
+    for (const source of sources as Core_Type_JSON_Object[]) {
       mergeinto(result, source);
     }
     return result;
   }
-  return json__analyze(sources[sources.length - 1]).source;
+  return Core_JSON_Analyze(sources[sources.length - 1]).source;
 }
-function json__parserawstring(str: string): string {
+
+export function Core_JSON_ParseRawString(str: string): string {
   return JSON.parse(`"${str}"`);
 }
 
-function map__getordefault<K, V>(map: Map<K, V>, key: K, newValue: () => V): V {
+export function Core_Map_GetOrDefault<K, V>(map: Map<K, V>, key: K, newValue: () => V): V {
   if (map.has(key)) {
     return map.get(key) as V;
   }
@@ -579,16 +622,29 @@ function map__getordefault<K, V>(map: Map<K, V>, key: K, newValue: () => V): V {
   return value;
 }
 
-// The 2-Combination is what I formerly referred as the SelfCartesianProduct
-// nChooseRCombinations([1, 2], 2)]);
-function* math__gen_cartesianproduct<A extends readonly unknown[], B extends readonly unknown[]>(array_a: A, array_b: B): Generator<[A[number], B[number]], void, unknown> {
+export function Core_Math_Factorial(n: number): bigint {
+  if (!(n in MATH__FACTORIAL__CACHE)) {
+    let fact = MATH__FACTORIAL__CACHE[MATH__FACTORIAL__CACHE.length - 1];
+    for (let i = MATH__FACTORIAL__CACHE.length; i < n; i++) {
+      fact *= BigInt(i);
+      MATH__FACTORIAL__CACHE[i] = fact;
+    }
+    MATH__FACTORIAL__CACHE[n] = fact * BigInt(n);
+  }
+  return MATH__FACTORIAL__CACHE[n];
+}
+
+export function* Core_Math_Gen_CartesianProduct<A extends readonly unknown[], B extends readonly unknown[]>(array_a: A, array_b: B): Generator<[A[number], B[number]], void, unknown> {
+  // The 2-Combination is what I formerly referred to as the SelfCartesianProduct
+  // `ChooseRCombinations([1, 2], 2)]);`
   for (let i = 0; i < array_a.length; i++) {
     for (let j = 0; j < array_b.length; j++) {
       yield [array_a[i], array_b[j]];
     }
   }
 }
-function* math__gen_ncartesianproducts<T extends unknown[][]>(...arrays: T): Generator<{ [K in keyof T]: T[K][number] }> {
+
+export function* Core_Math_Gen_NCartesianProducts<T extends unknown[][]>(...arrays: T): Generator<{ [K in keyof T]: T[K][number] }> {
   const count = arrays.reduce((product, arr) => product * BigInt(arr.length), 1n);
   const out = arrays.map((arr) => arr[0]) as { [K in keyof T]: T[K][number] };
   const indices: number[] = new Array(arrays.length).fill(0);
@@ -607,8 +663,9 @@ function* math__gen_ncartesianproducts<T extends unknown[][]>(...arrays: T): Gen
     }
   }
 }
-function* math__gen_nchoosercombinations<T>(choices: T[], r: number, repetitions = false): Generator<T[]> {
-  const count = math__ncr(choices.length, r, repetitions);
+
+export function* Core_Math_Gen_NChooseRCombinations<T>(choices: T[], r: number, repetitions = false): Generator<T[]> {
+  const count = Core_Math_nCr(choices.length, r, repetitions);
   if (repetitions === true) {
     const out: T[] = new Array(r).fill(choices[0]);
     const indices: number[] = new Array(r).fill(0);
@@ -647,8 +704,9 @@ function* math__gen_nchoosercombinations<T>(choices: T[], r: number, repetitions
     }
   }
 }
-function* math__gen_nchooserpermutations<T>(choices: T[], r: number, repetitions = false): Generator<T[]> {
-  const count = math__npr(choices.length, r, repetitions);
+
+export function* Core_Math_Gen_NChooseRPermutations<T>(choices: T[], r: number, repetitions = false): Generator<T[]> {
+  const count = Core_Math_nPr(choices.length, r, repetitions);
   if (repetitions === true) {
     const out: T[] = new Array(r).fill(choices[0]);
     const indices: number[] = new Array(r).fill(0);
@@ -702,34 +760,25 @@ function* math__gen_nchooserpermutations<T>(choices: T[], r: number, repetitions
   }
 }
 
-function math__ncr(n: number, r: number, repetitions = false): bigint {
-  if (repetitions === true) {
-    return math__factorial(n + r - 1) / (math__factorial(r) * math__factorial(n - 1));
-  }
-  return math__factorial(n) / (math__factorial(r) * math__factorial(n - r));
-}
-function math__npr(n: number, r: number, repetitions = false): bigint {
-  if (repetitions === true) {
-    return BigInt(n) ** BigInt(r);
-  }
-  return math__factorial(n) / math__factorial(n - r);
-}
-function math__factorial(n: number): bigint {
-  if (!(n in MATH__FACTORIAL__CACHE)) {
-    let fact = MATH__FACTORIAL__CACHE[MATH__FACTORIAL__CACHE.length - 1];
-    for (let i = MATH__FACTORIAL__CACHE.length; i < n; i++) {
-      fact *= BigInt(i);
-      MATH__FACTORIAL__CACHE[i] = fact;
-    }
-    MATH__FACTORIAL__CACHE[n] = fact * BigInt(n);
-  }
-  return MATH__FACTORIAL__CACHE[n];
-}
-function math__getmidpoint(a: number, b: number): number {
+export function Core_Math_GetMidpoint(a: number, b: number): number {
   return 0 === (b - a) % 2 ? (a + b) / 2 : (a + b - 1) / 2;
 }
 
-async function promise__async_countfulfilled(promises: Promise<any>[]): Promise<number> {
+export function Core_Math_nCr(n: number, r: number, repetitions = false): bigint {
+  if (repetitions === true) {
+    return Core_Math_Factorial(n + r - 1) / (Core_Math_Factorial(r) * Core_Math_Factorial(n - 1));
+  }
+  return Core_Math_Factorial(n) / (Core_Math_Factorial(r) * Core_Math_Factorial(n - r));
+}
+
+export function Core_Math_nPr(n: number, r: number, repetitions = false): bigint {
+  if (repetitions === true) {
+    return BigInt(n) ** BigInt(r);
+  }
+  return Core_Math_Factorial(n) / Core_Math_Factorial(n - r);
+}
+
+export async function Core_Promise_Async_CountFulfilled(promises: Promise<any>[]): Promise<number> {
   let count = 0;
   for (const { status } of await Promise.allSettled(promises)) {
     if (status === 'fulfilled') {
@@ -738,7 +787,8 @@ async function promise__async_countfulfilled(promises: Promise<any>[]): Promise<
   }
   return count;
 }
-async function promise__async_countrejected(promises: Promise<any>[]): Promise<number> {
+
+export async function Core_Promise_Async_CountRejected(promises: Promise<any>[]): Promise<number> {
   let count = 0;
   for (const { status } of await Promise.allSettled(promises)) {
     if (status === 'rejected') {
@@ -748,13 +798,16 @@ async function promise__async_countrejected(promises: Promise<any>[]): Promise<n
   return count;
 }
 
-/** Annotate a function call as purposely un-awaited. */
-function promise__callandorphan(asyncfn: () => Promise<any> | any): void {
-  promise__orphan(asyncfn());
+export function Core_Promise_CallAndOrphan(asyncfn: () => Promise<any> | any): void {
+  /** Annotate a function call as purposely un-awaited. */
+  Core_Promise_Orphan(asyncfn());
 }
-function promise__orphan(promise: Promise<any> | any): void {}
 
-async function* stream__asyncgen_readchunks<T>(stream: ReadableStream<T>): AsyncGenerator<T> {
+export function Core_Promise_Orphan(promise: Promise<any> | any): void {
+  // intentionally empty
+}
+
+export async function* Core_Stream_AsyncGen_ReadChunks<T>(stream: ReadableStream<T>): AsyncGenerator<T> {
   const reader = stream.getReader();
   try {
     while (true) {
@@ -769,9 +822,9 @@ async function* stream__asyncgen_readchunks<T>(stream: ReadableStream<T>): Async
   }
 }
 
-async function stream__uint8__async_compare(stream1: ReadableStream<Uint8Array>, stream2: ReadableStream<Uint8Array>): Promise<boolean> {
-  const one = stream__uint8__class_reader(stream1.getReader());
-  const two = stream__uint8__class_reader(stream2.getReader());
+export async function Core_Stream_Uint8_Async_Compare(stream1: ReadableStream<Uint8Array>, stream2: ReadableStream<Uint8Array>): Promise<boolean> {
+  const one = Core_Stream_Uint8_Class_Reader(stream1.getReader());
+  const two = Core_Stream_Uint8_Class_Reader(stream2.getReader());
   try {
     while (true) {
       let changed = false;
@@ -804,7 +857,8 @@ async function stream__uint8__async_compare(stream1: ReadableStream<Uint8Array>,
     two.releaseLock();
   }
 }
-async function stream__uint8__async_readall(stream: ReadableStream<Uint8Array>): Promise<Uint8Array> {
+
+export async function Core_Stream_Uint8_Async_ReadAll(stream: ReadableStream<Uint8Array>): Promise<Uint8Array> {
   const reader = stream.getReader();
   try {
     const chunks: Uint8Array[] = [];
@@ -815,13 +869,14 @@ async function stream__uint8__async_readall(stream: ReadableStream<Uint8Array>):
       }
       chunks.push(value);
     }
-    return array__uint8__concat(chunks);
+    return Core_Array_Uint8_Concat(chunks);
   } finally {
     reader.releaseLock();
   }
 }
-async function stream__uint8__async_readlines(stream: ReadableStream<Uint8Array<ArrayBufferLike>>, callback: (line: string) => Promise<boolean | void> | (boolean | void)): Promise<void> {
-  for await (const lines of stream__uint8__asyncgen_readlines(stream)) {
+
+export async function Core_Stream_Uint8_Async_ReadLines(stream: ReadableStream<Uint8Array<ArrayBufferLike>>, callback: (line: string) => Promise<boolean | void> | (boolean | void)): Promise<void> {
+  for await (const lines of Core_Stream_Uint8_AsyncGen_ReadLines(stream)) {
     for (const line of lines) {
       if ((await callback(line)) === false) {
         return;
@@ -829,7 +884,8 @@ async function stream__uint8__async_readlines(stream: ReadableStream<Uint8Array<
     }
   }
 }
-async function stream__uint8__async_readsome(stream: ReadableStream<Uint8Array>, count: number): Promise<Uint8Array> {
+
+export async function Core_Stream_Uint8_Async_ReadSome(stream: ReadableStream<Uint8Array>, count: number): Promise<Uint8Array> {
   if (count < 1) {
     return ARRAY__UINT8__EMPTY;
   }
@@ -848,13 +904,13 @@ async function stream__uint8__async_readsome(stream: ReadableStream<Uint8Array>,
         break;
       }
     }
-    return array__uint8__take(array__uint8__concat(chunks), count)[0];
+    return Core_Array_Uint8_Take(Core_Array_Uint8_Concat(chunks), count)[0];
   } finally {
     reader.releaseLock();
   }
 }
 
-async function* stream__uint8__asyncgen_readlines(stream: ReadableStream<Uint8Array<ArrayBufferLike>>): AsyncGenerator<string[]> {
+export async function* Core_Stream_Uint8_AsyncGen_ReadLines(stream: ReadableStream<Uint8Array<ArrayBufferLike>>): AsyncGenerator<string[]> {
   const textDecoderStream = new TextDecoderStream();
   const textDecoderReader = textDecoderStream.readable.getReader();
   const textDecoderWriter = textDecoderStream.writable.getWriter();
@@ -893,7 +949,7 @@ async function* stream__uint8__asyncgen_readlines(stream: ReadableStream<Uint8Ar
         }
         return;
       }
-      const lines = string__splitlines(buffer + value);
+      const lines = Core_String_SplitLines(buffer + value);
       buffer = lines[lines.length - 1] ?? '';
       yield lines.slice(0, -1);
     }
@@ -902,11 +958,11 @@ async function* stream__uint8__asyncgen_readlines(stream: ReadableStream<Uint8Ar
   }
 }
 
-function stream__uint8__class_reader(reader: ReadableStreamDefaultReader<Uint8Array>): ClassStreamUint8Reader {
+export function Core_Stream_Uint8_Class_Reader(reader: ReadableStreamDefaultReader<Uint8Array>): ClassStreamUint8Reader {
   return new ClassStreamUint8Reader(reader);
 }
 
-function string__getleftmarginsize(text: string): number {
+export function Core_String_GetLeftMarginSize(text: string): number {
   let i = 0;
   for (; i < text.length; i++) {
     if (text[i] !== ' ') {
@@ -915,61 +971,62 @@ function string__getleftmarginsize(text: string): number {
   }
   return i;
 }
-function string__lineisonlywhitespace(line: string): boolean {
+
+export function Core_String_LineIsOnlyWhiteSpace(line: string): boolean {
   return /^\s*$/.test(line);
 }
-function string__removewhitespaceonlylines(text: string): string[] {
-  const lines = string__splitlines(text);
-  return lines.filter((line) => !string__lineisonlywhitespace(line));
+
+export function Core_String_RemoveWhiteSpaceOnlyLines(text: string): string[] {
+  const lines = Core_String_SplitLines(text);
+  return lines.filter((line) => !Core_String_LineIsOnlyWhiteSpace(line));
 }
-function string__removewhitespaceonlylinesfromtopandbottom(text: string): string[] {
-  const lines = string__splitlines(text);
+
+export function Core_String_RemoveWhiteSpaceOnlyLinesFromTopAndBottom(text: string): string[] {
+  const lines = Core_String_SplitLines(text);
   return lines.slice(
-    lines.findIndex((line) => string__lineisonlywhitespace(line) === false),
-    1 + lines.findLastIndex((line) => string__lineisonlywhitespace(line) === false),
+    lines.findIndex((line) => Core_String_LineIsOnlyWhiteSpace(line) === false),
+    1 + lines.findLastIndex((line) => Core_String_LineIsOnlyWhiteSpace(line) === false),
   );
 }
-function string__split(text: string, delimiter: string | RegExp, remove_empty_items = false): string[] {
+
+export function Core_String_Split(text: string, delimiter: string | RegExp, remove_empty_items = false): string[] {
   const items = text.split(delimiter);
   return remove_empty_items === false ? items : items.filter((item) => item.length > 0);
 }
-function string__splitlines(text: string, remove_empty_items = false): string[] {
-  return string__split(text, /\r?\n/, remove_empty_items);
+
+export function Core_String_SplitLines(text: string, remove_empty_items = false): string[] {
+  return Core_String_Split(text, /\r?\n/, remove_empty_items);
 }
-function string__splitmultiplespaces(text: string, remove_empty_items = false): string[] {
-  return string__split(text, / +/, remove_empty_items);
+
+export function Core_String_SplitMultipleSpaces(text: string, remove_empty_items = false): string[] {
+  return Core_String_Split(text, / +/, remove_empty_items);
 }
-function string__splitmultiplewhitespace(text: string, remove_empty_items = false): string[] {
-  return string__split(text, /\s+/, remove_empty_items);
+
+export function Core_String_SplitMultipleWhiteSpace(text: string, remove_empty_items = false): string[] {
+  return Core_String_Split(text, /\s+/, remove_empty_items);
 }
-function string__tosnakecase(text: string): string {
+
+export function Core_String_ToSnakeCase(text: string): string {
   return text.toLowerCase().replace(/ /g, '-');
 }
-function string__trimlines(lines: string[]): string[] {
+
+export function Core_String_TrimLines(lines: string[]): string[] {
   return lines.map((line) => line.trim());
 }
 
-// Async
+export function Core_Utility_Class_Defer<T = void>(): ClassUtilityDefer<T> {
+  return new ClassUtilityDefer<T>();
+}
 
-function utility__async_sleep(duration_ms: number): Promise<void> {
+export function Core_Utility_Async_Sleep(duration_ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, duration_ms));
 }
 
-// Codec
-
-function utility__decodebytes(buffer: Uint8Array): string {
-  return new TextDecoder().decode(buffer);
-}
-function utility__encodetext(text: string): Uint8Array {
-  return new TextEncoder().encode(text);
-}
-
-// CRC32
-
-function utility__class_crc32(): ClassUtilityCRC32 {
+export function Core_Utility_Class_CRC32(): ClassUtilityCRC32 {
   return new ClassUtilityCRC32();
 }
-function utility__crc32(bytes: Uint8Array): number {
+
+export function Core_Utility_CRC32(bytes: Uint8Array): number {
   const crc = new Uint32Array([0xffffffff]);
   for (let index = 0; index < bytes.length; index++) {
     crc[0] = UTILITY__CRC32__TABLE[(crc[0] ^ bytes[index]) & 0xff] ^ (crc[0] >>> 8);
@@ -977,11 +1034,9 @@ function utility__crc32(bytes: Uint8Array): number {
   return (crc[0] ^ (0xffffffff >>> 0)) >>> 0;
 }
 
-// Debounce
-
-/** debounced functions return nothing when called; by design */
-function utility__debounce<T extends (...args: any[]) => Promise<any> | any>(fn: T, delay_ms: number): (...args: Parameters<T>) => Promise<void> {
-  let defer = utility__class_defer();
+export function Core_Utility_Debounce<T extends (...args: any[]) => Promise<any> | any>(fn: T, delay_ms: number): (...args: Parameters<T>) => Promise<void> {
+  /** debounced functions return nothing when called; by design */
+  let defer = Core_Utility_Class_Defer();
   let timeout: ReturnType<typeof setTimeout>;
   return (...args: Parameters<T>) => {
     clearTimeout(timeout);
@@ -992,15 +1047,24 @@ function utility__debounce<T extends (...args: any[]) => Promise<any> | any>(fn:
       } catch (error) {
         defer.reject(error);
       }
-      defer = utility__class_defer();
+      defer = Core_Utility_Class_Defer();
     }, delay_ms);
     return defer.promise;
   };
 }
-/** aka leading edge debounce */
-/** debounced functions return nothing when called; by design */
-function utility__immediatedebounce<T extends (...args: any[]) => Promise<any> | any>(fn: T, delay_ms: number): (...args: Parameters<T>) => Promise<void> {
-  let defer = utility__class_defer();
+
+export function Core_Utility_DecodeBytes(buffer: Uint8Array): string {
+  return new TextDecoder().decode(buffer);
+}
+
+export function Core_Utility_EncodeText(text: string): Uint8Array {
+  return new TextEncoder().encode(text);
+}
+
+export function Core_Utility_ImmediateDebounce<T extends (...args: any[]) => Promise<any> | any>(fn: T, delay_ms: number): (...args: Parameters<T>) => Promise<void> {
+  /** aka leading edge debounce */
+  /** debounced functions return nothing when called; by design */
+  let defer = Core_Utility_Class_Defer();
   let timeout: ReturnType<typeof setTimeout> | undefined;
   return (...args: Parameters<T>) => {
     if (timeout === undefined) {
@@ -1014,149 +1078,8 @@ function utility__immediatedebounce<T extends (...args: any[]) => Promise<any> |
     clearTimeout(timeout);
     timeout = setTimeout(() => {
       timeout = undefined;
-      defer = utility__class_defer();
+      defer = Core_Utility_Class_Defer();
     }, delay_ms);
     return defer.promise;
-  };
-}
-
-// Defer
-
-function utility__class_defer<T = void>(): ClassUtilityDefer<T> {
-  return new ClassUtilityDefer<T>();
-}
-
-export namespace Core {
-  export namespace Array {
-    export namespace BinarySearch {
-      export const ExactMatch = array__binarysearch__exactmatch;
-      export const InsertionIndex = array__binarysearch__insertionorder;
-    }
-    export namespace Uint8 {
-      export const Class_Group = array__uint8__class_group;
-      //
-      export const Concat = array__uint8__concat;
-      export const Copy = array__uint8__copy;
-      export const FromBase64 = array__uint8__frombase64;
-      export const FromString = array__uint8__fromstring;
-      export const FromUint32 = array__uint8__fromuint32;
-      export const Split = array__uint8__split;
-      export const Take = array__uint8__take;
-      export const TakeEnd = array__uint8__takeend;
-      export const ToASCII = array__uint8__toascii;
-      export const ToBase64 = array__uint8__tobase64;
-      export const ToDecimal = array__uint8__todecimal;
-      export const ToHex = array__uint8__tohex;
-      export const ToLines = array__uint8__tolines;
-      export const ToString = array__uint8__tostring;
-    }
-    export namespace Uint32 {
-      export const ToHex = array__uint32__tohex;
-    }
-    //
-    export const Gen_BufferToBytes = array__gen_buffertobytes;
-    export const Gen_Chunks = array__gen_chunks;
-    export const Gen_SlidingWindow = array__gen_slidingwindow;
-    export const Gen_Zip = array__gen_zip;
-    export const AreEqual = array__areequal;
-    export const GetEndpoints = array__getendpoints;
-    export const Shuffle = array__shuffle;
-    export const Split = array__split;
-  }
-  export namespace Assert {
-    export const Equal = assert__equal;
-    export const NotEqual = assert__notequal;
-    //
-    export const BigInt = assert__bigint;
-    export const Boolean = assert__boolean;
-    export const Function = assert__function;
-    export const Number = assert__number;
-    export const Object = assert__object;
-    export const String = assert__string;
-    export const Symbol = assert__symbol;
-    export const Undefined = assert__undefined;
-  }
-  export namespace Console {
-    export const Error = console__error;
-    export const ErrorWithDate = console__errorwithdate;
-    //
-    export const Log = console__log;
-    export const LogWithDate = console__logwithdate;
-  }
-  export namespace JSON {
-    export const Analyze = json__analyze;
-    export const Merge = json__merge;
-    export const ParseRawString = json__parserawstring;
-  }
-  export namespace Map {
-    export const GetOrDefault = map__getordefault;
-  }
-  export namespace Math {
-    export const Gen_CartesianProduct = math__gen_cartesianproduct;
-    export const Gen_NCartesianProducts = math__gen_ncartesianproducts;
-    export const Gen_NChooseRCombinations = math__gen_nchoosercombinations;
-    export const Gen_NChooseRPermutations = math__gen_nchooserpermutations;
-    export const nCr = math__ncr;
-    export const nPr = math__npr;
-    export const Factorial = math__factorial;
-    export const GetMidpoint = math__getmidpoint;
-  }
-  export namespace Promise {
-    export const Async_CountFulfilled = promise__async_countfulfilled;
-    export const Async_CountRejected = promise__async_countrejected;
-    //
-    export const CallAndOrphan = promise__callandorphan;
-    export const Orphan = promise__orphan;
-  }
-  export namespace Stream {
-    export namespace Uint8 {
-      export const Async_Compare = stream__uint8__async_compare;
-      export const Async_ReadAll = stream__uint8__async_readall;
-      export const Async_ReadLines = stream__uint8__async_readlines;
-      export const Async_ReadSome = stream__uint8__async_readsome;
-      //
-      export const AsyncGen_ReadLines = stream__uint8__asyncgen_readlines;
-      //
-      export const Class_Reader = stream__uint8__class_reader;
-    }
-    export const AsyncGen_ReadChunks = stream__asyncgen_readchunks;
-  }
-  export namespace String {
-    export const GetLeftMarginSize = string__getleftmarginsize;
-    export const LineIsOnlyWhiteSpace = string__lineisonlywhitespace;
-    export const RemoveWhiteSpaceOnlyLines = string__removewhitespaceonlylines;
-    export const RemoveWhiteSpaceOnlyLinesFromTopAndBottom = string__removewhitespaceonlylinesfromtopandbottom;
-    export const Split = string__split;
-    export const SplitLines = string__splitlines;
-    export const SplitMultipleSpaces = string__splitmultiplespaces;
-    export const SplitMultipleWhiteSpace = string__splitmultiplewhitespace;
-    export const ToSnakeCase = string__tosnakecase;
-    export const TrimLines = string__trimlines;
-  }
-  export namespace Utility {
-    export const Async_Sleep = utility__async_sleep;
-    //
-    export const Class_CRC32 = utility__class_crc32;
-    export const Class_Defer = utility__class_defer;
-    export type Class_Defer<T> = ClassUtilityDefer<T>;
-    //
-    export const CRC32 = utility__crc32;
-    export const DecodeBytes = utility__decodebytes;
-    export const EncodeText = utility__encodetext;
-    export const Debounce = utility__debounce;
-    export const ImmediateDebounce = utility__immediatedebounce;
-  }
-}
-
-export namespace Type {
-  export namespace JSON {
-    export type Array = (Array | Object | Primitive)[];
-    export type Object = Type.RecursiveRecord<string, Array | Primitive>;
-    export type Primitive = null | boolean | number | string;
-    export type ParseResult = Array | Object | Primitive;
-  }
-  export type EmptyRecord = Record<string, never>;
-  export type RecursiveRecord<K extends keyof any, T> = {
-    [P in K]: T | RecursiveRecord<K, T>;
   };
 }

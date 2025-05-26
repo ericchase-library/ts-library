@@ -1,5 +1,5 @@
-import { Core } from '../../src/lib/ericchase/core.js';
-import { NODE_PATH, NodePlatform } from '../../src/lib/ericchase/platform-node.js';
+import { Core_Console_Error, Core_Console_Log, Core_Map_GetOrDefault, Core_String_RemoveWhiteSpaceOnlyLinesFromTopAndBottom } from '../../src/lib/ericchase/core.js';
+import { NODE_PATH, NodePlatform_Directory_Async_Create, NodePlatform_File_Async_AppendText } from '../../src/lib/ericchase/platform-node.js';
 
 // variables
 
@@ -122,7 +122,7 @@ function getNextChannel(uuid: string): string {
   return channel.toString().padStart(2, '0');
 }
 function getUuid(name: string): string {
-  return Core.Map.GetOrDefault(name_to_uuid, name, () => {
+  return Core_Map_GetOrDefault(name_to_uuid, name, () => {
     const uuid = (name_to_uuid.size + 1).toString().padStart(2, '0');
     uuid_to_name.set(uuid, name);
     return uuid;
@@ -142,13 +142,13 @@ function setTimer() {
 }
 
 async function processBuffer() {
-  const default_buffer = Core.Map.GetOrDefault(name_to_buffer, DEFAULT_LOGGER, () => []);
+  const default_buffer = Core_Map_GetOrDefault(name_to_buffer, DEFAULT_LOGGER, () => []);
   const temp_buffer = buffer;
   buffer = [];
   for (const { date, kind, uuid, channel, items, error } of temp_buffer) {
     unprocessedlogcount--;
     const name = uuid_to_name.get(uuid) ?? DEFAULT_LOGGER;
-    const name_buffer = Core.Map.GetOrDefault(name_to_buffer, name, () => []);
+    const name_buffer = Core_Map_GetOrDefault(name_to_buffer, name, () => []);
     if (isLoggerEnabled(name) === false) {
       continue;
     }
@@ -156,20 +156,20 @@ async function processBuffer() {
     switch (kind) {
       case Kind.Err:
         {
-          for (const line of Core.String.RemoveWhiteSpaceOnlyLinesFromTopAndBottom(items.join(' '))) {
+          for (const line of Core_String_RemoveWhiteSpaceOnlyLinesFromTopAndBottom(items.join(' '))) {
             const text = `${datestring} |${uuid}.${channel}| [${name}] <ERROR> ${line}`;
             if (LoggerOptions.console === true) {
               if (LoggerOptions.ceremony === true) {
-                Core.Console.Error(text);
+                Core_Console_Error(text);
               } else {
-                Core.Console.Error(`<ERROR> ${line}`);
+                Core_Console_Error(`<ERROR> ${line}`);
               }
             }
             default_buffer.push(text);
             name_buffer.push(text);
           }
           if (error !== undefined) {
-            Core.Console.Error(error);
+            Core_Console_Error(error);
             default_buffer.push(error.toString());
             name_buffer.push(error.toString());
           }
@@ -177,13 +177,13 @@ async function processBuffer() {
         break;
       case Kind.Log:
         {
-          for (const line of Core.String.RemoveWhiteSpaceOnlyLinesFromTopAndBottom(items.join(' '))) {
+          for (const line of Core_String_RemoveWhiteSpaceOnlyLinesFromTopAndBottom(items.join(' '))) {
             const text = `${datestring} |${uuid}.${channel}| [${name}] ${line}`;
             if (LoggerOptions.console === true) {
               if (LoggerOptions.ceremony === true) {
-                Core.Console.Log(text);
+                Core_Console_Log(text);
               } else {
-                Core.Console.Log(line);
+                Core_Console_Log(line);
               }
             }
             default_buffer.push(text);
@@ -193,7 +193,7 @@ async function processBuffer() {
         break;
       case Kind.NewLine:
         {
-          Core.Console.Log();
+          Core_Console_Log();
         }
         break;
     }
@@ -201,7 +201,7 @@ async function processBuffer() {
   for (const path of output_set) {
     for (const [name, lines] of name_to_buffer) {
       if (lines.length > 0) {
-        await NodePlatform.File.Async_AppendText(NODE_PATH.resolve(path, `${name}.log`), `${lines.join('\n')}\n`);
+        await NodePlatform_File_Async_AppendText(NODE_PATH.resolve(path, `${name}.log`), `${lines.join('\n')}\n`);
         name_to_buffer.set(name, []);
       }
     }
@@ -209,7 +209,7 @@ async function processBuffer() {
 }
 
 export function Logger(name = DEFAULT_LOGGER): ClassLogger {
-  return Core.Map.GetOrDefault(name_to_logger, name, () => new ClassLogger(getUuid(name), '00', name));
+  return Core_Map_GetOrDefault(name_to_logger, name, () => new ClassLogger(getUuid(name), '00', name));
 }
 
 /** Important: don't forget to await this! */
@@ -218,7 +218,7 @@ export async function AddLoggerOutputDirectory(path: string) {
   path = NODE_PATH.resolve(path, 'logs');
   if (output_set.has(path) === false) {
     output_set.add(path);
-    await NodePlatform.Directory.Async_Create(path);
+    await NodePlatform_Directory_Async_Create(path);
   }
 }
 
@@ -248,6 +248,6 @@ export async function WaitForLogger() {
 process.on('beforeExit', async (code) => {
   await WaitForLogger();
   if (unprocessedlogcount > 0) {
-    Core.Console.Error('Unprocessed Logs:', unprocessedlogcount);
+    Core_Console_Error('Unprocessed Logs:', unprocessedlogcount);
   }
 });

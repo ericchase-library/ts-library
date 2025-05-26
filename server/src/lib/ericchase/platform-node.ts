@@ -1,22 +1,18 @@
 import { default as NODE_FS } from 'node:fs';
 import { default as NODE_PATH } from 'node:path';
 import { default as NODE_URL } from 'node:url';
-import { Core } from './core.js';
+import { Core_Array_Split, Core_Console_Error, Core_JSON_ParseRawString, Core_Promise_Orphan, Core_String_Split, Core_String_SplitLines, Core_String_SplitMultipleSpaces, Core_Utility_DecodeBytes } from './core.js';
 
 export { NODE_FS, NODE_PATH, NODE_URL };
 
-export type WatchCallback = (event: 'rename' | 'change', path: string) => void;
-
-// constants
-
 const PATH__RESOLVE_CACHE = new Map<string, string>();
-const PATH__RESOLVED_CWD = path__join(process.cwd());
+const PATH__RESOLVED_CWD = NodePlatform_Path_Join(process.cwd());
 
 /**
- * The Core.JSON.ParseRawString(String.raw``)s are to keep bundlers (i.e Bun)
+ * The Core_JSON_ParseRawString(String.raw``)s are to keep bundlers (i.e Bun)
  * from replacing the unicode code points with an alternative representation.
  */
-const SHELL__GENERALASCIICODES = shell__createasciicodemap(String.raw`
+const SHELL__GENERALASCIICODES = internal_shell_create_ascii_code_map(String.raw`
 | BEL | \u0007 | Terminal bell
 | BS  | \u0008 | Backspace
 | HT  | \u0009 | Horizontal TAB
@@ -31,12 +27,13 @@ const SHELL__KEYS_ESC = SHELL__GENERALASCIICODES.ESC;
 const SHELL__KEYS_CSI = `${SHELL__KEYS_ESC}[`;
 const SHELL__KEYS_DCS = `${SHELL__KEYS_ESC}P`;
 const SHELL__KEYS_OSC = `${SHELL__KEYS_ESC}]`;
+
 const SHELL__KEYS = {
   ARROWS: {
-    DOWN: Core.JSON.ParseRawString(String.raw`\u001B[B`),
-    LEFT: Core.JSON.ParseRawString(String.raw`\u001B[D`),
-    RIGHT: Core.JSON.ParseRawString(String.raw`\u001B[C`),
-    UP: Core.JSON.ParseRawString(String.raw`\u001B[A`),
+    DOWN: Core_JSON_ParseRawString(String.raw`\u001B[B`),
+    LEFT: Core_JSON_ParseRawString(String.raw`\u001B[D`),
+    RIGHT: Core_JSON_ParseRawString(String.raw`\u001B[C`),
+    UP: Core_JSON_ParseRawString(String.raw`\u001B[A`),
   },
   GENERAL: {
     BEL: SHELL__GENERALASCIICODES.BEL,
@@ -52,7 +49,7 @@ const SHELL__KEYS = {
     OSC: SHELL__KEYS_OSC,
     VT: SHELL__GENERALASCIICODES.VT,
   },
-  SIGINT: Core.JSON.ParseRawString(String.raw`\u0003`), // Kill the currently running task in terminal.
+  SIGINT: Core_JSON_ParseRawString(String.raw`\u0003`), // Kill the currently running task in terminal.
 };
 
 /**
@@ -63,63 +60,66 @@ const SHELL__KEYS = {
 const SHELL__STDIN__LISTENERSET = new Set<(bytes: Uint8Array, text: string, removeSelf: () => boolean) => void | Promise<void>>();
 const SHELL__STDIN__READERLOCKS = new Set<() => void>();
 
-// variables
+let internal_shell_exit_trap_is_set = false;
+let internal_shell_stdin_raw_mode_enabled = false;
+let internal_shell_stdin_reader_enabled = false;
 
-let shell__exittrapisset = false;
-let shell__stdin__rawmodeenabled = false;
-let shell__stdin__readerenabled = false;
-
-// functions
-
-function error__cleanstack(stack = ''): string {
-  const lines = Core.String.SplitLines(stack ?? '');
+function internal_error_clean_call_stack(stack = ''): string {
+  const lines = Core_String_SplitLines(stack ?? '');
   if (lines[0].trim() === 'Error') {
     lines[0] = 'Fixed Call Stack:';
   }
   return lines.join('\n');
 }
-async function error__callasync<T>(stack: string | undefined, promise: Promise<T>): Promise<T> {
+
+async function internal_error_call_async<T>(stack: string | undefined, promise: Promise<T>): Promise<T> {
   try {
     return await promise;
   } catch (async_error: any) {
     if (typeof async_error === 'object') {
-      const error = new Error(`${async_error.message}\n${error__cleanstack(stack ?? '')}`);
+      const error = new Error(`${async_error.message}\n${internal_error_clean_call_stack(stack ?? '')}`);
       for (const key in async_error) {
         Object.defineProperty(error, key, { value: async_error[key] });
       }
       throw error;
     }
-    throw new Error(`${async_error}\n${error__cleanstack(stack ?? '')}`);
+    throw new Error(`${async_error}\n${internal_error_clean_call_stack(stack ?? '')}`);
   }
 }
 
-function shell__createasciicodemap(table: string): Record<string, string> {
+function internal_shell_create_ascii_code_map(table: string): Record<string, string> {
   const map: Record<string, string> = {};
-  for (const [name, code] of Core.Array.Split(Core.String.Split(table.trim(), '|', true), 3)) {
-    map[name.trim()] = Core.JSON.ParseRawString(Core.String.SplitMultipleSpaces(code, true)[0]);
+  for (const [name, code] of Core_Array_Split(Core_String_Split(table.trim(), '|', true), 3)) {
+    map[name.trim()] = Core_JSON_ParseRawString(Core_String_SplitMultipleSpaces(code, true)[0]);
   }
   return map;
 }
-function shell__listeneruncaughtexception(error: Error, origin: NodeJS.UncaughtExceptionOrigin): void {
-  shell__cursor__showcursor();
+
+function internal_shell_listen_for_uncaught_exception(error: Error, origin: NodeJS.UncaughtExceptionOrigin): void {
+  NodePlatform_Shell_Cursor_ShowCursor();
   if (process.listeners('uncaughtException').length === 1) {
-    Core.Console.Error('Uncaught exception:', error);
+    Core_Console_Error('Uncaught exception:', error);
     process.exit();
   }
 }
-function shell__setupexittrapforcursor(): void {
-  shell__exittrapisset = true;
-  process.on('exit', shell__cursor__showcursor);
-  process.on('SIGINT', shell__cursor__showcursor);
-  process.on('uncaughtException', () => shell__listeneruncaughtexception);
+
+function internal_shell_setup_exit_trap_for_cursor(): void {
+  internal_shell_exit_trap_is_set = true;
+  process.on('exit', NodePlatform_Shell_Cursor_ShowCursor);
+  process.on('SIGINT', NodePlatform_Shell_Cursor_ShowCursor);
+  process.on('uncaughtException', () => internal_shell_listen_for_uncaught_exception);
 }
 
-// Directory
+// Exports
 
-async function directory__async_create(path: string, recursive = true): Promise<boolean> {
+export const NodePlatform_Shell_Keys = SHELL__KEYS;
+
+export type WatchCallback = (event: 'rename' | 'change', path: string) => void;
+
+export async function NodePlatform_Directory_Async_Create(path: string, recursive = true): Promise<boolean> {
   try {
-    if (PATH__RESOLVED_CWD !== path__join(path)) {
-      await error__callasync(Error().stack, NODE_FS.promises.mkdir(path__join(path), { recursive }));
+    if (PATH__RESOLVED_CWD !== NodePlatform_Path_Join(path)) {
+      await internal_error_call_async(Error().stack, NODE_FS.promises.mkdir(NodePlatform_Path_Join(path), { recursive }));
     }
   } catch (error: any) {
     switch (error.code) {
@@ -129,14 +129,15 @@ async function directory__async_create(path: string, recursive = true): Promise<
         throw error;
     }
   }
-  return (await NODE_FS.promises.stat(path__join(path))).isDirectory();
+  return (await NODE_FS.promises.stat(NodePlatform_Path_Join(path))).isDirectory();
 }
-async function directory__async_delete(path: string, recursive = false): Promise<boolean> {
+
+export async function NodePlatform_Directory_Async_Delete(path: string, recursive = false): Promise<boolean> {
   try {
     if (recursive === false) {
-      await error__callasync(Error().stack, NODE_FS.promises.rmdir(path__join(path)));
+      await internal_error_call_async(Error().stack, NODE_FS.promises.rmdir(NodePlatform_Path_Join(path)));
     } else {
-      await error__callasync(Error().stack, NODE_FS.promises.rm(path__join(path), { recursive: true, force: true }));
+      await internal_error_call_async(Error().stack, NODE_FS.promises.rm(NodePlatform_Path_Join(path), { recursive: true, force: true }));
     }
   } catch (error: any) {
     switch (error.code) {
@@ -151,13 +152,14 @@ async function directory__async_delete(path: string, recursive = false): Promise
         throw error;
     }
   }
-  return NODE_FS.existsSync(path__join(path)) === false;
+  return NODE_FS.existsSync(NodePlatform_Path_Join(path)) === false;
 }
-async function directory__async_readdir(path: string, recursive = true): Promise<NODE_FS.Dirent[]> {
+
+export async function NodePlatform_Directory_Async_ReadDir(path: string, recursive = true): Promise<NODE_FS.Dirent[]> {
   try {
-    return await error__callasync(
+    return await internal_error_call_async(
       Error().stack,
-      NODE_FS.promises.readdir(path__join(path), {
+      NODE_FS.promises.readdir(NodePlatform_Path_Join(path), {
         recursive,
         withFileTypes: true,
       }),
@@ -170,8 +172,8 @@ async function directory__async_readdir(path: string, recursive = true): Promise
   }
 }
 
-function directory__watch(path: string, callback: WatchCallback, recursive = true): () => void {
-  const watcher = NODE_FS.watch(path__join(path), { persistent: true, recursive }, (event, filename) => {
+export function NodePlatform_Directory_Watch(path: string, callback: WatchCallback, recursive = true): () => void {
+  const watcher = NODE_FS.watch(NodePlatform_Path_Join(path), { persistent: true, recursive }, (event, filename) => {
     callback(event, filename ?? '');
   });
   return () => {
@@ -179,67 +181,103 @@ function directory__watch(path: string, callback: WatchCallback, recursive = tru
   };
 }
 
-// File
-
-async function file__async_appendbytes(path: string, bytes: Uint8Array): Promise<void> {
-  await error__callasync(Error().stack, directory__async_create(path__getparentpath(path)));
-  return await error__callasync(Error().stack, NODE_FS.promises.appendFile(path__join(path), bytes));
-}
-async function file__async_appendtext(path: string, text: string): Promise<void> {
-  await error__callasync(Error().stack, directory__async_create(path__getparentpath(path)));
-  return await error__callasync(Error().stack, NODE_FS.promises.appendFile(path__join(path), text));
-}
-async function file__async_readbytes(path: string): Promise<Uint8Array<ArrayBuffer>> {
-  return Uint8Array.from(await error__callasync(Error().stack, NODE_FS.promises.readFile(path__join(path), {})));
-}
-async function file__async_readtext(path: string): Promise<string> {
-  return await error__callasync(Error().stack, NODE_FS.promises.readFile(path__join(path), { encoding: 'utf8' }));
-}
-async function file__async_writebytes(path: string, bytes: Uint8Array): Promise<void> {
-  await error__callasync(Error().stack, directory__async_create(path__getparentpath(path)));
-  return await error__callasync(Error().stack, NODE_FS.promises.writeFile(path__join(path), bytes));
-}
-async function file__async_writetext(path: string, text: string): Promise<void> {
-  await error__callasync(Error().stack, directory__async_create(path__getparentpath(path)));
-  return await error__callasync(Error().stack, NODE_FS.promises.writeFile(path__join(path), text));
+export async function NodePlatform_File_Async_AppendBytes(path: string, bytes: Uint8Array): Promise<void> {
+  await internal_error_call_async(Error().stack, NodePlatform_Directory_Async_Create(NodePlatform_Path_GetParentPath(path)));
+  return await internal_error_call_async(Error().stack, NODE_FS.promises.appendFile(NodePlatform_Path_Join(path), bytes));
 }
 
-// Path
-
-async function path__async_getstats(path: string): Promise<NODE_FS.Stats> {
-  return await error__callasync(Error().stack, NODE_FS.promises.stat(path__join(path)));
-}
-async function path__async_isdirectory(path: string): Promise<boolean> {
-  return (await path__async_getstats(path)).isDirectory();
-}
-async function path__async_isfile(path: string): Promise<boolean> {
-  return (await path__async_getstats(path)).isFile();
-}
-async function path__async_issymboliclink(path: string): Promise<boolean> {
-  return (await path__async_getstats(path)).isSymbolicLink();
+export async function NodePlatform_File_Async_AppendText(path: string, text: string): Promise<void> {
+  await internal_error_call_async(Error().stack, NodePlatform_Directory_Async_Create(NodePlatform_Path_GetParentPath(path)));
+  return await internal_error_call_async(Error().stack, NODE_FS.promises.appendFile(NodePlatform_Path_Join(path), text));
 }
 
-function path__getbasename(path: string): string {
-  return path__slice(path, -1);
+export async function NodePlatform_File_Async_ReadBytes(path: string): Promise<Uint8Array<ArrayBuffer>> {
+  return Uint8Array.from(await internal_error_call_async(Error().stack, NODE_FS.promises.readFile(NodePlatform_Path_Join(path), {})));
 }
-function path__getextension(path: string): string {
-  const basename = path__getbasename(path);
+
+export async function NodePlatform_File_Async_ReadText(path: string): Promise<string> {
+  return await internal_error_call_async(Error().stack, NODE_FS.promises.readFile(NodePlatform_Path_Join(path), { encoding: 'utf8' }));
+}
+
+export async function NodePlatform_File_Async_WriteBytes(path: string, bytes: Uint8Array): Promise<void> {
+  await internal_error_call_async(Error().stack, NodePlatform_Directory_Async_Create(NodePlatform_Path_GetParentPath(path)));
+  return await internal_error_call_async(Error().stack, NODE_FS.promises.writeFile(NodePlatform_Path_Join(path), bytes));
+}
+
+export async function NodePlatform_File_Async_WriteText(path: string, text: string): Promise<void> {
+  await internal_error_call_async(Error().stack, NodePlatform_Directory_Async_Create(NodePlatform_Path_GetParentPath(path)));
+  return await internal_error_call_async(Error().stack, NODE_FS.promises.writeFile(NodePlatform_Path_Join(path), text));
+}
+
+export async function NodePlatform_Path_Async_GetStats(path: string): Promise<NODE_FS.Stats> {
+  return await internal_error_call_async(Error().stack, NODE_FS.promises.stat(NodePlatform_Path_Join(path)));
+}
+
+export async function NodePlatform_Path_Async_IsDirectory(path: string): Promise<boolean> {
+  return (await NodePlatform_Path_Async_GetStats(path)).isDirectory();
+}
+
+export async function NodePlatform_Path_Async_IsFile(path: string): Promise<boolean> {
+  return (await NodePlatform_Path_Async_GetStats(path)).isFile();
+}
+
+export async function NodePlatform_Path_Async_IsSymbolicLink(path: string): Promise<boolean> {
+  return (await NodePlatform_Path_Async_GetStats(path)).isSymbolicLink();
+}
+
+export function NodePlatform_Path_GetBaseName(path: string): string {
+  /**
+   * Gets the rightmost segment of the path.
+   */
+  return NodePlatform_Path_Slice(path, -1);
+}
+
+export function NodePlatform_Path_GetExtension(path: string): string {
+  /**
+   * Gets all characters in the basename that appear right of the final dot,
+   * including the dot. If the basename starts with a dot and has no other
+   * dots, returns empty string. If the basename has no dots, returns empty
+   * string.
+   */
+  const basename = NodePlatform_Path_GetBaseName(path);
   return basename.indexOf('.') > 0 //
     ? basename.slice(basename.lastIndexOf('.'))
     : '';
 }
-function path__getname(path: string): string {
-  const basename = path__getbasename(path);
+
+export function NodePlatform_Path_GetName(path: string): string {
+  /**
+   * Gets all characters in the basename that appear left of the final dot,
+   * excluding the dot. If the basename starts with a dot and has no other
+   * dots, returns the entire segment.
+   */
+  const basename = NodePlatform_Path_GetBaseName(path);
   return basename.indexOf('.') > 0 //
     ? basename.slice(0, basename.lastIndexOf('.'))
     : basename;
 }
-function path__getparentpath(path: string): string {
-  return path__slice(path, 0, -1);
+
+export function NodePlatform_Path_GetParentPath(path: string): string {
+  /**
+   * Gets the path excluding the rightmost segment.
+   */
+  return NodePlatform_Path_Slice(path, 0, -1);
 }
 
-function path__newbasename(path: string, value: string): string {
-  const segments = path__join(path)
+export function NodePlatform_Path_Join(...paths: string[]): string {
+  return NODE_PATH.join(...paths);
+}
+
+export function NodePlatform_Path_JoinStandard(...paths: string[]): string {
+  return NODE_PATH.join(...paths).replaceAll('\\', '/');
+}
+
+export function NodePlatform_Path_NewBaseName(path: string, value: string): string {
+  /**
+   * Returns a new path string with the rightmost segment of the path st to
+   * value.
+   */
+  const segments = NodePlatform_Path_Join(path)
     .split(/[\\\/]/)
     .filter(({ length }) => length > 0);
   if (segments.length > 0) {
@@ -249,228 +287,157 @@ function path__newbasename(path: string, value: string): string {
   }
   return segments.join(NODE_PATH.sep);
 }
-function path__newextension(path: string, value: string): string {
-  const name = path__getname(path);
+
+export function NodePlatform_Path_NewExtension(path: string, value: string): string {
+  /**
+   * Returns a new path string with all characters in the basename that
+   * appear right of the final dot set to `value`.
+   */
+  const name = NodePlatform_Path_GetName(path);
   if (value[0] !== '.') {
-    return path__newbasename(path, `${name}.${value}`);
+    return NodePlatform_Path_NewBaseName(path, `${name}.${value}`);
   } else {
-    return path__newbasename(path, name + value);
+    return NodePlatform_Path_NewBaseName(path, name + value);
   }
 }
-function path__newname(path: string, value: string): string {
-  return path__newbasename(path, value + path__getextension(path));
+
+export function NodePlatform_Path_NewName(path: string, value: string): string {
+  /**
+   * Returns a new path string with all characters in the basename that
+   * appear left of the final dot set to `value`.
+   */
+  return NodePlatform_Path_NewBaseName(path, value + NodePlatform_Path_GetExtension(path));
 }
 
-function path__join(...paths: string[]): string {
-  return NODE_PATH.join(...paths);
-}
-function path__joinstandard(...paths: string[]): string {
-  return NODE_PATH.join(...paths).replaceAll('\\', '/');
-}
-function path__resolve(...paths: string[]): string {
+export function NodePlatform_Path_Resolve(...paths: string[]): string {
   // return Core.Map.GetOrDefault(PATH__RESOLVE_CACHE, path, () => {
   return NODE_PATH.resolve(...paths);
   // });
 }
-function path__resolvestandard(...paths: string[]): string {
+
+export function NodePlatform_Path_ResolveStandard(...paths: string[]): string {
   // return Core.Map.GetOrDefault(PATH__RESOLVE_CACHE, path, () => {
   return NODE_PATH.resolve(...paths).replaceAll('\\', '/');
   // });
 }
-function path__slice(path: string, begin: number, end?: number): string {
-  const segments = path__join(path)
+
+export function NodePlatform_Path_Slice(path: string, begin: number, end?: number): string {
+  const segments = NodePlatform_Path_Join(path)
     .split(/[\\\/]/)
     .filter(({ length }) => length > 0);
   return segments.slice(begin, end).join(NODE_PATH.sep);
 }
-function path__slicestandard(path: string, begin: number, end?: number): string {
-  const segments = path__join(path)
+
+export function NodePlatform_Path_SliceStandard(path: string, begin: number, end?: number): string {
+  const segments = NodePlatform_Path_Join(path)
     .split(/[\\\/]/)
     .filter(({ length }) => length > 0);
   return segments.slice(begin, end).join('/');
 }
 
-// Shell
-
-function shell__cursor__erasecurrentline(): void {
+export function NodePlatform_Shell_Cursor_EraseCurrentLine(): void {
   process.stdout.write(`${SHELL__KEYS_CSI}2K`);
 }
-function shell__cursor__hidecursor(): void {
+
+export function NodePlatform_Shell_Cursor_HideCursor(): void {
   process.stdout.write(`${SHELL__KEYS_CSI}?25l`);
-  if (shell__exittrapisset === false) {
-    shell__setupexittrapforcursor();
+  if (internal_shell_exit_trap_is_set === false) {
+    internal_shell_setup_exit_trap_for_cursor();
   }
 }
-function shell__cursor__movecursordown(count = 0, to_start = false): void {
+
+export function NodePlatform_Shell_Cursor_MoveCursorDown(count = 0, to_start = false): void {
   if (to_start === true) {
     process.stdout.write(`${SHELL__KEYS_CSI}${count}E`);
   } else {
     process.stdout.write(`${SHELL__KEYS_CSI}${count}B`);
   }
 }
-function shell__cursor__movecursorleft(count = 0): void {
+
+export function NodePlatform_Shell_Cursor_MoveCursorLeft(count = 0): void {
   process.stdout.write(`${SHELL__KEYS_CSI}${count}D`);
 }
-function shell__cursor__movecursorright(count = 0): void {
+
+export function NodePlatform_Shell_Cursor_MoveCursorRight(count = 0): void {
   process.stdout.write(`${SHELL__KEYS_CSI}${count}C`);
 }
-function shell__cursor__movecursorstart(): void {
+
+export function NodePlatform_Shell_Cursor_MoveCursorStart(): void {
   process.stdout.write('\r');
 }
-function shell__cursor__movecursortocolumn(count = 0): void {
+
+export function NodePlatform_Shell_Cursor_MoveCursorToColumn(count = 0): void {
   process.stdout.write(`${SHELL__KEYS_CSI}${count}G`);
 }
-function shell__cursor__movecursorup(count = 0, to_start = false): void {
+
+export function NodePlatform_Shell_Cursor_MoveCursorUp(count = 0, to_start = false): void {
   if (to_start === true) {
     process.stdout.write(`${SHELL__KEYS_CSI}${count}F`);
   } else {
     process.stdout.write(`${SHELL__KEYS_CSI}${count}A`);
   }
 }
-function shell__cursor__showcursor(): void {
+
+export function NodePlatform_Shell_Cursor_ShowCursor(): void {
   process.stdout.write(`${SHELL__KEYS_CSI}?25h`);
 }
 
-function shell__stdin__addlistener(listener: (bytes: Uint8Array, text: string, removeSelf: () => boolean) => void | Promise<void>): void {
+export function NodePlatform_Shell_StdIn_AddListener(listener: (bytes: Uint8Array, text: string, removeSelf: () => boolean) => void | Promise<void>): void {
   SHELL__STDIN__LISTENERSET.add(listener);
 }
-function shell__stdin__lockreader(): () => void {
+
+export function NodePlatform_Shell_StdIn_LockReader(): () => void {
   const release = () => {
     SHELL__STDIN__READERLOCKS.delete(release);
-    shell__stdin__stopreader();
+    NodePlatform_Shell_StdIn_StopReader();
   };
   SHELL__STDIN__READERLOCKS.add(release);
   return release;
 }
-function shell__stdin__readerhandler(bytes: Uint8Array): void {
-  const text = Core.Utility.DecodeBytes(bytes);
+
+export function NodePlatform_Shell_StdIn_ReaderHandler(bytes: Uint8Array): void {
+  const text = Core_Utility_DecodeBytes(bytes);
   for (const listener of SHELL__STDIN__LISTENERSET) {
-    Core.Promise.Orphan(listener(bytes, text, () => SHELL__STDIN__LISTENERSET.delete(listener)));
-  }
-}
-function shell__stdin__startreader(): void {
-  if (shell__stdin__readerenabled === true && shell__stdin__rawmodeenabled === true) {
-    shell__stdin__stopreader();
-  }
-  if (shell__stdin__readerenabled === false) {
-    process.stdin //
-      .addListener('data', shell__stdin__readerhandler)
-      .resume();
-    shell__stdin__readerenabled = true;
-    shell__stdin__rawmodeenabled = false;
-  }
-}
-function shell__stdin__startreaderinrawmode(): void {
-  if (shell__stdin__readerenabled === true && shell__stdin__rawmodeenabled === false) {
-    shell__stdin__stopreader();
-  }
-  if (shell__stdin__readerenabled === false) {
-    process.stdin //
-      .setRawMode(true)
-      .addListener('data', shell__stdin__readerhandler)
-      .resume();
-    shell__stdin__readerenabled = true;
-    shell__stdin__rawmodeenabled = true;
-  }
-}
-function shell__stdin__stopreader(): void {
-  if (SHELL__STDIN__READERLOCKS.size === 0) {
-    if (shell__stdin__readerenabled === true) {
-      process.stdin //
-        .pause()
-        .removeListener('data', shell__stdin__readerhandler)
-        .setRawMode(false);
-      shell__stdin__readerenabled = true;
-      shell__stdin__rawmodeenabled = false;
-    }
+    Core_Promise_Orphan(listener(bytes, text, () => SHELL__STDIN__LISTENERSET.delete(listener)));
   }
 }
 
-export namespace NodePlatform {
-  export namespace Directory {
-    export const Async_Create = directory__async_create;
-    export const Async_Delete = directory__async_delete;
-    export const Async_ReadDir = directory__async_readdir;
-    //
-    export const Watch = directory__watch;
+export function NodePlatform_Shell_StdIn_StartReader(): void {
+  if (internal_shell_stdin_reader_enabled === true && internal_shell_stdin_raw_mode_enabled === true) {
+    NodePlatform_Shell_StdIn_StopReader();
   }
-  export namespace File {
-    export const Async_AppendBytes = file__async_appendbytes;
-    export const Async_AppendText = file__async_appendtext;
-    export const Async_ReadBytes = file__async_readbytes;
-    export const Async_ReadText = file__async_readtext;
-    export const Async_WriteBytes = file__async_writebytes;
-    export const Async_WriteText = file__async_writetext;
+  if (internal_shell_stdin_reader_enabled === false) {
+    process.stdin //
+      .addListener('data', NodePlatform_Shell_StdIn_ReaderHandler)
+      .resume();
+    internal_shell_stdin_reader_enabled = true;
+    internal_shell_stdin_raw_mode_enabled = false;
   }
-  export namespace Path {
-    export const Async_GetStats = path__async_getstats;
-    export const Async_IsDirectory = path__async_isdirectory;
-    export const Async_IsFile = path__async_isfile;
-    export const Async_IsSymbolicLink = path__async_issymboliclink;
-    //
-    /**
-     * Gets the rightmost segment of the path.
-     */
-    export const GetBaseName = path__getbasename;
-    /**
-     * Gets all characters in the basename that appear right of the final dot,
-     * including the dot. If the basename starts with a dot and has no other
-     * dots, returns empty string. If the basename has no dots, returns empty
-     * string.
-     */
-    export const GetExtension = path__getextension;
-    /**
-     * Gets all characters in the basename that appear left of the final dot,
-     * excluding the dot. If the basename starts with a dot and has no other
-     * dots, returns the entire segment.
-     */
-    export const GetName = path__getname;
-    /**
-     * Gets the path excluding the rightmost segment.
-     */
-    export const GetParentPath = path__getparentpath;
-    /**
-     * Returns a new path string with the rightmost segment of the path st to
-     * value.
-     */
-    export const NewBaseName = path__newbasename;
-    /**
-     * Returns a new path string with all characters in the basename that
-     * appear right of the final dot set to `value`.
-     */
-    export const NewExtension = path__newextension;
-    /**
-     * Returns a new path string with all characters in the basename that
-     * appear left of the final dot set to `value`.
-     */
-    export const NewName = path__newname;
-    //
-    export const Join = path__join;
-    export const JoinStandard = path__joinstandard;
-    export const Resolve = path__resolve;
-    export const ResolveStandard = path__resolvestandard;
-    export const Slice = path__slice;
-    export const SliceStandard = path__slicestandard;
+}
+
+export function NodePlatform_Shell_StdIn_StartReaderInRawMode(): void {
+  if (internal_shell_stdin_reader_enabled === true && internal_shell_stdin_raw_mode_enabled === false) {
+    NodePlatform_Shell_StdIn_StopReader();
   }
-  export namespace Shell {
-    export namespace Cursor {
-      export const EraseCurrentLine = shell__cursor__erasecurrentline;
-      export const HideCursor = shell__cursor__hidecursor;
-      export const MoveCursorDown = shell__cursor__movecursordown;
-      export const MoveCursorLeft = shell__cursor__movecursorleft;
-      export const MoveCursorRight = shell__cursor__movecursorright;
-      export const MoveCursorStart = shell__cursor__movecursorstart;
-      export const MoveCursorToColumn = shell__cursor__movecursortocolumn;
-      export const MoveCursorUp = shell__cursor__movecursorup;
-      export const ShowCursor = shell__cursor__showcursor;
-    }
-    export const KEYS = SHELL__KEYS;
-    export namespace StdIn {
-      export const AddListener = shell__stdin__addlistener;
-      export const LockReader = shell__stdin__lockreader;
-      export const StartReader = shell__stdin__startreader;
-      export const StartReaderInRawMode = shell__stdin__startreaderinrawmode;
-      export const StopReader = shell__stdin__stopreader;
+  if (internal_shell_stdin_reader_enabled === false) {
+    process.stdin //
+      .setRawMode(true)
+      .addListener('data', NodePlatform_Shell_StdIn_ReaderHandler)
+      .resume();
+    internal_shell_stdin_reader_enabled = true;
+    internal_shell_stdin_raw_mode_enabled = true;
+  }
+}
+
+export function NodePlatform_Shell_StdIn_StopReader(): void {
+  if (SHELL__STDIN__READERLOCKS.size === 0) {
+    if (internal_shell_stdin_reader_enabled === true) {
+      process.stdin //
+        .pause()
+        .removeListener('data', NodePlatform_Shell_StdIn_ReaderHandler)
+        .setRawMode(false);
+      internal_shell_stdin_reader_enabled = true;
+      internal_shell_stdin_raw_mode_enabled = false;
     }
   }
 }

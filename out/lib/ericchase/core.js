@@ -106,13 +106,53 @@ class ClassUtilityDefer {
     }
   }
 }
-function* array__gen_buffertobytes(buffer) {
+export function Core_Array_AreEqual(array, other) {
+  if (array.length !== other.length) {
+    return false;
+  }
+  for (let i = 0;i < array.length; i++) {
+    if (array[i] !== other[i]) {
+      return false;
+    }
+  }
+  return true;
+}
+export function Core_Array_BinarySearch_ExactMatch(array, target, isOrdered = (a, b) => a < b) {
+  let [begin, end] = Core_Array_GetEndpoints(array);
+  let middle = Core_Math_GetMidpoint(begin, end);
+  while (begin < end) {
+    if (isOrdered(target, array[middle])) {
+      end = middle;
+    } else {
+      begin = middle + 1;
+    }
+    middle = Core_Math_GetMidpoint(begin, end);
+  }
+  if (isOrdered(array[middle - 1], target) === false) {
+    return middle - 1;
+  }
+  return -1;
+}
+export function Core_Array_BinarySearch_InsertionIndex(array, target, isOrdered = (a, b) => a < b) {
+  let [begin, end] = Core_Array_GetEndpoints(array);
+  let middle = Core_Math_GetMidpoint(begin, end);
+  while (begin < end) {
+    if (isOrdered(target, array[middle])) {
+      end = middle;
+    } else {
+      begin = middle + 1;
+    }
+    middle = Core_Math_GetMidpoint(begin, end);
+  }
+  return middle - 1;
+}
+export function* Core_Array_Gen_BufferToBytes(buffer) {
   const view = new DataView(buffer);
   for (let i = 0;i < view.byteLength; i++) {
     yield view.getUint8(i) >>> 0;
   }
 }
-function* array__gen_chunks(array, count) {
+export function* Core_Array_Gen_Chunks(array, count) {
   if (count > array.length) {
     yield { begin: 0, end: array.length, slice: array.slice() };
   } else if (count > 0) {
@@ -125,7 +165,7 @@ function* array__gen_chunks(array, count) {
     yield { begin: 0, end: 0, slice: [] };
   }
 }
-function* array__gen_slidingwindow(array, count) {
+export function* Core_Array_Gen_SlidingWindow(array, count) {
   if (count > 0) {
     if (count < array.length) {
       let i = count;
@@ -138,7 +178,7 @@ function* array__gen_slidingwindow(array, count) {
     }
   }
 }
-function* array__gen_zip(...iterables) {
+export function* Core_Array_Gen_Zip(...iterables) {
   let mock_count = 0;
   const mock_iterable = {
     next() {
@@ -177,24 +217,13 @@ function* array__gen_zip(...iterables) {
     values = process_iterators(iterators);
   }
 }
-function array__areequal(array, other) {
-  if (array.length !== other.length) {
-    return false;
-  }
-  for (let i = 0;i < array.length; i++) {
-    if (array[i] !== other[i]) {
-      return false;
-    }
-  }
-  return true;
-}
-function array__getendpoints(array) {
+export function Core_Array_GetEndpoints(array) {
   if (!Array.isArray(array) || array.length < 1) {
     return [-1, -1];
   }
   return [0, array.length];
 }
-function array__shuffle(items, in_place = true) {
+export function Core_Array_Shuffle(items, in_place = true) {
   const last = items.length - 1;
   for (let i = 0;i < items.length; i++) {
     let random = Math.floor(Math.random() * last);
@@ -202,42 +231,16 @@ function array__shuffle(items, in_place = true) {
   }
   return items;
 }
-function array__split(array, count) {
-  return [...array__gen_chunks(array, count)].map((chunk) => chunk.slice);
+export function Core_Array_Split(array, count) {
+  return [...Core_Array_Gen_Chunks(array, count)].map((chunk) => chunk.slice);
 }
-function array__binarysearch__exactmatch(array, target, isOrdered = (a, b) => a < b) {
-  let [begin, end] = Core.Array.GetEndpoints(array);
-  let middle = Core.Math.GetMidpoint(begin, end);
-  while (begin < end) {
-    if (isOrdered(target, array[middle])) {
-      end = middle;
-    } else {
-      begin = middle + 1;
-    }
-    middle = Core.Math.GetMidpoint(begin, end);
-  }
-  if (isOrdered(array[middle - 1], target) === false) {
-    return middle - 1;
-  }
-  return -1;
+export function Core_Array_Uint32_ToHex(uint) {
+  return Core_Array_Uint8_ToHex(Core_Array_Uint8_FromUint32(uint));
 }
-function array__binarysearch__insertionorder(array, target, isOrdered = (a, b) => a < b) {
-  let [begin, end] = Core.Array.GetEndpoints(array);
-  let middle = Core.Math.GetMidpoint(begin, end);
-  while (begin < end) {
-    if (isOrdered(target, array[middle])) {
-      end = middle;
-    } else {
-      begin = middle + 1;
-    }
-    middle = Core.Math.GetMidpoint(begin, end);
-  }
-  return middle - 1;
-}
-function array__uint8__class_group() {
+export function Core_Array_Uint8_Class_Group() {
   return new ClassArrayUint8Group;
 }
-function array__uint8__concat(arrays) {
+export function Core_Array_Uint8_Concat(arrays) {
   let totalLength = 0;
   for (const array of arrays) {
     totalLength += array.length;
@@ -250,10 +253,10 @@ function array__uint8__concat(arrays) {
   }
   return result;
 }
-function array__uint8__copy(bytes, count, offset = 0) {
+export function Core_Array_Uint8_Copy(bytes, count, offset = 0) {
   return bytes.slice(offset, offset + count);
 }
-function array__uint8__frombase64(b64_str) {
+export function Core_Array_Uint8_FromBase64(b64_str) {
   if (b64_str.length % 4 === 0) {
     const b64_padding = (b64_str[b64_str.length - 1] === "=" ? 1 : 0) + (b64_str[b64_str.length - 2] === "=" ? 1 : 0);
     const b64_bytes = new Uint8Array(b64_str.length - b64_padding);
@@ -299,16 +302,16 @@ function array__uint8__frombase64(b64_str) {
   }
   return new Uint8Array(0);
 }
-function array__uint8__fromstring(from) {
+export function Core_Array_Uint8_FromString(from) {
   return new TextEncoder().encode(from);
 }
-function array__uint8__fromuint32(from) {
+export function Core_Array_Uint8_FromUint32(from) {
   const u8s = new Uint8Array(4);
   const view = new DataView(u8s.buffer);
   view.setUint32(0, from >>> 0, false);
   return u8s;
 }
-function array__uint8__split(bytes, count) {
+export function Core_Array_Uint8_Split(bytes, count) {
   if (count > bytes.byteLength) {
     return [bytes.slice()];
   }
@@ -321,7 +324,7 @@ function array__uint8__split(bytes, count) {
   }
   return [bytes.slice()];
 }
-function array__uint8__take(bytes, count) {
+export function Core_Array_Uint8_Take(bytes, count) {
   if (count > bytes.byteLength) {
     return [bytes.slice(), new Uint8Array];
   }
@@ -332,7 +335,7 @@ function array__uint8__take(bytes, count) {
   }
   return [new Uint8Array, bytes.slice()];
 }
-function array__uint8__takeend(bytes, count) {
+export function Core_Array_Uint8_TakeEnd(bytes, count) {
   if (count > bytes.byteLength) {
     return [bytes.slice(), new Uint8Array];
   }
@@ -343,14 +346,14 @@ function array__uint8__takeend(bytes, count) {
   }
   return [new Uint8Array, bytes.slice()];
 }
-function array__uint8__toascii(bytes) {
+export function Core_Array_Uint8_ToASCII(bytes) {
   let ascii = "";
   for (const byte of bytes) {
     ascii += String.fromCharCode(byte >>> 0);
   }
   return ascii;
 }
-function array__uint8__tobase64(u8_bytes) {
+export function Core_Array_Uint8_ToBase64(u8_bytes) {
   let b64_out = "";
   let u8_index = 0;
   while (u8_index + 3 <= u8_bytes.length) {
@@ -389,105 +392,102 @@ function array__uint8__tobase64(u8_bytes) {
   }
   return b64_out;
 }
-function array__uint8__todecimal(bytes) {
+export function Core_Array_Uint8_ToDecimal(bytes) {
   const decimal = new Array(bytes.byteLength);
   for (let i = 0;i < bytes.byteLength; i += 1) {
     decimal[i] = (bytes[i] >>> 0).toString(10);
   }
   return decimal;
 }
-function array__uint8__tohex(bytes) {
+export function Core_Array_Uint8_ToHex(bytes) {
   const hex = new Array(bytes.byteLength);
   for (let i = 0;i < bytes.byteLength; i += 1) {
     hex[i] = (bytes[i] >>> 0).toString(16).padStart(2, "0");
   }
   return hex;
 }
-function array__uint8__tolines(bytes) {
-  return string__splitlines(array__uint8__tostring(bytes));
+export function Core_Array_Uint8_ToLines(bytes) {
+  return Core_String_SplitLines(Core_Array_Uint8_ToString(bytes));
 }
-function array__uint8__tostring(bytes) {
+export function Core_Array_Uint8_ToString(bytes) {
   return new TextDecoder().decode(bytes);
 }
-function array__uint32__tohex(uint) {
-  return array__uint8__tohex(array__uint8__fromuint32(uint));
-}
-function assert__equal(value1, value2) {
-  if (value1 !== value2) {
-    throw new Error(`Assertion Failed: value1(${value1}) should equal value2(${value2})`);
-  }
-  return true;
-}
-function assert__notequal(value1, value2) {
-  if (value1 === value2) {
-    throw new Error(`Assertion Failed: value1(${value1}) should not equal value2(${value2})`);
-  }
-  return true;
-}
-function assert__bigint(value) {
+export function Core_Assert_BigInt(value) {
   if (typeof value !== "bigint") {
     throw new Error(`Assertion Failed: typeof value(${value}) should equal bigint`);
   }
   return true;
 }
-function assert__boolean(value) {
+export function Core_Assert_Boolean(value) {
   if (typeof value !== "boolean") {
     throw new Error(`Assertion Failed: typeof value(${value}) should equal boolean`);
   }
   return true;
 }
-function assert__function(value) {
+export function Core_Assert_Equal(value1, value2) {
+  if (value1 !== value2) {
+    throw new Error(`Assertion Failed: value1(${value1}) should equal value2(${value2})`);
+  }
+  return true;
+}
+export function Core_Assert_Function(value) {
   if (typeof value !== "function") {
     throw new Error(`Assertion Failed: typeof value(${value}) should equal function`);
   }
   return true;
 }
-function assert__number(value) {
+export function Core_Assert_NotEqual(value1, value2) {
+  if (value1 === value2) {
+    throw new Error(`Assertion Failed: value1(${value1}) should not equal value2(${value2})`);
+  }
+  return true;
+}
+export function Core_Assert_Number(value) {
   if (typeof value !== "number") {
     throw new Error(`Assertion Failed: typeof value(${value}) should equal number`);
   }
   return true;
 }
-function assert__object(value) {
+export function Core_Assert_Object(value) {
   if (typeof value !== "object") {
     throw new Error(`Assertion Failed: typeof value(${value}) should equal object`);
   }
   return true;
 }
-function assert__string(value) {
+export function Core_Assert_String(value) {
   if (typeof value !== "string") {
     throw new Error(`Assertion Failed: typeof value(${value}) should equal string`);
   }
   return true;
 }
-function assert__symbol(value) {
+export function Core_Assert_Symbol(value) {
   if (typeof value !== "symbol") {
     throw new Error(`Assertion Failed: typeof value(${value}) should equal symbol`);
   }
   return true;
 }
-function assert__undefined(value) {
+export function Core_Assert_Undefined(value) {
   if (typeof value !== "undefined") {
     throw new Error(`Assertion Failed: typeof value(${value}) should equal undefined`);
   }
   return true;
 }
-function console__error(...items) {
+export function Core_Console_Error(...items) {
   console["error"](...items);
 }
-function console__errorwithdate(...items) {
+export function Core_Console_ErrorWithDate(...items) {
   console["error"](`[${new Date().toLocaleString()}]`, ...items);
 }
-function console__log(...items) {
+export function Core_Console_Log(...items) {
   console["log"](...items);
 }
-function console__logwithdate(...items) {
+export function Core_Console_LogWithDate(...items) {
   console["log"](`[${new Date().toLocaleString()}]`, ...items);
 }
-function json__analyze(obj) {
+export function Core_JSON_Analyze(obj) {
   if (Array.isArray(obj)) {
     for (const item of obj) {
-      json__analyze(item);
+      Core_JSON_Analyze(item);
     }
     return { source: obj, type: "array" };
   }
@@ -499,19 +499,19 @@ function json__analyze(obj) {
   }
   for (const key in obj) {
     if (Object.hasOwn(obj, key)) {
-      json__analyze(obj[key]);
+      Core_JSON_Analyze(obj[key]);
     }
   }
   return { source: obj, type: "object" };
 }
-function json__merge(...sources) {
+export function Core_JSON_Merge(...sources) {
   if (sources.length === 0)
     return null;
   if (sources.length === 1)
-    return json__analyze(sources[0]).source;
-  const head = json__analyze(sources[0]);
+    return Core_JSON_Analyze(sources[0]).source;
+  const head = Core_JSON_Analyze(sources[0]);
   for (const source of sources.slice(1)) {
-    if (json__analyze(source).type !== head.type) {
+    if (Core_JSON_Analyze(source).type !== head.type) {
       throw TypeError("Cannot merge JSON strings of different types. Every JSON string must be all arrays, all objects, or all primitives.");
     }
   }
@@ -528,8 +528,8 @@ function json__merge(...sources) {
         if (Object.hasOwn(result, key) === false) {
           result[key] = {};
         }
-        const { type: r_type } = json__analyze(result[key]);
-        const { type: s_type } = json__analyze(source[key]);
+        const { type: r_type } = Core_JSON_Analyze(result[key]);
+        const { type: s_type } = Core_JSON_Analyze(source[key]);
         if (r_type === "object" && s_type === "object") {
           mergeinto(result[key], source[key]);
         } else if (r_type === "array" && s_type === "array") {
@@ -546,12 +546,12 @@ function json__merge(...sources) {
     }
     return result;
   }
-  return json__analyze(sources[sources.length - 1]).source;
+  return Core_JSON_Analyze(sources[sources.length - 1]).source;
 }
-function json__parserawstring(str) {
+export function Core_JSON_ParseRawString(str) {
   return JSON.parse(`"${str}"`);
 }
-function map__getordefault(map, key, newValue) {
+export function Core_Map_GetOrDefault(map, key, newValue) {
   if (map.has(key)) {
     return map.get(key);
   }
@@ -559,14 +559,25 @@ function map__getordefault(map, key, newValue) {
   map.set(key, value);
   return value;
 }
-function* math__gen_cartesianproduct(array_a, array_b) {
+export function Core_Math_Factorial(n) {
+  if (!(n in MATH__FACTORIAL__CACHE)) {
+    let fact = MATH__FACTORIAL__CACHE[MATH__FACTORIAL__CACHE.length - 1];
+    for (let i = MATH__FACTORIAL__CACHE.length;i < n; i++) {
+      fact *= BigInt(i);
+      MATH__FACTORIAL__CACHE[i] = fact;
+    }
+    MATH__FACTORIAL__CACHE[n] = fact * BigInt(n);
+  }
+  return MATH__FACTORIAL__CACHE[n];
+}
+export function* Core_Math_Gen_CartesianProduct(array_a, array_b) {
   for (let i = 0;i < array_a.length; i++) {
     for (let j = 0;j < array_b.length; j++) {
       yield [array_a[i], array_b[j]];
     }
   }
 }
-function* math__gen_ncartesianproducts(...arrays) {
+export function* Core_Math_Gen_NCartesianProducts(...arrays) {
   const count = arrays.reduce((product, arr) => product * BigInt(arr.length), 1n);
   const out = arrays.map((arr) => arr[0]);
   const indices = new Array(arrays.length).fill(0);
@@ -585,8 +596,8 @@ function* math__gen_ncartesianproducts(...arrays) {
     }
   }
 }
-function* math__gen_nchoosercombinations(choices, r, repetitions = false) {
-  const count = math__ncr(choices.length, r, repetitions);
+export function* Core_Math_Gen_NChooseRCombinations(choices, r, repetitions = false) {
+  const count = Core_Math_nCr(choices.length, r, repetitions);
   if (repetitions === true) {
     const out = new Array(r).fill(choices[0]);
     const indices = new Array(r).fill(0);
@@ -625,8 +636,8 @@ function* math__gen_nchoosercombinations(choices, r, repetitions = false) {
     }
   }
 }
-function* math__gen_nchooserpermutations(choices, r, repetitions = false) {
-  const count = math__npr(choices.length, r, repetitions);
+export function* Core_Math_Gen_NChooseRPermutations(choices, r, repetitions = false) {
+  const count = Core_Math_nPr(choices.length, r, repetitions);
   if (repetitions === true) {
     const out = new Array(r).fill(choices[0]);
     const indices = new Array(r).fill(0);
@@ -679,33 +690,22 @@ function* math__gen_nchooserpermutations(choices, r, repetitions = false) {
     }
   }
 }
-function math__ncr(n, r, repetitions = false) {
-  if (repetitions === true) {
-    return math__factorial(n + r - 1) / (math__factorial(r) * math__factorial(n - 1));
-  }
-  return math__factorial(n) / (math__factorial(r) * math__factorial(n - r));
+export function Core_Math_GetMidpoint(a, b) {
+  return (b - a) % 2 === 0 ? (a + b) / 2 : (a + b - 1) / 2;
 }
-function math__npr(n, r, repetitions = false) {
+export function Core_Math_nCr(n, r, repetitions = false) {
+  if (repetitions === true) {
+    return Core_Math_Factorial(n + r - 1) / (Core_Math_Factorial(r) * Core_Math_Factorial(n - 1));
+  }
+  return Core_Math_Factorial(n) / (Core_Math_Factorial(r) * Core_Math_Factorial(n - r));
+}
+export function Core_Math_nPr(n, r, repetitions = false) {
   if (repetitions === true) {
     return BigInt(n) ** BigInt(r);
   }
-  return math__factorial(n) / math__factorial(n - r);
+  return Core_Math_Factorial(n) / Core_Math_Factorial(n - r);
 }
-function math__factorial(n) {
-  if (!(n in MATH__FACTORIAL__CACHE)) {
-    let fact = MATH__FACTORIAL__CACHE[MATH__FACTORIAL__CACHE.length - 1];
-    for (let i = MATH__FACTORIAL__CACHE.length;i < n; i++) {
-      fact *= BigInt(i);
-      MATH__FACTORIAL__CACHE[i] = fact;
-    }
-    MATH__FACTORIAL__CACHE[n] = fact * BigInt(n);
-  }
-  return MATH__FACTORIAL__CACHE[n];
-}
-function math__getmidpoint(a, b) {
-  return (b - a) % 2 === 0 ? (a + b) / 2 : (a + b - 1) / 2;
-}
-async function promise__async_countfulfilled(promises) {
+export async function Core_Promise_Async_CountFulfilled(promises) {
   let count = 0;
   for (const { status } of await Promise.allSettled(promises)) {
     if (status === "fulfilled") {
@@ -714,7 +714,7 @@ async function promise__async_countfulfilled(promises) {
   }
   return count;
 }
-async function promise__async_countrejected(promises) {
+export async function Core_Promise_Async_CountRejected(promises) {
   let count = 0;
   for (const { status } of await Promise.allSettled(promises)) {
     if (status === "rejected") {
@@ -723,11 +723,11 @@ async function promise__async_countrejected(promises) {
   }
   return count;
 }
-function promise__callandorphan(asyncfn) {
-  promise__orphan(asyncfn());
+export function Core_Promise_CallAndOrphan(asyncfn) {
+  Core_Promise_Orphan(asyncfn());
 }
-function promise__orphan(promise) {}
-async function* stream__asyncgen_readchunks(stream) {
+export function Core_Promise_Orphan(promise) {}
+export async function* Core_Stream_AsyncGen_ReadChunks(stream) {
   const reader = stream.getReader();
   try {
     while (true) {
@@ -741,9 +741,9 @@ async function* stream__asyncgen_readchunks(stream) {
     reader.releaseLock();
   }
 }
-async function stream__uint8__async_compare(stream1, stream2) {
-  const one = stream__uint8__class_reader(stream1.getReader());
-  const two = stream__uint8__class_reader(stream2.getReader());
+export async function Core_Stream_Uint8_Async_Compare(stream1, stream2) {
+  const one = Core_Stream_Uint8_Class_Reader(stream1.getReader());
+  const two = Core_Stream_Uint8_Class_Reader(stream2.getReader());
   try {
     while (true) {
       let changed = false;
@@ -776,7 +776,7 @@ async function stream__uint8__async_compare(stream1, stream2) {
     two.releaseLock();
   }
 }
-async function stream__uint8__async_readall(stream) {
+export async function Core_Stream_Uint8_Async_ReadAll(stream) {
   const reader = stream.getReader();
   try {
     const chunks = [];
@@ -787,13 +787,13 @@ async function stream__uint8__async_readall(stream) {
       }
       chunks.push(value);
     }
-    return array__uint8__concat(chunks);
+    return Core_Array_Uint8_Concat(chunks);
   } finally {
     reader.releaseLock();
   }
 }
-async function stream__uint8__async_readlines(stream, callback) {
-  for await (const lines of stream__uint8__asyncgen_readlines(stream)) {
+export async function Core_Stream_Uint8_Async_ReadLines(stream, callback) {
+  for await (const lines of Core_Stream_Uint8_AsyncGen_ReadLines(stream)) {
     for (const line of lines) {
       if (await callback(line) === false) {
         return;
@@ -801,7 +801,7 @@ async function stream__uint8__async_readlines(stream, callback) {
     }
   }
 }
-async function stream__uint8__async_readsome(stream, count) {
+export async function Core_Stream_Uint8_Async_ReadSome(stream, count) {
   if (count < 1) {
     return ARRAY__UINT8__EMPTY;
   }
@@ -820,12 +820,12 @@ async function stream__uint8__async_readsome(stream, count) {
         break;
       }
     }
-    return array__uint8__take(array__uint8__concat(chunks), count)[0];
+    return Core_Array_Uint8_Take(Core_Array_Uint8_Concat(chunks), count)[0];
   } finally {
     reader.releaseLock();
   }
 }
-async function* stream__uint8__asyncgen_readlines(stream) {
+export async function* Core_Stream_Uint8_AsyncGen_ReadLines(stream) {
   const textDecoderStream = new TextDecoderStream;
   const textDecoderReader = textDecoderStream.readable.getReader();
   const textDecoderWriter = textDecoderStream.writable.getWriter();
@@ -858,7 +858,7 @@ async function* stream__uint8__asyncgen_readlines(stream) {
         }
         return;
       }
-      const lines = string__splitlines(buffer + value);
+      const lines = Core_String_SplitLines(buffer + value);
       buffer = lines[lines.length - 1] ?? "";
       yield lines.slice(0, -1);
     }
@@ -866,10 +866,10 @@ async function* stream__uint8__asyncgen_readlines(stream) {
     reader.releaseLock();
   }
 }
-function stream__uint8__class_reader(reader) {
+export function Core_Stream_Uint8_Class_Reader(reader) {
   return new ClassStreamUint8Reader(reader);
 }
-function string__getleftmarginsize(text) {
+export function Core_String_GetLeftMarginSize(text) {
   let i = 0;
   for (;i < text.length; i++) {
     if (text[i] !== " ") {
@@ -878,57 +878,54 @@ function string__getleftmarginsize(text) {
   }
   return i;
 }
-function string__lineisonlywhitespace(line) {
+export function Core_String_LineIsOnlyWhiteSpace(line) {
   return /^\s*$/.test(line);
 }
-function string__removewhitespaceonlylines(text) {
-  const lines = string__splitlines(text);
-  return lines.filter((line) => !string__lineisonlywhitespace(line));
+export function Core_String_RemoveWhiteSpaceOnlyLines(text) {
+  const lines = Core_String_SplitLines(text);
+  return lines.filter((line) => !Core_String_LineIsOnlyWhiteSpace(line));
 }
-function string__removewhitespaceonlylinesfromtopandbottom(text) {
-  const lines = string__splitlines(text);
-  return lines.slice(lines.findIndex((line) => string__lineisonlywhitespace(line) === false), 1 + lines.findLastIndex((line) => string__lineisonlywhitespace(line) === false));
+export function Core_String_RemoveWhiteSpaceOnlyLinesFromTopAndBottom(text) {
+  const lines = Core_String_SplitLines(text);
+  return lines.slice(lines.findIndex((line) => Core_String_LineIsOnlyWhiteSpace(line) === false), 1 + lines.findLastIndex((line) => Core_String_LineIsOnlyWhiteSpace(line) === false));
 }
-function string__split(text, delimiter, remove_empty_items = false) {
+export function Core_String_Split(text, delimiter, remove_empty_items = false) {
   const items = text.split(delimiter);
   return remove_empty_items === false ? items : items.filter((item) => item.length > 0);
 }
-function string__splitlines(text, remove_empty_items = false) {
-  return string__split(text, /\r?\n/, remove_empty_items);
+export function Core_String_SplitLines(text, remove_empty_items = false) {
+  return Core_String_Split(text, /\r?\n/, remove_empty_items);
 }
-function string__splitmultiplespaces(text, remove_empty_items = false) {
-  return string__split(text, / +/, remove_empty_items);
+export function Core_String_SplitMultipleSpaces(text, remove_empty_items = false) {
+  return Core_String_Split(text, / +/, remove_empty_items);
 }
-function string__splitmultiplewhitespace(text, remove_empty_items = false) {
-  return string__split(text, /\s+/, remove_empty_items);
+export function Core_String_SplitMultipleWhiteSpace(text, remove_empty_items = false) {
+  return Core_String_Split(text, /\s+/, remove_empty_items);
 }
-function string__tosnakecase(text) {
+export function Core_String_ToSnakeCase(text) {
   return text.toLowerCase().replace(/ /g, "-");
 }
-function string__trimlines(lines) {
+export function Core_String_TrimLines(lines) {
   return lines.map((line) => line.trim());
 }
-function utility__async_sleep(duration_ms) {
+export function Core_Utility_Class_Defer() {
+  return new ClassUtilityDefer;
+}
+export function Core_Utility_Async_Sleep(duration_ms) {
   return new Promise((resolve) => setTimeout(resolve, duration_ms));
 }
-function utility__decodebytes(buffer) {
-  return new TextDecoder().decode(buffer);
-}
-function utility__encodetext(text) {
-  return new TextEncoder().encode(text);
-}
-function utility__class_crc32() {
+export function Core_Utility_Class_CRC32() {
   return new ClassUtilityCRC32;
 }
-function utility__crc32(bytes) {
+export function Core_Utility_CRC32(bytes) {
   const crc = new Uint32Array([4294967295]);
   for (let index = 0;index < bytes.length; index++) {
     crc[0] = UTILITY__CRC32__TABLE[(crc[0] ^ bytes[index]) & 255] ^ crc[0] >>> 8;
   }
   return (crc[0] ^ 4294967295 >>> 0) >>> 0;
 }
-function utility__debounce(fn, delay_ms) {
-  let defer = utility__class_defer();
+export function Core_Utility_Debounce(fn, delay_ms) {
+  let defer = Core_Utility_Class_Defer();
   let timeout;
   return (...args) => {
     clearTimeout(timeout);
@@ -939,13 +936,19 @@ function utility__debounce(fn, delay_ms) {
       } catch (error) {
         defer.reject(error);
       }
-      defer = utility__class_defer();
+      defer = Core_Utility_Class_Defer();
     }, delay_ms);
     return defer.promise;
   };
 }
-function utility__immediatedebounce(fn, delay_ms) {
-  let defer = utility__class_defer();
+export function Core_Utility_DecodeBytes(buffer) {
+  return new TextDecoder().decode(buffer);
+}
+export function Core_Utility_EncodeText(text) {
+  return new TextEncoder().encode(text);
+}
+export function Core_Utility_ImmediateDebounce(fn, delay_ms) {
+  let defer = Core_Utility_Class_Defer();
   let timeout;
   return (...args) => {
     if (timeout === undefined) {
@@ -959,137 +962,8 @@ function utility__immediatedebounce(fn, delay_ms) {
     clearTimeout(timeout);
     timeout = setTimeout(() => {
       timeout = undefined;
-      defer = utility__class_defer();
+      defer = Core_Utility_Class_Defer();
     }, delay_ms);
     return defer.promise;
   };
 }
-function utility__class_defer() {
-  return new ClassUtilityDefer;
-}
-export var Core;
-((Core) => {
-  let Array;
-  ((Array) => {
-    let BinarySearch;
-    ((BinarySearch) => {
-      BinarySearch.ExactMatch = array__binarysearch__exactmatch;
-      BinarySearch.InsertionIndex = array__binarysearch__insertionorder;
-    })(BinarySearch = Array.BinarySearch ||= {});
-    let Uint8;
-    ((Uint8) => {
-      Uint8.Class_Group = array__uint8__class_group;
-      Uint8.Concat = array__uint8__concat;
-      Uint8.Copy = array__uint8__copy;
-      Uint8.FromBase64 = array__uint8__frombase64;
-      Uint8.FromString = array__uint8__fromstring;
-      Uint8.FromUint32 = array__uint8__fromuint32;
-      Uint8.Split = array__uint8__split;
-      Uint8.Take = array__uint8__take;
-      Uint8.TakeEnd = array__uint8__takeend;
-      Uint8.ToASCII = array__uint8__toascii;
-      Uint8.ToBase64 = array__uint8__tobase64;
-      Uint8.ToDecimal = array__uint8__todecimal;
-      Uint8.ToHex = array__uint8__tohex;
-      Uint8.ToLines = array__uint8__tolines;
-      Uint8.ToString = array__uint8__tostring;
-    })(Uint8 = Array.Uint8 ||= {});
-    let Uint32;
-    ((Uint32) => {
-      Uint32.ToHex = array__uint32__tohex;
-    })(Uint32 = Array.Uint32 ||= {});
-    Array.Gen_BufferToBytes = array__gen_buffertobytes;
-    Array.Gen_Chunks = array__gen_chunks;
-    Array.Gen_SlidingWindow = array__gen_slidingwindow;
-    Array.Gen_Zip = array__gen_zip;
-    Array.AreEqual = array__areequal;
-    Array.GetEndpoints = array__getendpoints;
-    Array.Shuffle = array__shuffle;
-    Array.Split = array__split;
-  })(Array = Core.Array ||= {});
-  let Assert;
-  ((Assert) => {
-    Assert.Equal = assert__equal;
-    Assert.NotEqual = assert__notequal;
-    Assert.BigInt = assert__bigint;
-    Assert.Boolean = assert__boolean;
-    Assert.Function = assert__function;
-    Assert.Number = assert__number;
-    Assert.Object = assert__object;
-    Assert.String = assert__string;
-    Assert.Symbol = assert__symbol;
-    Assert.Undefined = assert__undefined;
-  })(Assert = Core.Assert ||= {});
-  let Console;
-  ((Console) => {
-    Console.Error = console__error;
-    Console.ErrorWithDate = console__errorwithdate;
-    Console.Log = console__log;
-    Console.LogWithDate = console__logwithdate;
-  })(Console = Core.Console ||= {});
-  let JSON;
-  ((JSON) => {
-    JSON.Analyze = json__analyze;
-    JSON.Merge = json__merge;
-    JSON.ParseRawString = json__parserawstring;
-  })(JSON = Core.JSON ||= {});
-  let Map;
-  ((Map) => {
-    Map.GetOrDefault = map__getordefault;
-  })(Map = Core.Map ||= {});
-  let Math;
-  ((Math) => {
-    Math.Gen_CartesianProduct = math__gen_cartesianproduct;
-    Math.Gen_NCartesianProducts = math__gen_ncartesianproducts;
-    Math.Gen_NChooseRCombinations = math__gen_nchoosercombinations;
-    Math.Gen_NChooseRPermutations = math__gen_nchooserpermutations;
-    Math.nCr = math__ncr;
-    Math.nPr = math__npr;
-    Math.Factorial = math__factorial;
-    Math.GetMidpoint = math__getmidpoint;
-  })(Math = Core.Math ||= {});
-  let Promise;
-  ((Promise) => {
-    Promise.Async_CountFulfilled = promise__async_countfulfilled;
-    Promise.Async_CountRejected = promise__async_countrejected;
-    Promise.CallAndOrphan = promise__callandorphan;
-    Promise.Orphan = promise__orphan;
-  })(Promise = Core.Promise ||= {});
-  let Stream;
-  ((Stream) => {
-    let Uint8;
-    ((Uint8) => {
-      Uint8.Async_Compare = stream__uint8__async_compare;
-      Uint8.Async_ReadAll = stream__uint8__async_readall;
-      Uint8.Async_ReadLines = stream__uint8__async_readlines;
-      Uint8.Async_ReadSome = stream__uint8__async_readsome;
-      Uint8.AsyncGen_ReadLines = stream__uint8__asyncgen_readlines;
-      Uint8.Class_Reader = stream__uint8__class_reader;
-    })(Uint8 = Stream.Uint8 ||= {});
-    Stream.AsyncGen_ReadChunks = stream__asyncgen_readchunks;
-  })(Stream = Core.Stream ||= {});
-  let String;
-  ((String) => {
-    String.GetLeftMarginSize = string__getleftmarginsize;
-    String.LineIsOnlyWhiteSpace = string__lineisonlywhitespace;
-    String.RemoveWhiteSpaceOnlyLines = string__removewhitespaceonlylines;
-    String.RemoveWhiteSpaceOnlyLinesFromTopAndBottom = string__removewhitespaceonlylinesfromtopandbottom;
-    String.Split = string__split;
-    String.SplitLines = string__splitlines;
-    String.SplitMultipleSpaces = string__splitmultiplespaces;
-    String.SplitMultipleWhiteSpace = string__splitmultiplewhitespace;
-    String.ToSnakeCase = string__tosnakecase;
-    String.TrimLines = string__trimlines;
-  })(String = Core.String ||= {});
-  let Utility;
-  ((Utility) => {
-    Utility.Async_Sleep = utility__async_sleep;
-    Utility.Class_CRC32 = utility__class_crc32;
-    Utility.Class_Defer = utility__class_defer;
-    Utility.CRC32 = utility__crc32;
-    Utility.DecodeBytes = utility__decodebytes;
-    Utility.EncodeText = utility__encodetext;
-    Utility.Debounce = utility__debounce;
-    Utility.ImmediateDebounce = utility__immediatedebounce;
-  })(Utility = Core.Utility ||= {});
-})(Core ||= {});

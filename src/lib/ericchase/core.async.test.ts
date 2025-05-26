@@ -1,11 +1,11 @@
 import { describe, expect, test } from 'bun:test';
-import { Core } from './core.js';
+import { Core_Utility_Debounce, Core_Utility_ImmediateDebounce } from './core.js';
 
 describe('Utility', () => {
-  describe(Core.Utility.Debounce.name, async () => {
+  describe(Core_Utility_Debounce.name, async () => {
     test('Sync - Consecutive Awaits', async () => {
       let value = 0;
-      const fn = Core.Utility.Debounce(() => value++, 5);
+      const fn = Core_Utility_Debounce(() => value++, 5);
       expect(value).toBe(0);
       await fn();
       expect(value).toBe(1);
@@ -18,7 +18,7 @@ describe('Utility', () => {
     });
     test('Sync - Consecutive Calls then Await', async () => {
       let value = 0;
-      const fn = Core.Utility.Debounce(() => value++, 5);
+      const fn = Core_Utility_Debounce(() => value++, 5);
       expect(value).toBe(0);
       fn();
       expect(value).toBe(0);
@@ -31,7 +31,7 @@ describe('Utility', () => {
     });
     test('Sync - Consecutive Calls no Await', async () => {
       let value = 0;
-      const fn = Core.Utility.Debounce(() => value++, 5);
+      const fn = Core_Utility_Debounce(() => value++, 5);
       expect(value).toBe(0);
       fn();
       expect(value).toBe(0);
@@ -44,7 +44,7 @@ describe('Utility', () => {
     });
     test('Async - Consecutive Awaits', async () => {
       let value = 0;
-      const fn = Core.Utility.Debounce(async () => {
+      const fn = Core_Utility_Debounce(async () => {
         await Bun.sleep(5);
         value++;
       }, 5);
@@ -60,7 +60,7 @@ describe('Utility', () => {
     });
     test('Async - Consecutive Calls then Await', async () => {
       let value = 0;
-      const fn = Core.Utility.Debounce(async () => {
+      const fn = Core_Utility_Debounce(async () => {
         await Bun.sleep(5);
         value++;
       }, 5);
@@ -76,7 +76,7 @@ describe('Utility', () => {
     });
     test('Async - Consecutive Calls no Await', async () => {
       let value = 0;
-      const fn = Core.Utility.Debounce(async () => {
+      const fn = Core_Utility_Debounce(async () => {
         await Bun.sleep(5);
         value++;
       }, 5);
@@ -91,10 +91,10 @@ describe('Utility', () => {
       expect(value).toBe(1);
     });
   });
-  describe(Core.Utility.ImmediateDebounce.name, () => {
+  describe(Core_Utility_ImmediateDebounce.name, () => {
     test('Sync - Consecutive Awaits', async () => {
       let value = 0;
-      const fn = Core.Utility.ImmediateDebounce(() => value++, 5);
+      const fn = Core_Utility_ImmediateDebounce(() => value++, 5);
       expect(value).toBe(0);
       await fn();
       expect(value).toBe(1);
@@ -109,7 +109,7 @@ describe('Utility', () => {
     });
     test('Sync - Consecutive Calls then Await', async () => {
       let value = 0;
-      const fn = Core.Utility.ImmediateDebounce(() => value++, 5);
+      const fn = Core_Utility_ImmediateDebounce(() => value++, 5);
       expect(value).toBe(0);
       fn();
       expect(value).toBe(1);
@@ -124,7 +124,7 @@ describe('Utility', () => {
     });
     test('Sync - Consecutive Calls no Await', async () => {
       let value = 0;
-      const fn = Core.Utility.ImmediateDebounce(() => value++, 5);
+      const fn = Core_Utility_ImmediateDebounce(() => value++, 5);
       expect(value).toBe(0);
       fn();
       expect(value).toBe(1);
@@ -139,7 +139,7 @@ describe('Utility', () => {
     });
     test('Async - Consecutive Awaits', async () => {
       let value = 0;
-      const fn = Core.Utility.ImmediateDebounce(async () => {
+      const fn = Core_Utility_ImmediateDebounce(async () => {
         await Bun.sleep(5);
         value++;
       }, 5);
@@ -157,7 +157,7 @@ describe('Utility', () => {
     });
     test('Async - Consecutive Calls then Await', async () => {
       let value = 0;
-      const fn = Core.Utility.ImmediateDebounce(async () => {
+      const fn = Core_Utility_ImmediateDebounce(async () => {
         await Bun.sleep(5);
         value++;
       }, 5);
@@ -175,7 +175,7 @@ describe('Utility', () => {
     });
     test('Async - Consecutive Calls no Await', async () => {
       let value = 0;
-      const fn = Core.Utility.ImmediateDebounce(async () => {
+      const fn = Core_Utility_ImmediateDebounce(async () => {
         await Bun.sleep(5);
         value++;
       }, 5);

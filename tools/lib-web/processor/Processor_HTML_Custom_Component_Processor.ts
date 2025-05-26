@@ -1,4 +1,4 @@
-import { NodePlatform } from '../../../src/lib/ericchase/platform-node.js';
+import { NodePlatform_Path_GetExtension, NodePlatform_Path_GetName, NodePlatform_Path_Join } from '../../../src/lib/ericchase/platform-node.js';
 import { Builder } from '../../core/Builder.js';
 import { Logger } from '../../core/Logger.js';
 import { HTML_UTIL } from '../bundle/htmlutil.js';
@@ -14,12 +14,12 @@ class Class implements Builder.Processor {
   htmlfile_set = new Set<Builder.SourceFile>();
 
   async onAdd(builder: Builder.Internal, files: Set<Builder.SourceFile>): Promise<void> {
-    const component_path = NodePlatform.Path.Join(builder.dir.lib, 'components');
+    const component_path = NodePlatform_Path_Join(builder.dir.lib, 'components');
     let trigger_reprocess = false;
     for (const file of files) {
-      if (NodePlatform.Path.GetExtension(file.src_path.value) === '.html') {
+      if (NodePlatform_Path_GetExtension(file.src_path.value) === '.html') {
         if (file.src_path.value.startsWith(component_path)) {
-          this.component_map.set(NodePlatform.Path.GetName(file.src_path.value), file);
+          this.component_map.set(NodePlatform_Path_GetName(file.src_path.value), file);
           trigger_reprocess = true;
         }
         file.addProcessor(this, this.onProcess);
@@ -33,12 +33,12 @@ class Class implements Builder.Processor {
     }
   }
   async onRemove(builder: Builder.Internal, files: Set<Builder.SourceFile>): Promise<void> {
-    const component_path = NodePlatform.Path.Join(builder.dir.lib, 'components');
+    const component_path = NodePlatform_Path_Join(builder.dir.lib, 'components');
     let trigger_reprocess = false;
     for (const file of files) {
-      if (NodePlatform.Path.GetExtension(file.src_path.value) === '.html') {
+      if (NodePlatform_Path_GetExtension(file.src_path.value) === '.html') {
         if (file.src_path.value.startsWith(component_path)) {
-          this.component_map.delete(NodePlatform.Path.GetName(file.src_path.value));
+          this.component_map.delete(NodePlatform_Path_GetName(file.src_path.value));
           trigger_reprocess = true;
         }
         this.htmlfile_set.delete(file);
@@ -111,7 +111,7 @@ function remapImports(source_node: HTML_UTIL.ClassDOMNode): void {
   for (const script of HTML_UTIL.QuerySelectorAll(source_node, 'script')) {
     const src = HTML_UTIL.GetAttribute(script, 'src');
     if (src !== undefined) {
-      const ext = NodePlatform.Path.GetExtension(src);
+      const ext = NodePlatform_Path_GetExtension(src);
       switch (ext) {
         case '.js':
         case '.jsx':

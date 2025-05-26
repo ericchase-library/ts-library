@@ -1,16 +1,16 @@
 import { Database } from 'bun:sqlite';
 import { default as xxhash } from 'xxhash-wasm';
-import { Core } from '../../src/lib/ericchase/core.js';
-import { BunPlatform } from '../../src/lib/ericchase/platform-bun.js';
-import { NodePlatform } from '../../src/lib/ericchase/platform-node.js';
+import { Core_Console_Error, Core_Promise_Orphan } from '../../src/lib/ericchase/core.js';
+import { BunPlatform_File_Async_ReadBytes } from '../../src/lib/ericchase/platform-bun.js';
+import { NodePlatform_Directory_Async_Create, NodePlatform_Path_Async_GetStats, NodePlatform_Path_Join } from '../../src/lib/ericchase/platform-node.js';
 
 // constants
 const { h64Raw } = await xxhash();
-export const cachepath = NodePlatform.Path.Join('cache');
-if ((await NodePlatform.Directory.Async_Create(cachepath)) === false) {
+export const cachepath = NodePlatform_Path_Join('cache');
+if ((await NodePlatform_Directory_Async_Create(cachepath)) === false) {
   throw 'Could not create cache database path.';
 }
-export const cachedb = new Database(NodePlatform.Path.Join(cachepath, 'cache.db'), { create: true, strict: true });
+export const cachedb = new Database(NodePlatform_Path_Join(cachepath, 'cache.db'), { create: true, strict: true });
 
 // types
 
@@ -47,7 +47,7 @@ class TaskRepeater<ReturnType> {
   start() {
     if (this.$running === false) {
       this.$running = true;
-      Core.Promise.Orphan(this.$executor());
+      Core_Promise_Orphan(this.$executor());
     }
   }
   stop() {
@@ -250,12 +250,12 @@ export class CACHELOCK {
   }
   static TryLock(script: string) {
     CACHELOCK.LockOrExit(script, (error) => {
-      Core.Console.Error(`Another process is locking ${script}. Please wait for that process to end.`, error ?? '');
+      Core_Console_Error(`Another process is locking ${script}. Please wait for that process to end.`, error ?? '');
     });
   }
   static TryLockEach(scripts: string[]) {
     CACHELOCK.LockEachOrExit(scripts, (script, error) => {
-      Core.Console.Error(`Another process is locking ${script}. Please wait for that process to end.`, error ?? '');
+      Core_Console_Error(`Another process is locking ${script}. Please wait for that process to end.`, error ?? '');
     });
   }
   static Unlock(tag: string): void {
@@ -370,14 +370,14 @@ export class FILESTATS {
   }
   static QueryStats(path: string): SQLQueryResult<FILESTATS_RECORD | undefined> {
     try {
-      return { data: FILESTATS_DB.GetRecord[FILESTATS_ID.PATH]({ [FILESTATS_ID.PATH]: NodePlatform.Path.Join(path) }), error: undefined };
+      return { data: FILESTATS_DB.GetRecord[FILESTATS_ID.PATH]({ [FILESTATS_ID.PATH]: NodePlatform_Path_Join(path) }), error: undefined };
     } catch (error) {
       return CreateQueryError(error);
     }
   }
   static async UpdateStats(path: string): Promise<SQLQueryResult<FILESTATS_RECORD | undefined>> {
     try {
-      FILESTATS_DB.UpdateRecord({ [FILESTATS_ID.PATH]: NodePlatform.Path.Join(path), [FILESTATS_ID.MTIMEMS]: await FILESTATS.GetMTimeMS(path), [FILESTATS_ID.HASH]: await FILESTATS.GetB64Hash(path) });
+      FILESTATS_DB.UpdateRecord({ [FILESTATS_ID.PATH]: NodePlatform_Path_Join(path), [FILESTATS_ID.MTIMEMS]: await FILESTATS.GetMTimeMS(path), [FILESTATS_ID.HASH]: await FILESTATS.GetB64Hash(path) });
       return FILESTATS.QueryStats(path);
     } catch (error) {
       return CreateQueryError(error);
@@ -385,7 +385,7 @@ export class FILESTATS {
   }
   static RemoveStats(path: string): SQLQueryResult<boolean> {
     try {
-      FILESTATS_DB.DeleteRecord({ path: NodePlatform.Path.Join(path) });
+      FILESTATS_DB.DeleteRecord({ path: NodePlatform_Path_Join(path) });
       return { data: true };
     } catch (error) {
       return CreateQueryError(error);
@@ -402,7 +402,7 @@ export class FILESTATS {
   }
   static async PathIsStale(path: string): Promise<SQLQueryResult<boolean>> {
     try {
-      const q0 = FILESTATS_DB.GetRecord[FILESTATS_ID.PATH]({ [FILESTATS_ID.PATH]: NodePlatform.Path.Join(path) });
+      const q0 = FILESTATS_DB.GetRecord[FILESTATS_ID.PATH]({ [FILESTATS_ID.PATH]: NodePlatform_Path_Join(path) });
       if (q0 === undefined || q0[FILESTATS_ID.MTIMEMS] !== (await FILESTATS.GetMTimeMS(path)) || q0[FILESTATS_ID.HASH] !== (await FILESTATS.GetB64Hash(path))) {
         return { data: true };
       }
@@ -413,8 +413,8 @@ export class FILESTATS {
   }
   static async PathsAreEqual(path0: string, path1: string): Promise<SQLQueryResult<boolean>> {
     try {
-      const q0 = FILESTATS_DB.GetRecord[FILESTATS_ID.PATH]({ [FILESTATS_ID.PATH]: NodePlatform.Path.Join(path0) });
-      const q1 = FILESTATS_DB.GetRecord[FILESTATS_ID.PATH]({ [FILESTATS_ID.PATH]: NodePlatform.Path.Join(path1) });
+      const q0 = FILESTATS_DB.GetRecord[FILESTATS_ID.PATH]({ [FILESTATS_ID.PATH]: NodePlatform_Path_Join(path0) });
+      const q1 = FILESTATS_DB.GetRecord[FILESTATS_ID.PATH]({ [FILESTATS_ID.PATH]: NodePlatform_Path_Join(path1) });
       if (q0 !== undefined && q1 !== undefined) {
         const current_mtimems0 = await FILESTATS.GetMTimeMS(path0);
         const current_mtimems1 = await FILESTATS.GetMTimeMS(path1);
@@ -424,8 +424,8 @@ export class FILESTATS {
         const current_hash0 = await FILESTATS.GetHash(path0);
         const current_hash1 = await FILESTATS.GetHash(path1);
         if (current_hash0 === current_hash1) {
-          FILESTATS_DB.UpdateRecord({ [FILESTATS_ID.PATH]: NodePlatform.Path.Join(path0), [FILESTATS_ID.MTIMEMS]: current_mtimems1, [FILESTATS_ID.HASH]: btoa(current_hash1.toString()) });
-          FILESTATS_DB.UpdateRecord({ [FILESTATS_ID.PATH]: NodePlatform.Path.Join(path1), [FILESTATS_ID.MTIMEMS]: current_mtimems0, [FILESTATS_ID.HASH]: btoa(current_hash0.toString()) });
+          FILESTATS_DB.UpdateRecord({ [FILESTATS_ID.PATH]: NodePlatform_Path_Join(path0), [FILESTATS_ID.MTIMEMS]: current_mtimems1, [FILESTATS_ID.HASH]: btoa(current_hash1.toString()) });
+          FILESTATS_DB.UpdateRecord({ [FILESTATS_ID.PATH]: NodePlatform_Path_Join(path1), [FILESTATS_ID.MTIMEMS]: current_mtimems0, [FILESTATS_ID.HASH]: btoa(current_hash0.toString()) });
           return { data: true };
         }
       }
@@ -438,10 +438,10 @@ export class FILESTATS {
     return btoa((await FILESTATS.GetHash(path)).toString());
   }
   static async GetHash(path: string): Promise<bigint> {
-    return h64Raw(await BunPlatform.File.Async_ReadBytes(path));
+    return h64Raw(await BunPlatform_File_Async_ReadBytes(path));
   }
   static async GetMTimeMS(path: string): Promise<number> {
-    return (await NodePlatform.Path.Async_GetStats(path)).mtimeMs;
+    return (await NodePlatform_Path_Async_GetStats(path)).mtimeMs;
   }
 }
 

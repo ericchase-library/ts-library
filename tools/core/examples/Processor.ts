@@ -1,4 +1,4 @@
-import { BunPlatform } from '../../../src/lib/ericchase/platform-bun.js';
+import { BunPlatform_Glob_Match } from '../../../src/lib/ericchase/platform-bun.js';
 import { Builder } from '../Builder.js';
 import { Logger } from '../Logger.js';
 
@@ -25,7 +25,7 @@ class Class implements Builder.Processor {
     // Determine which files should be processed.
     for (const file of files) {
       // Example glob matcher for text (.txt) files:
-      if (BunPlatform.Glob.Match(file.src_path.toStandard(), '**/*.txt')) {
+      if (BunPlatform_Glob_Match(file.src_path.toStandard(), '**/*.txt')) {
         file.addProcessor(this, this.onProcess);
       }
     }

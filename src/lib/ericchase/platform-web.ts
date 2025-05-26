@@ -1,6 +1,4 @@
-import { Core } from './core.js';
-
-// classes
+import { Core_Stream_Uint8_Async_ReadSome } from './core.js';
 
 class ClassCompatBlob {
   constructor(public blob: Blob) {}
@@ -27,16 +25,18 @@ class ClassCompatBlob {
     return (await this.blob.text?.()) ?? undefined;
   }
 }
+
 class ClassCompatDataTransfer {
   constructor(public dataTransfer: DataTransfer) {}
   items(): ClassCompatDataTransferItem[] {
     const list: ClassCompatDataTransferItem[] = [];
     for (const item of this.dataTransfer.items) {
-      list.push(datatransferitem__classcompat_datatransferitem(item));
+      list.push(WebPlatform_DataTransferItem_ClassCompat_DataTransferItem(item));
     }
     return list;
   }
 }
+
 class ClassCompatDataTransferItem {
   constructor(public item: DataTransferItem) {}
   getAsEntry(): FileSystemEntry | undefined {
@@ -57,6 +57,7 @@ class ClassCompatDataTransferItem {
     }
   }
 }
+
 class ClassCompatFile {
   constructor(public file: File) {}
   get relativePath(): string | undefined {
@@ -105,6 +106,7 @@ class ClassDomAttributeObserver {
     }
   }
 }
+
 class ClassDomCharacterDataObserver {
   constructor({ source = document.documentElement, options = { characterDataOldValue: true, subtree: true } }: { source?: Node; options?: { characterDataOldValue?: boolean; subtree?: boolean } }) {
     this.mutationObserver = new MutationObserver((mutationRecords: MutationRecord[]) => {
@@ -134,6 +136,7 @@ class ClassDomCharacterDataObserver {
     }
   }
 }
+
 class ClassDomChildListObserver {
   constructor({ source = document.documentElement, options = { subtree: true } }: { source?: Node; options?: { subtree?: boolean } }) {
     this.mutationObserver = new MutationObserver((mutationRecords: MutationRecord[]) => {
@@ -162,6 +165,7 @@ class ClassDomChildListObserver {
     }
   }
 }
+
 class ClassDomElementAddedObserver {
   constructor({ source = document.documentElement, options = { subtree: true }, selector, includeExistingElements = true }: { source?: Node; options?: { subtree?: boolean }; selector: string; includeExistingElements?: boolean }) {
     this.mutationObserver = new MutationObserver((mutationRecords: MutationRecord[]) => {
@@ -275,6 +279,7 @@ class ClassNodeReference {
     this.as(HTMLElement).style.setProperty(property, value, priority);
   }
 }
+
 class ClassNodeReferenceList extends Array<ClassNodeReference> {
   constructor(nodes?: NodeList | Node[] | null) {
     if (nodes === null) {
@@ -300,24 +305,73 @@ class ClassNodeReferenceList extends Array<ClassNodeReference> {
   }
 }
 
-// CSS
+// Exports
 
-function css__toadjustedem(em: number, root: HTMLElement | SVGElement = document.documentElement): number {
+export function WebPlatform_Blob_Async_ReadSome(blob: Blob, count: number): Promise<Uint8Array> {
+  const stream = WebPlatform_Blob_ClassCompat_Blob(blob).stream();
+  if (stream !== undefined) {
+    return Core_Stream_Uint8_Async_ReadSome(stream, count);
+  }
+  return Promise.resolve(new Uint8Array());
+}
+
+export function WebPlatform_Blob_ClassCompat_Blob(blob: Blob): ClassCompatBlob {
+  return new ClassCompatBlob(blob);
+}
+
+export function WebPlatform_CSS_ToAdjustedEm(em: number, root: HTMLElement | SVGElement = document.documentElement): number {
   const fontSizePx = Number.parseInt(getComputedStyle(root).fontSize);
   return (16 / fontSizePx) * em;
 }
-function css__torelativeem(em: number, root: HTMLElement | SVGElement = document.documentElement): number {
+
+export function WebPlatform_CSS_ToRelativeEm(em: number, root: HTMLElement | SVGElement = document.documentElement): number {
   const fontSizePx = Number.parseInt(getComputedStyle(root).fontSize);
   return (fontSizePx / 16) * em;
 }
-function css__torelativepx(px: number, root: HTMLElement | SVGElement = document.documentElement): number {
+
+export function WebPlatform_CSS_ToRelativePx(px: number, root: HTMLElement | SVGElement = document.documentElement): number {
   const fontSizePx = Number.parseInt(getComputedStyle(root).fontSize);
   return (fontSizePx / 16) * px;
 }
 
-// DOM
+export async function* WebPlatform_DataTransfer_AsyncGen_GetEntries(dataTransfer: DataTransfer): AsyncGenerator<FileSystemEntry> {
+  const entries: FileSystemEntry[] = [];
+  // get top-level entries
+  for (const item of dataTransfer.items) {
+    const entry = WebPlatform_DataTransferItem_ClassCompat_DataTransferItem(item).getAsEntry();
+    if (entry !== undefined) {
+      entries.push(entry);
+    }
+  }
+  // recurse through each sub-level
+  for (let index = 0; index < entries.length; index++) {
+    const entry = entries[index];
+    yield entry;
+    // `FileSystemDirectoryEntry` does not exist in all browsers
+    if (entry.isDirectory === true) {
+      entries.push(...(await WebPlatform_FileSystemEntry_Async_ReadDirectoryEntries(entry as FileSystemDirectoryEntry)));
+    }
+  }
+}
 
-function dom__class_attributeobserver({
+export async function* WebPlatform_DataTransfer_AsyncGen_GetFiles(dataTransfer: DataTransfer): AsyncGenerator<File> {
+  for await (const entry of WebPlatform_DataTransfer_AsyncGen_GetEntries(dataTransfer)) {
+    // `FileSystemFileEntry` does not exist in all browsers
+    if (entry.isFile === true) {
+      yield await WebPlatform_FileSystemEntry_Async_GetFile(entry as FileSystemFileEntry);
+    }
+  }
+}
+
+export function WebPlatform_DataTransfer_ClassCompat_DataTransfer(dataTransfer: DataTransfer): ClassCompatDataTransfer {
+  return new ClassCompatDataTransfer(dataTransfer);
+}
+
+export function WebPlatform_DataTransferItem_ClassCompat_DataTransferItem(item: DataTransferItem): ClassCompatDataTransferItem {
+  return new ClassCompatDataTransferItem(item);
+}
+
+export function WebPlatform_DOM_Class_AttributeObserver({
   options = { attributeOldValue: true, subtree: true },
   source = document.documentElement,
 }: {
@@ -330,92 +384,38 @@ function dom__class_attributeobserver({
 }): ClassDomAttributeObserver {
   return new ClassDomAttributeObserver({ options, source });
 }
-function dom__class_characterdataobserver({ options = { characterDataOldValue: true, subtree: true }, source = document.documentElement }: { options?: { characterDataOldValue?: boolean; subtree?: boolean }; source?: Node }): ClassDomCharacterDataObserver {
+
+export function WebPlatform_DOM_Class_CharacterDataObserver({ options = { characterDataOldValue: true, subtree: true }, source = document.documentElement }: { options?: { characterDataOldValue?: boolean; subtree?: boolean }; source?: Node }): ClassDomCharacterDataObserver {
   return new ClassDomCharacterDataObserver({ options, source });
 }
-function dom__class_childlistobserver({ options = { subtree: true }, source = document.documentElement }: { options?: { subtree?: boolean }; source?: Node }): ClassDomChildListObserver {
+
+export function WebPlatform_DOM_Class_ChildListObserver({ options = { subtree: true }, source = document.documentElement }: { options?: { subtree?: boolean }; source?: Node }): ClassDomChildListObserver {
   return new ClassDomChildListObserver({ options, source });
 }
-function dom__class_elementaddedobserver({ includeExistingElements = true, options = { subtree: true }, selector, source = document.documentElement }: { includeExistingElements?: boolean; options?: { subtree?: boolean }; selector: string; source?: Node }): ClassDomElementAddedObserver {
+
+export function WebPlatform_DOM_Class_ElementAddedObserver({ includeExistingElements = true, options = { subtree: true }, selector, source = document.documentElement }: { includeExistingElements?: boolean; options?: { subtree?: boolean }; selector: string; source?: Node }): ClassDomElementAddedObserver {
   return new ClassDomElementAddedObserver({ includeExistingElements, options, selector, source });
 }
 
-function dom__injectcss(styles: string): CSSStyleSheet {
+export function WebPlatform_DOM_InjectCSS(styles: string): CSSStyleSheet {
   const stylesheet = new CSSStyleSheet();
   stylesheet.replaceSync(styles);
   document.adoptedStyleSheets.push(stylesheet);
   return stylesheet;
 }
-function dom__injectscript(code: string): HTMLScriptElement {
+
+export function WebPlatform_DOM_InjectScript(code: string): HTMLScriptElement {
   const script = document.createElement('script');
   script.textContent = code;
   document.body.appendChild(script);
   return script;
 }
 
-// Blob
-
-function blob__classcompat_blob(blob: Blob): ClassCompatBlob {
-  return new ClassCompatBlob(blob);
-}
-
-function blob__async_readsome(blob: Blob, count: number): Promise<Uint8Array> {
-  const stream = blob__classcompat_blob(blob).stream();
-  if (stream !== undefined) {
-    return Core.Stream.Uint8.Async_ReadSome(stream, count);
-  }
-  return Promise.resolve(new Uint8Array());
-}
-
-// DataTransfer
-
-function datatransfer__classcompat_datatransfer(dataTransfer: DataTransfer): ClassCompatDataTransfer {
-  return new ClassCompatDataTransfer(dataTransfer);
-}
-
-async function* datatransfer__asyncgen_getentries(dataTransfer: DataTransfer): AsyncGenerator<FileSystemEntry> {
-  const entries: FileSystemEntry[] = [];
-  // get top-level entries
-  for (const item of dataTransfer.items) {
-    const entry = datatransferitem__classcompat_datatransferitem(item).getAsEntry();
-    if (entry !== undefined) {
-      entries.push(entry);
-    }
-  }
-  // recurse through each sub-level
-  for (let index = 0; index < entries.length; index++) {
-    const entry = entries[index];
-    yield entry;
-    // `FileSystemDirectoryEntry` does not exist in all browsers
-    if (entry.isDirectory === true) {
-      entries.push(...(await filesystementry__async_readdirectoryentries(entry as FileSystemDirectoryEntry)));
-    }
-  }
-}
-async function* datatransfer__asyncgen_getfiles(dataTransfer: DataTransfer): AsyncGenerator<File> {
-  for await (const entry of datatransfer__asyncgen_getentries(dataTransfer)) {
-    // `FileSystemFileEntry` does not exist in all browsers
-    if (entry.isFile === true) {
-      yield await filesystementry__async_getfile(entry as FileSystemFileEntry);
-    }
-  }
-}
-
-// DataTransferItem
-
-function datatransferitem__classcompat_datatransferitem(item: DataTransferItem): ClassCompatDataTransferItem {
-  return new ClassCompatDataTransferItem(item);
-}
-
-// File
-
-function file__classcompat_file(file: File): ClassCompatFile {
+export function WebPlatform_File_ClassCompat_File(file: File): ClassCompatFile {
   return new ClassCompatFile(file);
 }
 
-// FileSystemEntry
-
-function filesystementry__async_getfile(entry: FileSystemFileEntry): Promise<File> {
+export function WebPlatform_FileSystemEntry_Async_GetFile(entry: FileSystemFileEntry): Promise<File> {
   return new Promise<File>((resolve, reject) => {
     entry.file(
       (file) => {
@@ -427,7 +427,8 @@ function filesystementry__async_getfile(entry: FileSystemFileEntry): Promise<Fil
     );
   });
 }
-async function filesystementry__async_readdirectoryentries(entry: FileSystemDirectoryEntry): Promise<FileSystemEntry[]> {
+
+export async function WebPlatform_FileSystemEntry_Async_ReadDirectoryEntries(entry: FileSystemDirectoryEntry): Promise<FileSystemEntry[]> {
   const reader = entry.createReader();
   const allentries: FileSystemEntry[] = [];
   let done = false;
@@ -450,31 +451,32 @@ async function filesystementry__async_readdirectoryentries(entry: FileSystemDire
   return allentries;
 }
 
-// HTMLInputElement
-function htmlinputelement__webkitdirectoryissupported(): boolean {
-  return utility__deviceismobile() ? false : true;
+export function WebPlatform_HTMLInputElement_WebkitDirectoryIsSupported(): boolean {
+  return WebPlatform_Utility_DeviceIsMobile() ? false : true;
 }
 
-// Node
-function node__class_nodereference(node?: Node | null): ClassNodeReference {
-  return new ClassNodeReference(node);
-}
-function node__class_nodelistreference(nodes?: NodeList | Node[] | null): ClassNodeReferenceList {
+export function WebPlatform_Node_Class_NodeListReference(nodes?: NodeList | Node[] | null): ClassNodeReferenceList {
   return new ClassNodeReferenceList(nodes);
 }
-function node__selectelement(selector: string): ClassNodeReference {
-  return node__class_nodereference(document.querySelector(selector));
-}
-function node__selectelements(...selectors: string[]): ClassNodeReferenceList {
-  return node__class_nodelistreference(document.querySelectorAll(selectors.join(',')));
+
+export function WebPlatform_Node_Class_NodeReference(node?: Node | null): ClassNodeReference {
+  return new ClassNodeReference(node);
 }
 
-// Utility
+export function WebPlatform_Node_SelectElement(selector: string): ClassNodeReference {
+  // API designed by NOOB (https://github.com/NOOB2868)
+  return WebPlatform_Node_Class_NodeReference(document.querySelector(selector));
+}
 
-function utility__deviceismobile(): boolean {
+export function WebPlatform_Node_SelectElements(...selectors: string[]): ClassNodeReferenceList {
+  return WebPlatform_Node_Class_NodeListReference(document.querySelectorAll(selectors.join(',')));
+}
+
+export function WebPlatform_Utility_DeviceIsMobile(): boolean {
   return /android|iphone|mobile/i.test(window.navigator.userAgent);
 }
-function utility__download(
+
+export function WebPlatform_Utility_Download(
   data: {
     blob?: Blob;
     bytes?: Uint8Array<ArrayBuffer>;
@@ -510,7 +512,8 @@ function utility__download(
     document.body.removeChild(anchor);
   }
 }
-function utility__openwindow(
+
+export function WebPlatform_Utility_OpenWindow(
   url: string, //
   onLoad?: (proxy: Window, event: Event) => void,
   onUnload?: (proxy: Window, event: Event) => void,
@@ -527,60 +530,5 @@ function utility__openwindow(
         onUnload(proxy, event);
       });
     }
-  }
-}
-
-export namespace WebPlatform {
-  export namespace CSS {
-    export const ToAdjustedEm = css__toadjustedem;
-    export const ToRelativeEm = css__torelativeem;
-    export const ToRelativePx = css__torelativepx;
-  }
-  export namespace DOM {
-    export const Class_AttributeObserver = dom__class_attributeobserver;
-    export const Class_CharacterDataObserver = dom__class_characterdataobserver;
-    export const Class_ChildListObserver = dom__class_childlistobserver;
-    export const Class_ElementAddedObserver = dom__class_elementaddedobserver;
-    //
-    export const InjectCSS = dom__injectcss;
-    export const InjectScript = dom__injectscript;
-  }
-  export namespace Blob {
-    export const ClassCompat_Blob = blob__classcompat_blob;
-    //
-    export const Async_ReadSome = blob__async_readsome;
-  }
-  export namespace DataTransfer {
-    export const AsyncGen_GetEntries = datatransfer__asyncgen_getentries;
-    export const AsyncGen_GetFiles = datatransfer__asyncgen_getfiles;
-    //
-    export const ClassCompat_DataTransfer = datatransfer__classcompat_datatransfer;
-  }
-  export namespace DataTransferItem {
-    export const ClassCompat_DataTransferItem = datatransferitem__classcompat_datatransferitem;
-    //
-  }
-  export namespace File {
-    export const ClassCompat_File = file__classcompat_file;
-  }
-  export namespace FileSystemEntry {
-    export const Async_GetFile = filesystementry__async_getfile;
-    export const Async_ReadDirectoryEntries = filesystementry__async_readdirectoryentries;
-  }
-  export namespace HTMLInputElement {
-    export const WebkitDirectoryIsSupported = htmlinputelement__webkitdirectoryissupported;
-  }
-  export namespace Node {
-    export const Class_NodeReference = node__class_nodereference;
-    export const Class_NodeListReference = node__class_nodelistreference;
-    //
-    // API designed by NOOB (https://github.com/NOOB2868)
-    export const SelectElement = node__selectelement;
-    export const SelectElements = node__selectelements;
-  }
-  export namespace Utility {
-    export const DeviceIsMobile = utility__deviceismobile;
-    export const Download = utility__download;
-    export const OpenWindow = utility__openwindow;
   }
 }

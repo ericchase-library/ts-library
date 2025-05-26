@@ -1,10 +1,10 @@
 import AdmZip from 'adm-zip';
-import { NodePlatform } from '../../../src/lib/ericchase/platform-node.js';
+import { NodePlatform_Path_Async_GetStats, NodePlatform_Path_Join } from '../../../src/lib/ericchase/platform-node.js';
 import { Builder } from '../../core/Builder.js';
 import { Logger } from '../../core/Logger.js';
 
 export function Step_FS_Archive_Directory(dir: string, outfile: string): Builder.Step {
-  return new Class(NodePlatform.Path.Join(dir), NodePlatform.Path.Join(outfile));
+  return new Class(NodePlatform_Path_Join(dir), NodePlatform_Path_Join(outfile));
 }
 class Class implements Builder.Step {
   StepName = Step_FS_Archive_Directory.name;
@@ -19,7 +19,7 @@ class Class implements Builder.Step {
       const zip_instance = new AdmZip();
       zip_instance.addLocalFolder(this.dir);
       zip_instance.writeZip(this.outpath);
-      const stats = await NodePlatform.Path.Async_GetStats(this.outpath);
+      const stats = await NodePlatform_Path_Async_GetStats(this.outpath);
       if (stats.isFile() === true) {
         this.channel.log(`ZIP: [${stats.size}] ${this.outpath}`);
       }

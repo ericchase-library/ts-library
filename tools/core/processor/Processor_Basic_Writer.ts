@@ -1,4 +1,4 @@
-import { BunPlatform } from '../../../src/lib/ericchase/platform-bun.js';
+import { BunPlatform_Glob_Ex_Match } from '../../../src/lib/ericchase/platform-bun.js';
 import { Builder } from '../../core/Builder.js';
 import { Logger } from '../../core/Logger.js';
 
@@ -26,7 +26,7 @@ class Class implements Builder.Processor {
   }
   async onAdd(builder: Builder.Internal, files: Set<Builder.SourceFile>): Promise<void> {
     for (const file of files) {
-      if (BunPlatform.Glob.Ex.Match(file.src_path.toStandard(), this.include_patterns, this.exclude_patterns) === true) {
+      if (BunPlatform_Glob_Ex_Match(file.src_path.toStandard(), this.include_patterns, this.exclude_patterns) === true) {
         file.addProcessor(this, this.onProcess);
       }
     }

@@ -1,4 +1,4 @@
-import { Core } from "./core.js";
+import { Core_Stream_Uint8_Async_ReadSome } from "./core.js";
 
 class ClassCompatBlob {
   blob;
@@ -36,7 +36,7 @@ class ClassCompatDataTransfer {
   items() {
     const list = [];
     for (const item of this.dataTransfer.items) {
-      list.push(datatransferitem__classcompat_datatransferitem(item));
+      list.push(WebPlatform_DataTransferItem_ClassCompat_DataTransferItem(item));
     }
     return list;
   }
@@ -307,62 +307,32 @@ class ClassNodeReferenceList extends Array {
     }
   }
 }
-function css__toadjustedem(em, root = document.documentElement) {
-  const fontSizePx = Number.parseInt(getComputedStyle(root).fontSize);
-  return 16 / fontSizePx * em;
-}
-function css__torelativeem(em, root = document.documentElement) {
-  const fontSizePx = Number.parseInt(getComputedStyle(root).fontSize);
-  return fontSizePx / 16 * em;
-}
-function css__torelativepx(px, root = document.documentElement) {
-  const fontSizePx = Number.parseInt(getComputedStyle(root).fontSize);
-  return fontSizePx / 16 * px;
-}
-function dom__class_attributeobserver({
-  options = { attributeOldValue: true, subtree: true },
-  source = document.documentElement
-}) {
-  return new ClassDomAttributeObserver({ options, source });
-}
-function dom__class_characterdataobserver({ options = { characterDataOldValue: true, subtree: true }, source = document.documentElement }) {
-  return new ClassDomCharacterDataObserver({ options, source });
-}
-function dom__class_childlistobserver({ options = { subtree: true }, source = document.documentElement }) {
-  return new ClassDomChildListObserver({ options, source });
-}
-function dom__class_elementaddedobserver({ includeExistingElements = true, options = { subtree: true }, selector, source = document.documentElement }) {
-  return new ClassDomElementAddedObserver({ includeExistingElements, options, selector, source });
-}
-function dom__injectcss(styles) {
-  const stylesheet = new CSSStyleSheet;
-  stylesheet.replaceSync(styles);
-  document.adoptedStyleSheets.push(stylesheet);
-  return stylesheet;
-}
-function dom__injectscript(code) {
-  const script = document.createElement("script");
-  script.textContent = code;
-  document.body.appendChild(script);
-  return script;
-}
-function blob__classcompat_blob(blob) {
-  return new ClassCompatBlob(blob);
-}
-function blob__async_readsome(blob, count) {
-  const stream = blob__classcompat_blob(blob).stream();
+export function WebPlatform_Blob_Async_ReadSome(blob, count) {
+  const stream = WebPlatform_Blob_ClassCompat_Blob(blob).stream();
   if (stream !== undefined) {
-    return Core.Stream.Uint8.Async_ReadSome(stream, count);
+    return Core_Stream_Uint8_Async_ReadSome(stream, count);
   }
   return Promise.resolve(new Uint8Array);
 }
-function datatransfer__classcompat_datatransfer(dataTransfer) {
-  return new ClassCompatDataTransfer(dataTransfer);
+export function WebPlatform_Blob_ClassCompat_Blob(blob) {
+  return new ClassCompatBlob(blob);
 }
-async function* datatransfer__asyncgen_getentries(dataTransfer) {
+export function WebPlatform_CSS_ToAdjustedEm(em, root = document.documentElement) {
+  const fontSizePx = Number.parseInt(getComputedStyle(root).fontSize);
+  return 16 / fontSizePx * em;
+}
+export function WebPlatform_CSS_ToRelativeEm(em, root = document.documentElement) {
+  const fontSizePx = Number.parseInt(getComputedStyle(root).fontSize);
+  return fontSizePx / 16 * em;
+}
+export function WebPlatform_CSS_ToRelativePx(px, root = document.documentElement) {
+  const fontSizePx = Number.parseInt(getComputedStyle(root).fontSize);
+  return fontSizePx / 16 * px;
+}
+export async function* WebPlatform_DataTransfer_AsyncGen_GetEntries(dataTransfer) {
   const entries = [];
   for (const item of dataTransfer.items) {
-    const entry = datatransferitem__classcompat_datatransferitem(item).getAsEntry();
+    const entry = WebPlatform_DataTransferItem_ClassCompat_DataTransferItem(item).getAsEntry();
     if (entry !== undefined) {
       entries.push(entry);
     }
@@ -371,24 +341,54 @@ async function* datatransfer__asyncgen_getentries(dataTransfer) {
     const entry = entries[index];
     yield entry;
     if (entry.isDirectory === true) {
-      entries.push(...await filesystementry__async_readdirectoryentries(entry));
+      entries.push(...await WebPlatform_FileSystemEntry_Async_ReadDirectoryEntries(entry));
     }
   }
 }
-async function* datatransfer__asyncgen_getfiles(dataTransfer) {
-  for await (const entry of datatransfer__asyncgen_getentries(dataTransfer)) {
+export async function* WebPlatform_DataTransfer_AsyncGen_GetFiles(dataTransfer) {
+  for await (const entry of WebPlatform_DataTransfer_AsyncGen_GetEntries(dataTransfer)) {
     if (entry.isFile === true) {
-      yield await filesystementry__async_getfile(entry);
+      yield await WebPlatform_FileSystemEntry_Async_GetFile(entry);
     }
   }
 }
-function datatransferitem__classcompat_datatransferitem(item) {
+export function WebPlatform_DataTransfer_ClassCompat_DataTransfer(dataTransfer) {
+  return new ClassCompatDataTransfer(dataTransfer);
+}
+export function WebPlatform_DataTransferItem_ClassCompat_DataTransferItem(item) {
   return new ClassCompatDataTransferItem(item);
 }
-function file__classcompat_file(file) {
+export function WebPlatform_DOM_Class_AttributeObserver({
+  options = { attributeOldValue: true, subtree: true },
+  source = document.documentElement
+}) {
+  return new ClassDomAttributeObserver({ options, source });
+}
+export function WebPlatform_DOM_Class_CharacterDataObserver({ options = { characterDataOldValue: true, subtree: true }, source = document.documentElement }) {
+  return new ClassDomCharacterDataObserver({ options, source });
+}
+export function WebPlatform_DOM_Class_ChildListObserver({ options = { subtree: true }, source = document.documentElement }) {
+  return new ClassDomChildListObserver({ options, source });
+}
+export function WebPlatform_DOM_Class_ElementAddedObserver({ includeExistingElements = true, options = { subtree: true }, selector, source = document.documentElement }) {
+  return new ClassDomElementAddedObserver({ includeExistingElements, options, selector, source });
+}
+export function WebPlatform_DOM_InjectCSS(styles) {
+  const stylesheet = new CSSStyleSheet;
+  stylesheet.replaceSync(styles);
+  document.adoptedStyleSheets.push(stylesheet);
+  return stylesheet;
+}
+export function WebPlatform_DOM_InjectScript(code) {
+  const script = document.createElement("script");
+  script.textContent = code;
+  document.body.appendChild(script);
+  return script;
+}
+export function WebPlatform_File_ClassCompat_File(file) {
   return new ClassCompatFile(file);
 }
-function filesystementry__async_getfile(entry) {
+export function WebPlatform_FileSystemEntry_Async_GetFile(entry) {
   return new Promise((resolve, reject) => {
     entry.file((file) => {
       resolve(file);
@@ -397,7 +397,7 @@ function filesystementry__async_getfile(entry) {
     });
   });
 }
-async function filesystementry__async_readdirectoryentries(entry) {
+export async function WebPlatform_FileSystemEntry_Async_ReadDirectoryEntries(entry) {
   const reader = entry.createReader();
   const allentries = [];
   let done = false;
@@ -416,25 +416,25 @@ async function filesystementry__async_readdirectoryentries(entry) {
   }
   return allentries;
 }
-function htmlinputelement__webkitdirectoryissupported() {
-  return utility__deviceismobile() ? false : true;
+export function WebPlatform_HTMLInputElement_WebkitDirectoryIsSupported() {
+  return WebPlatform_Utility_DeviceIsMobile() ? false : true;
 }
-function node__class_nodereference(node) {
-  return new ClassNodeReference(node);
-}
-function node__class_nodelistreference(nodes) {
+export function WebPlatform_Node_Class_NodeListReference(nodes) {
   return new ClassNodeReferenceList(nodes);
 }
-function node__selectelement(selector) {
-  return node__class_nodereference(document.querySelector(selector));
+export function WebPlatform_Node_Class_NodeReference(node) {
+  return new ClassNodeReference(node);
 }
-function node__selectelements(...selectors) {
-  return node__class_nodelistreference(document.querySelectorAll(selectors.join(",")));
+export function WebPlatform_Node_SelectElement(selector) {
+  return WebPlatform_Node_Class_NodeReference(document.querySelector(selector));
 }
-function utility__deviceismobile() {
+export function WebPlatform_Node_SelectElements(...selectors) {
+  return WebPlatform_Node_Class_NodeListReference(document.querySelectorAll(selectors.join(",")));
+}
+export function WebPlatform_Utility_DeviceIsMobile() {
   return /android|iphone|mobile/i.test(window.navigator.userAgent);
 }
-function utility__download(data, filename) {
+export function WebPlatform_Utility_Download(data, filename) {
   const dataurl = (() => {
     if (data.blob !== undefined) {
       return URL.createObjectURL(data.blob);
@@ -461,7 +461,7 @@ function utility__download(data, filename) {
     document.body.removeChild(anchor);
   }
 }
-function utility__openwindow(url, onLoad, onUnload) {
+export function WebPlatform_Utility_OpenWindow(url, onLoad, onUnload) {
   const proxy = window.open(url, "_blank");
   if (proxy) {
     if (onLoad) {
@@ -476,62 +476,3 @@ function utility__openwindow(url, onLoad, onUnload) {
     }
   }
 }
-export var WebPlatform;
-((WebPlatform) => {
-  let CSS;
-  ((CSS) => {
-    CSS.ToAdjustedEm = css__toadjustedem;
-    CSS.ToRelativeEm = css__torelativeem;
-    CSS.ToRelativePx = css__torelativepx;
-  })(CSS = WebPlatform.CSS ||= {});
-  let DOM;
-  ((DOM) => {
-    DOM.Class_AttributeObserver = dom__class_attributeobserver;
-    DOM.Class_CharacterDataObserver = dom__class_characterdataobserver;
-    DOM.Class_ChildListObserver = dom__class_childlistobserver;
-    DOM.Class_ElementAddedObserver = dom__class_elementaddedobserver;
-    DOM.InjectCSS = dom__injectcss;
-    DOM.InjectScript = dom__injectscript;
-  })(DOM = WebPlatform.DOM ||= {});
-  let Blob;
-  ((Blob) => {
-    Blob.ClassCompat_Blob = blob__classcompat_blob;
-    Blob.Async_ReadSome = blob__async_readsome;
-  })(Blob = WebPlatform.Blob ||= {});
-  let DataTransfer;
-  ((DataTransfer) => {
-    DataTransfer.AsyncGen_GetEntries = datatransfer__asyncgen_getentries;
-    DataTransfer.AsyncGen_GetFiles = datatransfer__asyncgen_getfiles;
-    DataTransfer.ClassCompat_DataTransfer = datatransfer__classcompat_datatransfer;
-  })(DataTransfer = WebPlatform.DataTransfer ||= {});
-  let DataTransferItem;
-  ((DataTransferItem) => {
-    DataTransferItem.ClassCompat_DataTransferItem = datatransferitem__classcompat_datatransferitem;
-  })(DataTransferItem = WebPlatform.DataTransferItem ||= {});
-  let File;
-  ((File) => {
-    File.ClassCompat_File = file__classcompat_file;
-  })(File = WebPlatform.File ||= {});
-  let FileSystemEntry;
-  ((FileSystemEntry) => {
-    FileSystemEntry.Async_GetFile = filesystementry__async_getfile;
-    FileSystemEntry.Async_ReadDirectoryEntries = filesystementry__async_readdirectoryentries;
-  })(FileSystemEntry = WebPlatform.FileSystemEntry ||= {});
-  let HTMLInputElement;
-  ((HTMLInputElement) => {
-    HTMLInputElement.WebkitDirectoryIsSupported = htmlinputelement__webkitdirectoryissupported;
-  })(HTMLInputElement = WebPlatform.HTMLInputElement ||= {});
-  let Node;
-  ((Node) => {
-    Node.Class_NodeReference = node__class_nodereference;
-    Node.Class_NodeListReference = node__class_nodelistreference;
-    Node.SelectElement = node__selectelement;
-    Node.SelectElements = node__selectelements;
-  })(Node = WebPlatform.Node ||= {});
-  let Utility;
-  ((Utility) => {
-    Utility.DeviceIsMobile = utility__deviceismobile;
-    Utility.Download = utility__download;
-    Utility.OpenWindow = utility__openwindow;
-  })(Utility = WebPlatform.Utility ||= {});
-})(WebPlatform ||= {});

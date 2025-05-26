@@ -1,4 +1,4 @@
-import { BunPlatform } from '../src/lib/ericchase/platform-bun.js';
+import { BunPlatform_Args_Has } from '../src/lib/ericchase/platform-bun.js';
 import { Builder } from './core/Builder.js';
 import { Processor_Basic_Writer } from './core/processor/Processor_Basic_Writer.js';
 import { Processor_TypeScript_Generic_Transpiler } from './core/processor/Processor_TypeScript_Generic_Transpiler.js';
@@ -11,7 +11,7 @@ import { Step_Dev_Project_Sync_Lib } from './lib-dev/step/Step_Dev_Project_Sync_
 import { Step_Dev_Server } from './lib-web/step/Step_Dev_Server.js';
 
 const builder = Builder({
-  mode: BunPlatform.Args.Has('--dev') ? Builder.BUILD_MODE.DEV : Builder.BUILD_MODE.BUILD,
+  mode: BunPlatform_Args_Has('--dev') ? Builder.BUILD_MODE.DEV : Builder.BUILD_MODE.BUILD,
   verbosity: Builder.LOG_VERBOSITY._1_LOG,
 });
 

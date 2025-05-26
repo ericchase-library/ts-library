@@ -1,6 +1,6 @@
-import { Core } from '../../../src/lib/ericchase/core.js';
-import { BunPlatform } from '../../../src/lib/ericchase/platform-bun.js';
-import { NODE_PATH, NODE_URL, NodePlatform } from '../../../src/lib/ericchase/platform-node.js';
+import { Core_Array_BinarySearch_InsertionIndex } from '../../../src/lib/ericchase/core.js';
+import { BunPlatform_Glob_Match } from '../../../src/lib/ericchase/platform-bun.js';
+import { NODE_PATH, NODE_URL, NodePlatform_File_Async_WriteText, NodePlatform_Path_GetExtension, NodePlatform_Path_GetParentPath, NodePlatform_Path_Join, NodePlatform_Path_JoinStandard, NodePlatform_Path_NewExtension, NodePlatform_Path_Slice } from '../../../src/lib/ericchase/platform-node.js';
 import { Builder } from '../../core/Builder.js';
 import { ClassLogger, Logger } from '../../core/Logger.js';
 
@@ -37,19 +37,19 @@ class Class implements Builder.Processor {
     let trigger_reprocess = false;
     for (const file of files) {
       const query = file.src_path.toStandard();
-      if (BunPlatform.Glob.Match(query, `**/*${PATTERN.MODULE}`)) {
-        file.out_path.value = NodePlatform.Path.NewExtension(file.out_path.value, '.js');
+      if (BunPlatform_Glob_Match(query, `**/*${PATTERN.MODULE}`)) {
+        file.out_path.value = NodePlatform_Path_NewExtension(file.out_path.value, '.js');
         file.addProcessor(this, this.onProcessModule);
         this.bundle_set.add(file);
         continue;
       }
-      if (BunPlatform.Glob.Match(query, `**/*${PATTERN.IIFE}`)) {
-        file.out_path.value = NodePlatform.Path.NewExtension(file.out_path.value, '.js');
+      if (BunPlatform_Glob_Match(query, `**/*${PATTERN.IIFE}`)) {
+        file.out_path.value = NodePlatform_Path_NewExtension(file.out_path.value, '.js');
         file.addProcessor(this, this.onProcessIIFEScript);
         this.bundle_set.add(file);
         continue;
       }
-      if (BunPlatform.Glob.Match(query, `**/*${PATTERN.TS_TSX_JS_JSX}`)) {
+      if (BunPlatform_Glob_Match(query, `**/*${PATTERN.TS_TSX_JS_JSX}`)) {
         trigger_reprocess = true;
       }
     }
@@ -63,11 +63,11 @@ class Class implements Builder.Processor {
     let trigger_reprocess = false;
     for (const file of files) {
       const query = file.src_path.toStandard();
-      if (BunPlatform.Glob.Match(query, `**/*${PATTERN.MODULE_IIFE}`)) {
+      if (BunPlatform_Glob_Match(query, `**/*${PATTERN.MODULE_IIFE}`)) {
         this.bundle_set.delete(file);
         continue;
       }
-      if (BunPlatform.Glob.Match(query, `**/*${PATTERN.TS_TSX_JS_JSX}`)) {
+      if (BunPlatform_Glob_Match(query, `**/*${PATTERN.TS_TSX_JS_JSX}`)) {
         trigger_reprocess = true;
       }
     }
@@ -150,7 +150,7 @@ async function processBuildResults(builder: Builder.Internal, file: Builder.Sour
           // case 'sourcemap':
           default: {
             const text = await artifact.text();
-            await NodePlatform.File.Async_WriteText(NodePlatform.Path.Join(builder.dir.out, artifact.path), text);
+            await NodePlatform_File_Async_WriteText(NodePlatform_Path_Join(builder.dir.out, artifact.path), text);
           }
         }
       }
@@ -194,7 +194,7 @@ async function remapModuleImports(file: Builder.SourceFile, channel: ClassLogger
     const text_parts: string[] = [];
     let text_index = 0;
     for (const item_import of list_imports) {
-      const item_source = list_sources.at(Core.Array.BinarySearch.InsertionIndex(list_sources, item_import, (a, b) => a.start < b.start));
+      const item_source = list_sources.at(Core_Array_BinarySearch_InsertionIndex(list_sources, item_import, (a, b) => a.start < b.start));
       if (item_source !== undefined) {
         try {
           const remapped_import_path = getRelativePath(file.src_path.value, item_source.path, item_import.path);
@@ -211,18 +211,18 @@ async function remapModuleImports(file: Builder.SourceFile, channel: ClassLogger
 }
 function getRelativePath(file_path: string, item_source_path: string, item_import_path: string) {
   if (item_import_path.startsWith('.') === true) {
-    item_import_path = NodePlatform.Path.JoinStandard(NodePlatform.Path.GetParentPath(item_source_path), item_import_path);
+    item_import_path = NodePlatform_Path_JoinStandard(NodePlatform_Path_GetParentPath(item_source_path), item_import_path);
   }
-  let relative = NODE_PATH.relative(NodePlatform.Path.GetParentPath(file_path), NODE_URL.fileURLToPath(import.meta.resolve(item_import_path)));
-  switch (NodePlatform.Path.GetExtension(relative)) {
+  let relative = NODE_PATH.relative(NodePlatform_Path_GetParentPath(file_path), NODE_URL.fileURLToPath(import.meta.resolve(item_import_path)));
+  switch (NodePlatform_Path_GetExtension(relative)) {
     case '.js':
     case '.jsx':
     case '.ts':
     case '.tsx':
-      relative = NodePlatform.Path.NewExtension(relative, '.js');
+      relative = NodePlatform_Path_NewExtension(relative, '.js');
       break;
   }
-  return NodePlatform.Path.Slice(relative, 0, 1) === '..' ? NodePlatform.Path.JoinStandard(relative) : `./${NodePlatform.Path.JoinStandard(relative)}`;
+  return NodePlatform_Path_Slice(relative, 0, 1) === '..' ? NodePlatform_Path_JoinStandard(relative) : `./${NodePlatform_Path_JoinStandard(relative)}`;
 }
 interface Config {
   define?: Options['define'] | (() => Options['define']);
