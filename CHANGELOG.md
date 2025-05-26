@@ -1,6 +1,7 @@
 ## 2025-05-03
 
 ### ~~Releasing beta version of build tools v3.~~
+
 Update: That was a short life for v3. Bundler's are unable to perform tree-shaking on typescript namespaces. So we are going back to the whiteboard.
 
 Version 2 didn't work out. For version 3, I am focusing on simplicity and cutting down the number of files. I've also experimented with bundling external packages and writing typescript wrappers around them.
