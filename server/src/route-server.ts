@@ -2,25 +2,26 @@ import { Core } from './lib/ericchase/core.js';
 import { NODE_FS, NODE_PATH, NodePlatform } from './lib/ericchase/platform-node.js';
 
 export namespace server {
-  export async function getConsole(): Promise<Response | undefined> {
-    return new Response(Bun.file('./console.html'));
+  export function getConsole(): Promise<Response | undefined> {
+    return Promise.resolve(new Response(Bun.file('./console.html')));
   }
-  export async function get(pathname: string): Promise<Response | undefined> {
+  export function get(pathname: string): Promise<Response | undefined> {
     switch (pathname) {
       case '/server/restart': {
         Core.Console.Log('Restarting...');
         setTimeout(() => process.exit(1), 100);
-        return new Response('Restarting server.');
+        return Promise.resolve(new Response('Restarting server.'));
       }
       case '/server/shutdown': {
         Core.Console.Log('Shutting down...');
         setTimeout(() => process.exit(2), 100);
-        return new Response('Shutting down server.');
+        return Promise.resolve(new Response('Shutting down server.'));
       }
       case '/server/list': {
         return getPublicListing();
       }
     }
+    return Promise.resolve(undefined);
   }
 }
 

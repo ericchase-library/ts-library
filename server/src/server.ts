@@ -28,12 +28,9 @@ function createServer(hostname: string, port: number) {
           server.publish('ws', 'reload');
           return new Response('OK', { status: 204 });
         }
-        const handler = getMethodHandler(method);
-        if (handler) {
-          const response = await handler(req, url, pathname);
-          if (response) {
-            return response;
-          }
+        const response = await callHandler(method, req, url, pathname);
+        if (response) {
+          return response;
         }
       } catch (error) {
         Core.Console.Log();
@@ -56,6 +53,17 @@ function createServer(hostname: string, port: number) {
     },
   });
   return server;
+}
+
+async function callHandler(method: string, req: Request, url: URL, pathname: string) {
+  switch (method.toUpperCase()) {
+    case 'GET':
+      return await get(req, url, pathname);
+    case 'OPTIONS':
+      return await options(req, url, pathname);
+    case 'POST':
+      return await post(req, url, pathname);
+  }
 }
 
 function getMethodHandler(method: string): ((req: Request, url: URL, pathname: string) => Promise<Response | undefined>) | undefined {

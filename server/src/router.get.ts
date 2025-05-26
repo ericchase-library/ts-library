@@ -2,7 +2,7 @@ import { Core } from './lib/ericchase/core.js';
 import { NodePlatform } from './lib/ericchase/platform-node.js';
 import { server } from './route-server.js';
 
-export async function get(req: Request, url: URL, pathname: string): Promise<Response | undefined> {
+export function get(req: Request, url: URL, pathname: string): Promise<Response | undefined> {
   Core.Console.Log(`GET      ${pathname}`);
 
   // server api
@@ -15,7 +15,6 @@ export async function get(req: Request, url: URL, pathname: string): Promise<Res
       return getPublicResource('index.html');
     }
   }
-
   return getPublicResource(pathname);
 }
 

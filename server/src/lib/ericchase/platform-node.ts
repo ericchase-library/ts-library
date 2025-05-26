@@ -60,7 +60,7 @@ const SHELL__KEYS = {
  * If the stdin stream is switched to utf8 mode, it cannot be switched back to byte
  * mode (need to verify again). Instead, leave it in byte mode, and decode the bytes.
  */
-const SHELL__STDIN__LISTENERSET = new Set<(bytes: Uint8Array, text: string, removeSelf: () => boolean) => Promise<void>>();
+const SHELL__STDIN__LISTENERSET = new Set<(bytes: Uint8Array, text: string, removeSelf: () => boolean) => void | Promise<void>>();
 const SHELL__STDIN__READERLOCKS = new Set<() => void>();
 
 // variables
@@ -71,7 +71,7 @@ let shell__stdin__readerenabled = false;
 
 // functions
 
-function error__cleanstack(stack = '') {
+function error__cleanstack(stack = ''): string {
   const lines = Core.String.SplitLines(stack ?? '');
   if (lines[0].trim() === 'Error') {
     lines[0] = 'Fixed Call Stack:';
@@ -153,7 +153,7 @@ async function directory__async_delete(path: string, recursive = false): Promise
   }
   return NODE_FS.existsSync(path__join(path)) === false;
 }
-async function directory__async_readdir(path: string, recursive = true) {
+async function directory__async_readdir(path: string, recursive = true): Promise<NODE_FS.Dirent[]> {
   try {
     return await error__callasync(
       Error().stack,
@@ -331,7 +331,7 @@ function shell__cursor__showcursor(): void {
   process.stdout.write(`${SHELL__KEYS_CSI}?25h`);
 }
 
-function shell__stdin__addlistener(listener: (bytes: Uint8Array, text: string, removeSelf: () => boolean) => Promise<void>): void {
+function shell__stdin__addlistener(listener: (bytes: Uint8Array, text: string, removeSelf: () => boolean) => void | Promise<void>): void {
   SHELL__STDIN__LISTENERSET.add(listener);
 }
 function shell__stdin__lockreader(): () => void {
@@ -356,7 +356,6 @@ function shell__stdin__startreader(): void {
     process.stdin //
       .addListener('data', shell__stdin__readerhandler)
       .resume();
-    // await Sleep(0); // ??
     shell__stdin__readerenabled = true;
     shell__stdin__rawmodeenabled = false;
   }
@@ -370,7 +369,6 @@ function shell__stdin__startreaderinrawmode(): void {
       .setRawMode(true)
       .addListener('data', shell__stdin__readerhandler)
       .resume();
-    // await Sleep(0); // ??
     shell__stdin__readerenabled = true;
     shell__stdin__rawmodeenabled = true;
   }
@@ -382,7 +380,6 @@ function shell__stdin__stopreader(): void {
         .pause()
         .removeListener('data', shell__stdin__readerhandler)
         .setRawMode(false);
-      // await Sleep(0); // ??
       shell__stdin__readerenabled = true;
       shell__stdin__rawmodeenabled = false;
     }

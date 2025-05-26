@@ -26,7 +26,7 @@ for (let i = 0; i < 256; i++) {
 class ClassArrayUint8Group {
   arrays = new Array<Uint8Array>();
   byteLength = 0;
-  add(bytes: Uint8Array) {
+  add(bytes: Uint8Array): number {
     this.arrays.push(bytes);
     this.byteLength += bytes.byteLength;
     return this.byteLength;
@@ -68,7 +68,7 @@ class ClassStreamUint8Reader {
   length = 0;
   value: Uint8Array = ARRAY__UINT8__EMPTY;
   constructor(public reader: ReadableStreamDefaultReader<Uint8Array>) {}
-  async next(this: ClassStreamUint8Reader) {
+  async next(this: ClassStreamUint8Reader): Promise<{ changed: boolean }> {
     const { done, value = ARRAY__UINT8__EMPTY } = await this.reader.read();
     if (this.done === done && this.value === value) {
       return { changed: false };
@@ -79,18 +79,18 @@ class ClassStreamUint8Reader {
     this.value = value;
     return { changed: true };
   }
-  releaseLock() {
+  releaseLock(): void {
     this.reader.releaseLock();
   }
 }
 class ClassUtilityCRC32 {
   $state = new Uint32Array([0xffffffff]);
-  update(bytes: Uint8Array) {
+  update(bytes: Uint8Array): void {
     for (let index = 0; index < bytes.length; index++) {
       this.$state[0] = UTILITY__CRC32__TABLE[(this.$state[0] ^ bytes[index]) & 0xff] ^ (this.$state[0] >>> 8);
     }
   }
-  get value() {
+  get value(): number {
     return (this.$state[0] ^ (0xffffffff >>> 0)) >>> 0;
   }
 }
@@ -147,7 +147,7 @@ function* array__gen_zip<T extends readonly Iterable<any>[]>(...iterables: T): G
   let mock_count = 0;
   const mock_iterable: IterableIterator<any> = {
     next() {
-      return { value: undefined, done: true };
+      return { value: undefined, done: false };
     },
     [Symbol.iterator]() {
       return this;
@@ -157,24 +157,25 @@ function* array__gen_zip<T extends readonly Iterable<any>[]>(...iterables: T): G
     const values = [] as unknown as { [K in keyof I]: I[K] extends Iterator<infer U> ? U | undefined : undefined };
     for (let index = 0; index < iterators.length; index++) {
       const next = iterators[index].next();
-      if ('done' in next && next.done) {
+      if ('done' in next && next.done === true) {
         mock_count++;
         iterators[index] = mock_iterable;
+        values[index] = undefined;
+      } else {
+        values[index] = 'value' in next ? next.value : undefined;
       }
-      values[index] = 'value' in next ? next.value : undefined;
     }
     return values;
   }
-  const iterators: Iterator<any>[] = iterables.map((iterable) => {
-    if (iterable != null && typeof (iterable as any)[Symbol.iterator] === 'function') {
-      const iterator = iterable[Symbol.iterator]();
-      if (iterator && 'next' in iterator) {
-        return iterator;
-      }
+  const iterators: Iterator<any>[] = [];
+  for (const iterable of iterables) {
+    try {
+      iterators.push(iterable[Symbol.iterator]());
+    } catch (error) {
+      mock_count++;
+      iterators.push(mock_iterable[Symbol.iterator]());
     }
-    mock_count++;
-    return mock_iterable;
-  });
+  }
   let values = process_iterators(iterators);
   while (mock_count < iterators.length) {
     yield values as { [K in keyof T]: T[K] extends Iterable<infer U> ? U | undefined : undefined };
@@ -199,7 +200,7 @@ function array__getendpoints(array: ArrayLike<unknown>): [number, number] {
   }
   return [0, array.length];
 }
-function array__shuffle<T>(items: T[], in_place = true) {
+function array__shuffle<T>(items: T[], in_place = true): T[] {
   const last = items.length - 1;
   for (let i = 0; i < items.length; i++) {
     let random = Math.floor(Math.random() * last);
@@ -243,7 +244,7 @@ function array__binarysearch__insertionorder<T>(array: T[], target: T, isOrdered
   return middle - 1;
 }
 
-function array__uint8__class_group() {
+function array__uint8__class_group(): ClassArrayUint8Group {
   return new ClassArrayUint8Group();
 }
 
@@ -416,7 +417,7 @@ function array__uint8__tohex(bytes: Uint8Array): string[] {
   }
   return hex;
 }
-function array__uint8__tolines(bytes: Uint8Array) {
+function array__uint8__tolines(bytes: Uint8Array): string[] {
   // Array.split() beats Array[index] here for overall performance
   return string__splitlines(array__uint8__tostring(bytes));
 }
@@ -428,15 +429,17 @@ function array__uint32__tohex(uint: number): string[] {
   return array__uint8__tohex(array__uint8__fromuint32(uint));
 }
 
-function assert__equal(value1: any, value2: any) {
+function assert__equal(value1: any, value2: any): true {
   if (value1 !== value2) {
     throw new Error(`Assertion Failed: value1(${value1}) should equal value2(${value2})`);
   }
+  return true;
 }
-function assert__notequal(value1: any, value2: any) {
+function assert__notequal(value1: any, value2: any): true {
   if (value1 === value2) {
     throw new Error(`Assertion Failed: value1(${value1}) should not equal value2(${value2})`);
   }
+  return true;
 }
 function assert__bigint(value: any): value is bigint {
   if (typeof value !== 'bigint') {
@@ -487,16 +490,16 @@ function assert__undefined(value: any): value is undefined {
   return true;
 }
 
-function console__error(...items: any[]) {
+function console__error(...items: any[]): void {
   console['error'](...items);
 }
-function console__errorwithdate(...items: any[]) {
+function console__errorwithdate(...items: any[]): void {
   console['error'](`[${new Date().toLocaleString()}]`, ...items);
 }
-function console__log(...items: any[]) {
+function console__log(...items: any[]): void {
   console['log'](...items);
 }
-function console__logwithdate(...items: any[]) {
+function console__logwithdate(...items: any[]): void {
   console['log'](`[${new Date().toLocaleString()}]`, ...items);
 }
 
@@ -567,15 +570,12 @@ function json__parserawstring(str: string): string {
   return JSON.parse(`"${str}"`);
 }
 
-function map__guard<K, V>(map: Map<K, V>, key: K, value: V | undefined): value is V {
-  return map.has(key);
-}
 function map__getordefault<K, V>(map: Map<K, V>, key: K, newValue: () => V): V {
-  let value = map.get(key);
-  if (!map__guard<K, V>(map, key, value)) {
-    value = newValue();
-    map.set(key, value);
+  if (map.has(key)) {
+    return map.get(key) as V;
   }
+  const value = newValue();
+  map.set(key, value);
   return value;
 }
 
@@ -729,7 +729,7 @@ function math__getmidpoint(a: number, b: number): number {
   return 0 === (b - a) % 2 ? (a + b) / 2 : (a + b - 1) / 2;
 }
 
-async function promise__async_countfulfilled(promises: Promise<any>[]) {
+async function promise__async_countfulfilled(promises: Promise<any>[]): Promise<number> {
   let count = 0;
   for (const { status } of await Promise.allSettled(promises)) {
     if (status === 'fulfilled') {
@@ -738,7 +738,7 @@ async function promise__async_countfulfilled(promises: Promise<any>[]) {
   }
   return count;
 }
-async function promise__async_countrejected(promises: Promise<any>[]) {
+async function promise__async_countrejected(promises: Promise<any>[]): Promise<number> {
   let count = 0;
   for (const { status } of await Promise.allSettled(promises)) {
     if (status === 'rejected') {
@@ -749,10 +749,10 @@ async function promise__async_countrejected(promises: Promise<any>[]) {
 }
 
 /** Annotate a function call as purposely un-awaited. */
-function promise__callandorphan(asyncfn: () => Promise<any> | any) {
+function promise__callandorphan(asyncfn: () => Promise<any> | any): void {
   promise__orphan(asyncfn());
 }
-function promise__orphan(promise: Promise<any> | any) {}
+function promise__orphan(promise: Promise<any> | any): void {}
 
 async function* stream__asyncgen_readchunks<T>(stream: ReadableStream<T>): AsyncGenerator<T> {
   const reader = stream.getReader();
@@ -763,26 +763,6 @@ async function* stream__asyncgen_readchunks<T>(stream: ReadableStream<T>): Async
         return;
       }
       yield value;
-    }
-  } finally {
-    reader.releaseLock();
-  }
-}
-async function* stream__asyncgen_readlines(stream: ReadableStream<Uint8Array>): AsyncGenerator<string[]> {
-  const reader = stream.pipeThrough(new TextDecoderStream()).getReader();
-  try {
-    let buffer = '';
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) {
-        if (buffer.length > 0) {
-          yield [buffer];
-        }
-        return;
-      }
-      const lines = string__splitlines(buffer + value);
-      buffer = lines[lines.length - 1] ?? '';
-      yield lines.slice(0, -1);
     }
   } finally {
     reader.releaseLock();
@@ -840,8 +820,8 @@ async function stream__uint8__async_readall(stream: ReadableStream<Uint8Array>):
     reader.releaseLock();
   }
 }
-async function stream__uint8__async_readlines(stream: ReadableStream<Uint8Array>, callback: (line: string) => Promise<boolean | void> | (boolean | void)) {
-  for await (const lines of stream__asyncgen_readlines(stream)) {
+async function stream__uint8__async_readlines(stream: ReadableStream<Uint8Array<ArrayBufferLike>>, callback: (line: string) => Promise<boolean | void> | (boolean | void)): Promise<void> {
+  for await (const lines of stream__uint8__asyncgen_readlines(stream)) {
     for (const line of lines) {
       if ((await callback(line)) === false) {
         return;
@@ -874,7 +854,55 @@ async function stream__uint8__async_readsome(stream: ReadableStream<Uint8Array>,
   }
 }
 
-function stream__uint8__class_reader(reader: ReadableStreamDefaultReader<Uint8Array>) {
+async function* stream__uint8__asyncgen_readlines(stream: ReadableStream<Uint8Array<ArrayBufferLike>>): AsyncGenerator<string[]> {
+  const textDecoderStream = new TextDecoderStream();
+  const textDecoderReader = textDecoderStream.readable.getReader();
+  const textDecoderWriter = textDecoderStream.writable.getWriter();
+  const readable: ReadableStream<string> = new ReadableStream({
+    // async cancel() {
+    //   await textDecoderReader.cancel();
+    // },
+    async pull(controller: ReadableStreamDefaultController<string>) {
+      const { done, value } = await textDecoderReader.read();
+      if (done !== true) {
+        controller.enqueue(value);
+      } else {
+        controller.close();
+      }
+    },
+  });
+  const writable: WritableStream<Uint8Array<ArrayBufferLike>> = new WritableStream({
+    // async abort() {
+    //   await textDecoderWriter.abort();
+    // },
+    async close() {
+      await textDecoderWriter.close();
+    },
+    async write(chunk) {
+      await textDecoderWriter.write(chunk.slice());
+    },
+  });
+  const reader = stream.pipeThrough({ readable, writable }).getReader();
+  try {
+    let buffer = '';
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) {
+        if (buffer.length > 0) {
+          yield [buffer];
+        }
+        return;
+      }
+      const lines = string__splitlines(buffer + value);
+      buffer = lines[lines.length - 1] ?? '';
+      yield lines.slice(0, -1);
+    }
+  } finally {
+    reader.releaseLock();
+  }
+}
+
+function stream__uint8__class_reader(reader: ReadableStreamDefaultReader<Uint8Array>): ClassStreamUint8Reader {
   return new ClassStreamUint8Reader(reader);
 }
 
@@ -917,7 +945,7 @@ function string__splitmultiplewhitespace(text: string, remove_empty_items = fals
 function string__tosnakecase(text: string): string {
   return text.toLowerCase().replace(/ /g, '-');
 }
-function string__trimlines(lines: string[]) {
+function string__trimlines(lines: string[]): string[] {
   return lines.map((line) => line.trim());
 }
 
@@ -929,19 +957,19 @@ function utility__async_sleep(duration_ms: number): Promise<void> {
 
 // Codec
 
-function utility__decodebytes(buffer: Uint8Array) {
+function utility__decodebytes(buffer: Uint8Array): string {
   return new TextDecoder().decode(buffer);
 }
-function utility__encodetext(text: string) {
+function utility__encodetext(text: string): Uint8Array {
   return new TextEncoder().encode(text);
 }
 
 // CRC32
 
-function utility__class_crc32() {
+function utility__class_crc32(): ClassUtilityCRC32 {
   return new ClassUtilityCRC32();
 }
-function utility__crc32(bytes: Uint8Array) {
+function utility__crc32(bytes: Uint8Array): number {
   const crc = new Uint32Array([0xffffffff]);
   for (let index = 0; index < bytes.length; index++) {
     crc[0] = UTILITY__CRC32__TABLE[(crc[0] ^ bytes[index]) & 0xff] ^ (crc[0] >>> 8);
@@ -994,7 +1022,7 @@ function utility__immediatedebounce<T extends (...args: any[]) => Promise<any> |
 
 // Defer
 
-function utility__class_defer<T = void>() {
+function utility__class_defer<T = void>(): ClassUtilityDefer<T> {
   return new ClassUtilityDefer<T>();
 }
 
@@ -1061,7 +1089,6 @@ export namespace Core {
     export const ParseRawString = json__parserawstring;
   }
   export namespace Map {
-    export const Guard = map__guard;
     export const GetOrDefault = map__getordefault;
   }
   export namespace Math {
@@ -1088,10 +1115,11 @@ export namespace Core {
       export const Async_ReadLines = stream__uint8__async_readlines;
       export const Async_ReadSome = stream__uint8__async_readsome;
       //
+      export const AsyncGen_ReadLines = stream__uint8__asyncgen_readlines;
+      //
       export const Class_Reader = stream__uint8__class_reader;
     }
     export const AsyncGen_ReadChunks = stream__asyncgen_readchunks;
-    export const AsyncGen_ReadLines = stream__asyncgen_readlines;
   }
   export namespace String {
     export const GetLeftMarginSize = string__getleftmarginsize;

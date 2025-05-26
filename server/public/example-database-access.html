@@ -19,7 +19,7 @@
         try {
           console.log('Try GET Request');
           // we expect this to fail, because our fake database allows POST requests only
-          const response = await fetch('http://localhost:8000/database', { method: 'GET' });
+          const response = await fetch('http://localhost:8000/database/query', { method: 'GET' });
           if (response.headers.get('content-type').includes('application/json')) {
             console.log('-- JSON:', await response.json());
           } else {
@@ -29,7 +29,7 @@
 
         try {
           console.log('Try POST Request');
-          const response = await fetch('http://localhost:8000/database', {
+          const response = await fetch('http://localhost:8000/database/query', {
             method: 'POST',
             body: JSON.stringify({ id: 0 }),
             headers: {
