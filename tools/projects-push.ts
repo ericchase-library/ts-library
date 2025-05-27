@@ -11,9 +11,7 @@ import { Step_Dev_Project_Sync_Lib } from './lib-dev/step/Step_Dev_Project_Sync_
 import project_paths from './synced-projects.jsonc' assert { type: 'jsonc' };
 SetLoggerOptions({ ceremony: false });
 
-const builder = Builder();
-
-builder.setStartUpSteps(
+Builder.SetStartUpSteps(
   Step_Bun_Run({ cmd: ['bun', 'update', '--latest'], showlogs: false }),
   Step_Bun_Run({ cmd: ['bun', 'install'], showlogs: false }),
   Step_Dev_Format({ showlogs: false }),
@@ -21,7 +19,7 @@ builder.setStartUpSteps(
   //
 );
 
-builder.setCleanUpSteps(
+Builder.SetCleanUpSteps(
   // Update Local Server Files
   Step_FS_Mirror_Directory({ from: 'src/lib/ericchase/', to: 'server/src/lib/ericchase/', include_patterns: ['core.ts', 'platform-node.ts'] }),
   // Update Template Project
@@ -34,4 +32,4 @@ builder.setCleanUpSteps(
   //
 );
 
-await builder.start();
+await Builder.Start();

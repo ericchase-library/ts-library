@@ -21,7 +21,7 @@ class Class implements Builder.Processor {
   ProcessorName = Processor_TypeScript_Generic_Bundler.name;
   channel = Logger(this.ProcessorName).newChannel();
 
-  bundle_set = new Set<Builder.SourceFile>();
+  bundle_set = new Set<Builder.File>();
 
   constructor(
     readonly config: Config,
@@ -33,7 +33,7 @@ class Class implements Builder.Processor {
     this.config.sourcemap ??= 'none';
     this.config.target ?? 'browser';
   }
-  async onAdd(builder: Builder.Internal, files: Set<Builder.SourceFile>): Promise<void> {
+  async onAdd(files: Set<Builder.File>): Promise<void> {
     let trigger_reprocess = false;
     for (const file of files) {
       const query = file.src_path.toStandard();
@@ -55,11 +55,11 @@ class Class implements Builder.Processor {
     }
     if (trigger_reprocess === true) {
       for (const file of this.bundle_set) {
-        builder.refreshFile(file);
+        file.refresh();
       }
     }
   }
-  async onRemove(builder: Builder.Internal, files: Set<Builder.SourceFile>): Promise<void> {
+  async onRemove(files: Set<Builder.File>): Promise<void> {
     let trigger_reprocess = false;
     for (const file of files) {
       const query = file.src_path.toStandard();
@@ -73,14 +73,13 @@ class Class implements Builder.Processor {
     }
     if (trigger_reprocess === true) {
       for (const file of this.bundle_set) {
-        builder.refreshFile(file);
+        file.refresh();
       }
     }
   }
 
-  async onProcessModule(builder: Builder.Internal, file: Builder.SourceFile): Promise<void> {
+  async onProcessModule(file: Builder.File): Promise<void> {
     await processBuildResults(
-      builder,
       file,
       Bun.build({
         define: typeof this.config.define === 'function' ? this.config.define() : this.config.define,
@@ -101,9 +100,8 @@ class Class implements Builder.Processor {
     await remapModuleImports(file, this.channel);
   }
 
-  async onProcessIIFEScript(builder: Builder.Internal, file: Builder.SourceFile): Promise<void> {
+  async onProcessIIFEScript(file: Builder.File): Promise<void> {
     await processBuildResults(
-      builder,
       file,
       Bun.build({
         define: typeof this.config.define === 'function' ? this.config.define() : this.config.define,
@@ -125,7 +123,7 @@ class Class implements Builder.Processor {
     );
   }
 }
-async function processBuildResults(builder: Builder.Internal, file: Builder.SourceFile, buildtask: Promise<Bun.BuildOutput>, channel: ClassLogger) {
+async function processBuildResults(file: Builder.File, buildtask: Promise<Bun.BuildOutput>, channel: ClassLogger) {
   try {
     const results = await buildtask;
     if (results.success === true) {
@@ -136,10 +134,7 @@ async function processBuildResults(builder: Builder.Internal, file: Builder.Sour
             file.setText(text);
             for (const [, ...paths] of text.matchAll(/\n?\/\/ (src\/.*)\n?/g)) {
               for (const path of paths) {
-                const rawpath = Builder.RawPath(path);
-                if (file.src_path.value !== rawpath.value) {
-                  builder.addDependency(builder.getFile(rawpath), file);
-                }
+                file.addUpstreamPath(path);
               }
             }
             break;
@@ -150,7 +145,7 @@ async function processBuildResults(builder: Builder.Internal, file: Builder.Sour
           // case 'sourcemap':
           default: {
             const text = await artifact.text();
-            await NodePlatform_File_Async_WriteText(NodePlatform_Path_Join(builder.dir.out, artifact.path), text);
+            await NodePlatform_File_Async_WriteText(NodePlatform_Path_Join(Builder.Dir.Out, artifact.path), text);
           }
         }
       }
@@ -173,7 +168,7 @@ async function processBuildResults(builder: Builder.Internal, file: Builder.Sour
     channel.error(']');
   }
 }
-async function remapModuleImports(file: Builder.SourceFile, channel: ClassLogger) {
+async function remapModuleImports(file: Builder.File, channel: ClassLogger) {
   const text = await file.getText();
   // can't do lines, because import statements will become multiline if long enough
   const list_imports: { start: number; end: number; path: string }[] = [];

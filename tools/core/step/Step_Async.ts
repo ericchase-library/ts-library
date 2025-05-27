@@ -9,29 +9,29 @@ class Class implements Builder.Step {
   channel = Logger(this.StepName).newChannel();
 
   constructor(readonly steps: Builder.Step[]) {}
-  async onStartUp(builder: Builder.Internal): Promise<void> {
+  async onStartUp(): Promise<void> {
     const tasks: Promise<void>[] = [];
     for (const step of this.steps) {
       if (step.onStartUp) {
-        tasks.push(step.onStartUp(builder));
+        tasks.push(step.onStartUp());
       }
     }
     await Promise.allSettled(tasks);
   }
-  async onRun(builder: Builder.Internal): Promise<void> {
+  async onRun(): Promise<void> {
     const tasks: Promise<void>[] = [];
     for (const step of this.steps) {
       if (step.onRun) {
-        tasks.push(step.onRun(builder));
+        tasks.push(step.onRun());
       }
     }
     await Promise.allSettled(tasks);
   }
-  async onCleanUp(builder: Builder.Internal): Promise<void> {
+  async onCleanUp(): Promise<void> {
     const tasks: Promise<void>[] = [];
     for (const step of this.steps) {
       if (step.onCleanUp) {
-        tasks.push(step.onCleanUp(builder));
+        tasks.push(step.onCleanUp());
       }
     }
     await Promise.allSettled(tasks);

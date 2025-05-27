@@ -10,7 +10,7 @@ class Class implements Builder.Step {
   channel = Logger(this.StepName).newChannel();
 
   constructor(readonly paths: string[]) {}
-  async onRun(builder: Builder.Internal): Promise<void> {
+  async onRun(): Promise<void> {
     for (const path of this.paths) {
       if ((await NodePlatform_Directory_Async_Delete(path, true)) === true) {
         if ((await NodePlatform_Directory_Async_Create(path, true)) === true) {

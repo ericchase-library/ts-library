@@ -26,7 +26,7 @@ class Class implements Builder.Step {
       overwrite: boolean;
     },
   ) {}
-  async onRun(builder: Builder.Internal): Promise<void> {
+  async onRun(): Promise<void> {
     if (this.options.from === this.options.to) {
       // same directory, skip
       return;

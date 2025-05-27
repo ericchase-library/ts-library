@@ -12,8 +12,8 @@ class Class implements Builder.Step {
   constructor(readonly config: Config) {
     this.config.showlogs ??= true;
   }
-  async onRun(builder: Builder.Internal): Promise<void> {
-    await Step_Bun_Run({ cmd: ['biome', 'lint', '--error-on-warnings', '--write'], showlogs: this.config.showlogs }).onRun?.(builder);
+  async onRun(): Promise<void> {
+    await Step_Bun_Run({ cmd: ['biome', 'lint', '--error-on-warnings', '--write'], showlogs: this.config.showlogs }).onRun?.();
   }
 }
 interface Config {

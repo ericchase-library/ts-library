@@ -16,14 +16,14 @@ class Class implements Builder.Step {
     // nothing is setup, yet. Use this to pass in static data that you might
     // need.
   }
-  async onStartUp(builder: Builder.Internal): Promise<void> {
+  async onStartUp(): Promise<void> {
     // Use this to do the majority of actual setup for this processor instance.
     // This method is called only once during the startup steps phase.
   }
-  async onRun(builder: Builder.Internal): Promise<void> {
+  async onRun(): Promise<void> {
     // Do whatever you want here.
   }
-  async onCleanUp(builder: Builder.Internal): Promise<void> {
+  async onCleanUp(): Promise<void> {
     // Use this to do the majority of cleanup for this processor instance. This
     // method is called only once during the cleanup steps phase.
   }

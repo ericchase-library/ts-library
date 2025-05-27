@@ -9,7 +9,7 @@ class Class implements Builder.Step {
   logger = Logger(this.StepName).newChannel();
 
   constructor(readonly items: any[]) {}
-  async onRun(builder: Builder.Internal): Promise<void> {
+  async onRun(): Promise<void> {
     this.logger.log(...this.items);
   }
 }

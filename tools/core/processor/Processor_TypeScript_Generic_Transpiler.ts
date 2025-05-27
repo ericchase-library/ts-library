@@ -15,7 +15,7 @@ class Class implements Builder.Processor {
     readonly exclude_patterns: string[],
     readonly config: Config,
   ) {}
-  async onAdd(builder: Builder.Internal, files: Set<Builder.SourceFile>): Promise<void> {
+  async onAdd(files: Set<Builder.File>): Promise<void> {
     for (const file of files) {
       if (BunPlatform_Glob_Ex_Match(file.src_path.toStandard(), this.include_patterns, this.exclude_patterns) === true) {
         file.out_path.value = NodePlatform_Path_NewExtension(file.out_path.value, '.js');
@@ -24,7 +24,7 @@ class Class implements Builder.Processor {
     }
   }
 
-  async onProcess(builder: Builder.Internal, file: Builder.SourceFile): Promise<void> {
+  async onProcess(file: Builder.File): Promise<void> {
     try {
       const text = await file.getText();
       const transpiled_text = await new Bun.Transpiler({

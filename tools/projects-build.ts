@@ -9,9 +9,7 @@ import project_paths from './synced-projects.jsonc' assert { type: 'jsonc' };
 
 SetLoggerOptions({ ceremony: false });
 
-const builder = Builder();
-
-builder.setStartUpSteps(
+Builder.SetStartUpSteps(
   Step_Bun_Run({ cmd: ['bun', 'update', '--latest'], showlogs: false }),
   Step_Bun_Run({ cmd: ['bun', 'install'], showlogs: false }),
   Step_Dev_Format({ showlogs: false }),
@@ -19,10 +17,10 @@ builder.setStartUpSteps(
   //
 );
 
-builder.setCleanUpSteps(
+Builder.SetCleanUpSteps(
   // Build Projects
   Step_Async(project_paths.map((path: string) => Step_Bun_Run({ cmd: ['bun', 'run', 'build'], dir: path }))),
   //
 );
 
-await builder.start();
+await Builder.Start();

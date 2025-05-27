@@ -14,7 +14,7 @@ class Class implements Builder.Step {
     readonly dir: string,
     readonly outpath: string,
   ) {}
-  async onRun(builder: Builder.Internal): Promise<void> {
+  async onRun(): Promise<void> {
     try {
       const zip_instance = new AdmZip();
       zip_instance.addLocalFolder(this.dir);

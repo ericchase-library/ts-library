@@ -10,11 +10,11 @@ class Class implements Builder.Processor {
   ProcessorName = Processor_HTML_Custom_Component_Processor.name;
   channel = Logger(this.ProcessorName).newChannel();
 
-  component_map = new Map<string, Builder.SourceFile>();
-  htmlfile_set = new Set<Builder.SourceFile>();
+  component_map = new Map<string, Builder.File>();
+  htmlfile_set = new Set<Builder.File>();
 
-  async onAdd(builder: Builder.Internal, files: Set<Builder.SourceFile>): Promise<void> {
-    const component_path = NodePlatform_Path_Join(builder.dir.lib, 'components');
+  async onAdd(files: Set<Builder.File>): Promise<void> {
+    const component_path = NodePlatform_Path_Join(Builder.Dir.Lib, 'components');
     let trigger_reprocess = false;
     for (const file of files) {
       if (NodePlatform_Path_GetExtension(file.src_path.value) === '.html') {
@@ -28,12 +28,12 @@ class Class implements Builder.Processor {
     }
     if (trigger_reprocess === true) {
       for (const file of this.htmlfile_set) {
-        builder.refreshFile(file);
+        file.refresh();
       }
     }
   }
-  async onRemove(builder: Builder.Internal, files: Set<Builder.SourceFile>): Promise<void> {
-    const component_path = NodePlatform_Path_Join(builder.dir.lib, 'components');
+  async onRemove(files: Set<Builder.File>): Promise<void> {
+    const component_path = NodePlatform_Path_Join(Builder.Dir.Lib, 'components');
     let trigger_reprocess = false;
     for (const file of files) {
       if (NodePlatform_Path_GetExtension(file.src_path.value) === '.html') {
@@ -46,12 +46,12 @@ class Class implements Builder.Processor {
     }
     if (trigger_reprocess === true) {
       for (const file of this.htmlfile_set) {
-        builder.refreshFile(file);
+        file.refresh();
       }
     }
   }
 
-  async onProcess(builder: Builder.Internal, file: Builder.SourceFile): Promise<void> {
+  async onProcess(file: Builder.File): Promise<void> {
     const source_html = (await file.getText()).trim();
     const source_node = HTML_UTIL.ParseDocument(source_html);
     let modified = false;
@@ -59,7 +59,7 @@ class Class implements Builder.Processor {
       const component_html = (await component_file.getText()).trim();
       const replacements = processCustomComponent(source_node, component_name, component_html);
       if (replacements > 0) {
-        builder.addDependency(component_file, file);
+        file.addUpstreamFile(component_file);
         modified = true;
       }
     }

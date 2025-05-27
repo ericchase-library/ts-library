@@ -17,11 +17,11 @@ class Class implements Builder.Step {
   hotreload_enabled = true;
   process_server?: Subprocess<'ignore', 'pipe', 'pipe'>;
 
-  async onStartUp(builder: Builder.Internal): Promise<void> {
-    if (builder.buildmode !== Builder.BUILD_MODE.DEV) return;
+  async onStartUp(): Promise<void> {
+    if (Builder.GetMode() !== Builder.MODE.DEV) return;
 
     this.channel.log('Start Server');
-    const p0 = Bun.spawn(['bun', 'run', 'server/tools/start.ts'], { env: { PUBLIC_PATH: NodePlatform_Path_Join('..', builder.dir.out) }, stderr: 'pipe', stdout: 'pipe' });
+    const p0 = Bun.spawn(['bun', 'run', 'server/tools/start.ts'], { env: { PUBLIC_PATH: NodePlatform_Path_Join('..', Builder.Dir.Out) }, stderr: 'pipe', stdout: 'pipe' });
     const [stdout, stdout_tee] = p0.stdout.tee();
     // wait for server to finish starting up
     // grab host and setup listener to toggle hot reloading
@@ -47,7 +47,7 @@ class Class implements Builder.Step {
     Core_Promise_Orphan(Core_Stream_Uint8_Async_ReadLines(stdout, (line) => this.channel.log(line)));
     this.process_server = p0;
   }
-  async onRun(builder: Builder.Internal): Promise<void> {
+  async onRun(): Promise<void> {
     if (this.process_server !== undefined && this.hotreload_enabled === true) {
       fetch(`http://${DEVSERVERHOST}/server/reload`)
         .then(() => Core_Utility_Async_Sleep(1000))
@@ -61,7 +61,7 @@ class Class implements Builder.Step {
         });
     }
   }
-  async onCleanUp(builder: Builder.Internal): Promise<void> {
+  async onCleanUp(): Promise<void> {
     this.process_server?.kill();
     this.process_server = undefined;
   }

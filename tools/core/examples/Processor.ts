@@ -17,11 +17,11 @@ class Class implements Builder.Processor {
     // nothing is setup, yet. Use this to pass in static data that you might
     // need.
   }
-  async onStartUp(builder: Builder.Internal): Promise<void> {
+  async onStartUp(): Promise<void> {
     // Use this to do the majority of actual setup for this processor instance.
     // This method is called only once after the startup steps phase.
   }
-  async onAdd(builder: Builder.Internal, files: Set<Builder.SourceFile>): Promise<void> {
+  async onAdd(files: Set<Builder.File>): Promise<void> {
     // Determine which files should be processed.
     for (const file of files) {
       // Example glob matcher for text (.txt) files:
@@ -30,17 +30,17 @@ class Class implements Builder.Processor {
       }
     }
   }
-  async onRemove(builder: Builder.Internal, files: Set<Builder.SourceFile>): Promise<void> {
+  async onRemove(files: Set<Builder.File>): Promise<void> {
     // Handle any necessary cleanup for this class instance.
     // The files may no longer exist, but you may still have access to their
     // cached contents.
   }
-  async onCleanUp(builder: Builder.Internal): Promise<void> {
+  async onCleanUp(): Promise<void> {
     // Use this to do the majority of cleanup for this processor instance. This
     // method is called only once after the cleanup steps phase.
   }
 
-  async onProcess(builder: Builder.Internal, file: Builder.SourceFile): Promise<void> {
+  async onProcess(file: Builder.File): Promise<void> {
     // Do whatever you want to do with the file. You can write multiple process
     // methods for different file paths. This method is not part of the
     // ProcessorModule interface. You could potentially add an anonymous

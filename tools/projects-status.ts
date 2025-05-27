@@ -7,11 +7,9 @@ import project_paths from './synced-projects.jsonc' assert { type: 'jsonc' };
 
 SetLoggerOptions({ ceremony: false });
 
-const builder = Builder();
-
-builder.setStartUpSteps(
+Builder.SetStartUpSteps(
   Step_Sync(project_paths.map((path: string) => Step_Bun_Run({ cmd: ['git', '-c', 'color.ui=always', 'status'], dir: path }))),
   //
 );
 
-await builder.start();
+await Builder.Start();
