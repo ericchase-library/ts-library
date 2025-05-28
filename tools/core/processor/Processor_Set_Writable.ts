@@ -3,13 +3,16 @@ import { Builder } from '../../core/Builder.js';
 import { Logger } from '../../core/Logger.js';
 
 /**
- * Excludes files from `Builder.Dir.Lib` folder by default.
+ * @defaults
+ * @param include_patterns `[]`
+ * @param exclude_patterns `[]`
+ * @param config.exclude_libdir `true`
  */
-export function Processor_Basic_Writer(include_patterns: string[], exclude_patterns: string[], config?: Config): Builder.Processor {
-  return new Class(include_patterns, exclude_patterns, config ?? {});
+export function Processor_Set_Writable(patterns: { include_patterns?: string[]; exclude_patterns?: string[] }, config?: Config): Builder.Processor {
+  return new Class(patterns.include_patterns ?? [], patterns.exclude_patterns ?? [], config ?? {});
 }
 class Class implements Builder.Processor {
-  ProcessorName = Processor_Basic_Writer.name;
+  ProcessorName = Processor_Set_Writable.name;
   channel = Logger(this.ProcessorName).newChannel();
 
   constructor(
@@ -26,14 +29,13 @@ class Class implements Builder.Processor {
   }
   async onAdd(files: Set<Builder.File>): Promise<void> {
     for (const file of files) {
-      if (BunPlatform_Glob_Ex_Match(file.src_path.toStandard(), this.include_patterns, this.exclude_patterns) === true) {
-        file.addProcessor(this, this.onProcess);
+      if (BunPlatform_Glob_Ex_Match(file.src_path.toStandard(), this.include_patterns, []) === true) {
+        file.iswritable = true;
+      }
+      if (BunPlatform_Glob_Ex_Match(file.src_path.toStandard(), this.exclude_patterns, []) === true) {
+        file.iswritable = false;
       }
     }
-  }
-
-  async onProcess(file: Builder.File): Promise<void> {
-    await file.write();
   }
 }
 interface Config {

@@ -13,7 +13,7 @@ class Class implements Builder.Step {
     this.config.showlogs ??= true;
   }
   async onRun(): Promise<void> {
-    await Step_Bun_Run({ cmd: ['biome', 'format', '--verbose', '--write'], showlogs: this.config.showlogs }).onRun?.();
+    // await Step_Bun_Run({ cmd: ['biome', 'format', '--verbose', '--write'], showlogs: this.config.showlogs }).onRun?.();
     await Step_Bun_Run({ cmd: ['prettier', '--write', '.'], showlogs: this.config.showlogs }).onRun?.();
   }
 }

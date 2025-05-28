@@ -7,7 +7,7 @@ import { Step_Dev_Project_Sync_Lib } from './lib-dev/step/Step_Dev_Project_Sync_
 
 Builder.SetStartUpSteps(
   Step_Bun_Run({ cmd: ['bun', 'install'], showlogs: false }),
-  Step_Dev_Project_Sync_Lib('C:/Code/Base/JavaScript-TypeScript/@Template', './'),
+  Step_Dev_Project_Sync_Lib({ from: 'C:/Code/Base/JavaScript-TypeScript/@Template', to: './' }),
   //
 );
 

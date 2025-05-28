@@ -3,8 +3,15 @@ import { NodePlatform_Path_NewExtension } from '../../../src/lib/ericchase/platf
 import { Builder } from '../../core/Builder.js';
 import { Logger } from '../../core/Logger.js';
 
-export function Processor_TypeScript_Generic_Transpiler(include_patterns: string[], exclude_patterns: string[], config: Config): Builder.Processor {
-  return new Class(include_patterns, exclude_patterns, config);
+/**
+ * @defaults
+ * @param include_patterns `[]`
+ * @param exclude_patterns `[]`
+ * @param config.define `undefined`
+ * @param config.target `"browser"`
+ */
+export function Processor_TypeScript_Generic_Transpiler(patterns: { include_patterns?: string[]; exclude_patterns?: string[] }, config?: Config): Builder.Processor {
+  return new Class(patterns.include_patterns ?? [], patterns.exclude_patterns ?? [], config ?? {});
 }
 class Class implements Builder.Processor {
   ProcessorName = Processor_TypeScript_Generic_Transpiler.name;
@@ -19,6 +26,7 @@ class Class implements Builder.Processor {
     for (const file of files) {
       if (BunPlatform_Glob_Ex_Match(file.src_path.toStandard(), this.include_patterns, this.exclude_patterns) === true) {
         file.out_path.value = NodePlatform_Path_NewExtension(file.out_path.value, '.js');
+        file.iswritable = true;
         file.addProcessor(this, this.onProcess);
       }
     }

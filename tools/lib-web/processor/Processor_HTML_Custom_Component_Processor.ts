@@ -113,10 +113,10 @@ function remapImports(source_node: HTML_UTIL.ClassDOMNode): void {
     if (src !== undefined) {
       const ext = NodePlatform_Path_GetExtension(src);
       switch (ext) {
-        case '.js':
-        case '.jsx':
         case '.ts':
         case '.tsx':
+        // case '.js':
+        case '.jsx':
           HTML_UTIL.SetAttribute(script, 'src', `${src.slice(0, src.lastIndexOf(ext))}.js`);
           break;
       }

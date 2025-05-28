@@ -4,8 +4,8 @@ import { Logger } from '../../core/Logger.js';
 import { Step_FS_Copy_Files } from '../../core/step/Step_FS_Copy_Files.js';
 import { Step_FS_Mirror_Directory } from '../../core/step/Step_FS_Mirror_Directory.js';
 
-export function Step_Dev_Project_Sync_Lib(from_directory: string, to_directory: string): Builder.Step {
-  return new Class(from_directory, to_directory);
+export function Step_Dev_Project_Sync_Lib(params: { from: string; to: string }): Builder.Step {
+  return new Class(params.from, params.to);
 }
 class Class implements Builder.Step {
   StepName = Step_Dev_Project_Sync_Lib.name;
@@ -14,27 +14,27 @@ class Class implements Builder.Step {
   steps: Builder.Step[] = [];
 
   constructor(
-    readonly from_directory: string,
-    readonly to_directory: string,
+    readonly from: string,
+    readonly to: string,
   ) {}
   async onStartUp(): Promise<void> {
     this.steps = [
       Step_FS_Copy_Files({
-        from: NodePlatform_Path_Join(this.from_directory, Builder.Dir.Src, '@types'),
-        to: NodePlatform_Path_Join(this.to_directory, Builder.Dir.Src, '@types'),
+        from: NodePlatform_Path_Join(this.from, Builder.Dir.Src, '@types'),
+        to: NodePlatform_Path_Join(this.to, Builder.Dir.Src, '@types'),
         include_patterns: ['**/*'],
         exclude_patterns: ['**/*{.deprecated,.example,.test}.ts'],
       }),
       Step_FS_Mirror_Directory({
-        from: NodePlatform_Path_Join(this.from_directory, Builder.Dir.Lib, 'ericchase'),
-        to: NodePlatform_Path_Join(this.to_directory, Builder.Dir.Lib, 'ericchase'),
+        from: NodePlatform_Path_Join(this.from, Builder.Dir.Lib, 'ericchase'),
+        to: NodePlatform_Path_Join(this.to, Builder.Dir.Lib, 'ericchase'),
         include_patterns: ['**/*'],
         exclude_patterns: ['**/*{.deprecated,.example,.test}.ts'],
       }),
       // Loose Files
       Step_FS_Copy_Files({
-        from: NodePlatform_Path_Join(this.from_directory),
-        to: NodePlatform_Path_Join(this.to_directory),
+        from: NodePlatform_Path_Join(this.from),
+        to: NodePlatform_Path_Join(this.to),
         include_patterns: [
           '.vscode/settings.json',
           '.gitignore',
@@ -49,8 +49,8 @@ class Class implements Builder.Step {
         overwrite: false,
       }),
       Step_FS_Copy_Files({
-        from: NodePlatform_Path_Join(this.from_directory, Builder.Dir.Tools),
-        to: NodePlatform_Path_Join(this.to_directory, Builder.Dir.Tools),
+        from: NodePlatform_Path_Join(this.from, Builder.Dir.Tools),
+        to: NodePlatform_Path_Join(this.to, Builder.Dir.Tools),
         include_patterns: [
           'pull.ts',
           //
@@ -59,8 +59,8 @@ class Class implements Builder.Step {
       }),
       // Server
       Step_FS_Mirror_Directory({
-        from: NodePlatform_Path_Join(this.from_directory, 'server'),
-        to: NodePlatform_Path_Join(this.to_directory, 'server'),
+        from: NodePlatform_Path_Join(this.from, 'server'),
+        to: NodePlatform_Path_Join(this.to, 'server'),
         include_patterns: ['**/*'],
         exclude_patterns: ['.git/**/*', 'node_modules/**/*'],
       }),
@@ -70,8 +70,8 @@ class Class implements Builder.Step {
       if (entry.isDirectory()) {
         this.steps.push(
           Step_FS_Mirror_Directory({
-            from: NodePlatform_Path_Join(this.from_directory, entry.parentPath, entry.name),
-            to: NodePlatform_Path_Join(this.to_directory, entry.parentPath, entry.name),
+            from: NodePlatform_Path_Join(this.from, entry.parentPath, entry.name),
+            to: NodePlatform_Path_Join(this.to, entry.parentPath, entry.name),
             include_patterns: ['**/*'],
             exclude_patterns: ['**/*{.deprecated,.example,.test}.ts'],
           }),

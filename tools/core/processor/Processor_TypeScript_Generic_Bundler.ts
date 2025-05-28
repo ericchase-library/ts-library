@@ -11,8 +11,25 @@ export const PATTERN = {
   TS_TSX_JS_JSX: '{.ts,.tsx,.js,.jsx}',
 };
 
+interface Config {
+  define?: Options['define'] | (() => Options['define']);
+  env?: Options['env'];
+  external?: Options['external'];
+  sourcemap?: Options['sourcemap'];
+  target?: Options['target'];
+}
+interface Extras {
+  remap_imports?: boolean;
+}
+
 /**
  * External pattern cannot contain more than one "*" wildcard.
+ * @defaults
+ * @param config.define `undefined`
+ * @param config.env `"disable"`
+ * @param config.external `["*.module.js"]`
+ * @param config.sourcemap `'none'`
+ * @param config.target `'browser'`
  */
 export function Processor_TypeScript_Generic_Bundler(config?: Config, extras?: Extras): Builder.Processor {
   return new Class(config ?? {}, extras ?? {});
