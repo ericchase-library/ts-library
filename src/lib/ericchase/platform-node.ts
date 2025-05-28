@@ -6,7 +6,7 @@ import { Core_Array_Split, Core_Console_Error, Core_JSON_ParseRawString, Core_Pr
 export { NODE_FS, NODE_PATH, NODE_URL };
 
 const PATH__RESOLVE_CACHE = new Map<string, string>();
-const PATH__RESOLVED_CWD = NodePlatform_Path_Join(process.cwd());
+const PATH__RESOLVED_CWD = NodePlatform_Path_Resolve(process.cwd());
 
 /**
  * The Core_JSON_ParseRawString(String.raw``)s are to keep bundlers (i.e Bun)
@@ -118,7 +118,7 @@ export type WatchCallback = (event: 'rename' | 'change', path: string) => void;
 
 export async function NodePlatform_Directory_Async_Create(path: string, recursive = true): Promise<boolean> {
   try {
-    if (PATH__RESOLVED_CWD !== NodePlatform_Path_Join(path)) {
+    if (PATH__RESOLVED_CWD !== NodePlatform_Path_Resolve(path)) {
       await internal_error_call_async(Error().stack, NODE_FS.promises.mkdir(NodePlatform_Path_Join(path), { recursive }));
     }
   } catch (error: any) {

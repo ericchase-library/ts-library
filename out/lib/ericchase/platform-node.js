@@ -5,7 +5,7 @@ import { Core_Array_Split, Core_Console_Error, Core_JSON_ParseRawString, Core_Pr
 
 export { NODE_FS, NODE_PATH, NODE_URL };
 const PATH__RESOLVE_CACHE = new Map;
-const PATH__RESOLVED_CWD = NodePlatform_Path_Join(process.cwd());
+const PATH__RESOLVED_CWD = NodePlatform_Path_Resolve(process.cwd());
 const SHELL__GENERALASCIICODES = internal_shell_create_ascii_code_map(String.raw`
 | BEL | \u0007 | Terminal bell
 | BS  | \u0008 | Backspace
@@ -96,7 +96,7 @@ function internal_shell_setup_exit_trap_for_cursor() {
 export const NodePlatform_Shell_Keys = SHELL__KEYS;
 export async function NodePlatform_Directory_Async_Create(path, recursive = true) {
   try {
-    if (PATH__RESOLVED_CWD !== NodePlatform_Path_Join(path)) {
+    if (PATH__RESOLVED_CWD !== NodePlatform_Path_Resolve(path)) {
       await internal_error_call_async(Error().stack, NODE_FS.promises.mkdir(NodePlatform_Path_Join(path), { recursive }));
     }
   } catch (error) {
