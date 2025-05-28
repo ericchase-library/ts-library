@@ -164,10 +164,10 @@ export namespace Builder {
       _started = true;
       switch (_mode) {
         case MODE.BUILD:
-          StartBuild();
+          await StartBuild();
           break;
         case MODE.DEV:
-          StartDev();
+          await StartDev();
           break;
       }
     }
