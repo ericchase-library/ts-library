@@ -18,6 +18,7 @@ class Class implements Builder.Processor {
     let trigger_reprocess = false;
     for (const file of files) {
       if (NodePlatform_Path_GetExtension(file.src_path.value) === '.html') {
+        console.log(file.src_path.value);
         if (file.src_path.value.startsWith(component_path)) {
           this.component_map.set(NodePlatform_Path_GetName(file.src_path.value), file);
           trigger_reprocess = true;
@@ -55,6 +56,7 @@ class Class implements Builder.Processor {
     const source_html = (await file.getText()).trim();
     const source_node = HTML_UTIL.ParseDocument(source_html);
     let modified = false;
+    // process components
     for (const [component_name, component_file] of this.component_map) {
       const component_html = (await component_file.getText()).trim();
       const replacements = processCustomComponent(source_node, component_name, component_html);
@@ -63,8 +65,23 @@ class Class implements Builder.Processor {
         modified = true;
       }
     }
+    // remap imports
+    for (const script of HTML_UTIL.QuerySelectorAll(source_node, 'script')) {
+      const src = HTML_UTIL.GetAttribute(script, 'src');
+      if (src !== undefined) {
+        const ext = NodePlatform_Path_GetExtension(src);
+        switch (ext) {
+          case '.ts':
+          case '.tsx':
+          // case '.js':
+          case '.jsx':
+            HTML_UTIL.SetAttribute(script, 'src', `${src.slice(0, src.lastIndexOf(ext))}.js`);
+            modified = true;
+            break;
+        }
+      }
+    }
     if (modified === true) {
-      remapImports(source_node);
       file.setText(HTML_UTIL.GetHTML(source_node));
     }
   }
@@ -106,20 +123,4 @@ function processCustomComponent(source_node: HTML_UTIL.ClassDOMNode, component_n
     }
   }
   return replacements;
-}
-function remapImports(source_node: HTML_UTIL.ClassDOMNode): void {
-  for (const script of HTML_UTIL.QuerySelectorAll(source_node, 'script')) {
-    const src = HTML_UTIL.GetAttribute(script, 'src');
-    if (src !== undefined) {
-      const ext = NodePlatform_Path_GetExtension(src);
-      switch (ext) {
-        case '.ts':
-        case '.tsx':
-        // case '.js':
-        case '.jsx':
-          HTML_UTIL.SetAttribute(script, 'src', `${src.slice(0, src.lastIndexOf(ext))}.js`);
-          break;
-      }
-    }
-  }
 }
