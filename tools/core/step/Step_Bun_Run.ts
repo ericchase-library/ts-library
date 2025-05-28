@@ -1,4 +1,4 @@
-import { Core_Array_Uint8_ToString, Core_Stream_Uint8_Async_ReadAll } from '../../../src/lib/ericchase/core.js';
+import { Core_Array_Uint8_ToString, Core_Stream_Uint8_Async_ReadAll } from '../../../src/lib/ericchase/api.core.js';
 import { Builder } from '../../core/Builder.js';
 import { Logger } from '../../core/Logger.js';
 

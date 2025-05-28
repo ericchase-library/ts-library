@@ -10,6 +10,7 @@
   - all modified, writable files are written after each normal processing phase
 - restructured Builder.ts for readability
 - fixed a few bugs here and there
+- separate library public api from library internal api
 
 ## 2025-05-03
 

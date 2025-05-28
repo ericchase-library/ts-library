@@ -1,5 +1,5 @@
-import { Core_Console_Log } from './lib/ericchase/core.js';
-import { NodePlatform_Path_Async_IsDirectory, NodePlatform_Path_Join, NodePlatform_Path_Resolve } from './lib/ericchase/platform-node.js';
+import { Core_Console_Log } from './lib/ericchase/api.core.js';
+import { NodePlatform_Path_Async_IsDirectory, NodePlatform_Path_Join, NodePlatform_Path_Resolve } from './lib/ericchase/api.platform-node.js';
 import { server } from './route-server.js';
 
 export function get(req: Request, url: URL, pathname: string): Promise<Response | undefined> {

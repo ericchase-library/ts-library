@@ -1,6 +1,6 @@
-import { Core_Array_BinarySearch_InsertionIndex } from '../../../src/lib/ericchase/core.js';
-import { BunPlatform_Glob_Match } from '../../../src/lib/ericchase/platform-bun.js';
-import { NODE_PATH, NODE_URL, NodePlatform_File_Async_WriteText, NodePlatform_Path_GetExtension, NodePlatform_Path_GetParentPath, NodePlatform_Path_Join, NodePlatform_Path_JoinStandard, NodePlatform_Path_NewExtension, NodePlatform_Path_Slice } from '../../../src/lib/ericchase/platform-node.js';
+import { Core_Array_BinarySearch_InsertionIndex } from '../../../src/lib/ericchase/api.core.js';
+import { BunPlatform_Glob_Match } from '../../../src/lib/ericchase/api.platform-bun.js';
+import { NODE_PATH, NODE_URL, NodePlatform_File_Async_WriteText, NodePlatform_Path_GetExtension, NodePlatform_Path_GetParentPath, NodePlatform_Path_Join, NodePlatform_Path_JoinStandard, NodePlatform_Path_NewExtension, NodePlatform_Path_Slice } from '../../../src/lib/ericchase/api.platform-node.js';
 import { Builder } from '../../core/Builder.js';
 import { ClassLogger, Logger } from '../../core/Logger.js';
 

@@ -1,5 +1,5 @@
-import { Core_Console_Log } from './lib/ericchase/core.js';
-import { NODE_FS, NODE_PATH, NodePlatform_Path_Async_IsDirectory, NodePlatform_Path_JoinStandard, NodePlatform_Path_Resolve } from './lib/ericchase/platform-node.js';
+import { Core_Console_Log } from './lib/ericchase/api.core.js';
+import { NODE_FS, NODE_PATH, NodePlatform_Path_Async_IsDirectory, NodePlatform_Path_JoinStandard, NodePlatform_Path_Resolve } from './lib/ericchase/api.platform-node.js';
 
 export namespace server {
   export function getConsole(): Promise<Response | undefined> {

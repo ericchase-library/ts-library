@@ -1,4 +1,4 @@
-import { BunPlatform_Args_Has } from '../src/lib/ericchase/platform-bun.js';
+import { BunPlatform_Args_Has } from '../src/lib/ericchase/api.platform-bun.js';
 import { Builder } from './core/Builder.js';
 import { Processor_Set_Writable } from './core/processor/Processor_Set_Writable.js';
 import { Processor_TypeScript_Generic_Transpiler } from './core/processor/Processor_TypeScript_Generic_Transpiler.js';
@@ -36,7 +36,7 @@ Builder.SetAfterProcessingSteps(
 
 Builder.SetCleanUpSteps(
   // Update Local Server Files
-  Step_FS_Mirror_Directory({ from: 'src/lib/ericchase/', to: 'server/src/lib/ericchase/', include_patterns: ['core.ts', 'platform-node.ts'] }),
+  Step_FS_Mirror_Directory({ from: 'src/lib/ericchase/', to: 'server/src/lib/ericchase/', include_patterns: ['*core.ts', '*platform-node.ts'] }),
   // Update Template Project
   Step_Dev_Project_Sync_Lib({ from: './', to: 'C:/Code/Base/JavaScript-TypeScript/@Template' }),
   //

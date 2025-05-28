@@ -1,5 +1,5 @@
-import { Core_Stream_Uint8_Async_Compare } from './core.js';
-import { NodePlatform_Directory_Async_Create, NodePlatform_Path_GetParentPath, NodePlatform_Path_Join } from './platform-node.js';
+import { Core_Stream_Uint8_Async_Compare } from './api.core.js';
+import { NodePlatform_Directory_Async_Create, NodePlatform_Path_GetParentPath, NodePlatform_Path_Join } from './api.platform-node.js';
 
 // Exports
 

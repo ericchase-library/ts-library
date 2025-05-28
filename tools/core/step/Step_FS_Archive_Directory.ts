@@ -1,5 +1,5 @@
 import AdmZip from 'adm-zip';
-import { NodePlatform_Path_Async_GetStats, NodePlatform_Path_Join } from '../../../src/lib/ericchase/platform-node.js';
+import { NodePlatform_Path_Async_GetStats, NodePlatform_Path_Join } from '../../../src/lib/ericchase/api.platform-node.js';
 import { Builder } from '../../core/Builder.js';
 import { Logger } from '../../core/Logger.js';
 

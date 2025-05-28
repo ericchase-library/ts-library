@@ -1,4 +1,4 @@
-import { Core_Console_Log } from '../src/lib/ericchase/core.js';
+import { Core_Console_Log } from '../src/lib/ericchase/api.core.js';
 
 Bun.spawnSync(['bun', 'install'], { cwd: `${__dirname}\\..`, stderr: 'inherit', stdout: 'inherit' });
 

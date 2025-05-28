@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { Core_Utility_Debounce, Core_Utility_ImmediateDebounce } from './core.js';
+import { Core_Utility_Debounce, Core_Utility_ImmediateDebounce } from './api.core.js';
 
 describe('Utility', () => {
   describe(Core_Utility_Debounce.name, async () => {

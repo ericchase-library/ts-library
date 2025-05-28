@@ -1,9 +1,5 @@
-import { default as NODE_FS } from "node:fs";
-import { default as NODE_PATH } from "node:path";
-import { default as NODE_URL } from "node:url";
-import { Core_Array_Split, Core_Console_Error, Core_JSON_ParseRawString, Core_Promise_Orphan, Core_String_Split, Core_String_SplitLines, Core_String_SplitMultipleSpaces, Core_Utility_DecodeBytes } from "./core.js";
-
-export { NODE_FS, NODE_PATH, NODE_URL };
+import { Core_Array_Split, Core_Console_Error, Core_JSON_ParseRawString, Core_String_Split, Core_String_SplitLines, Core_String_SplitMultipleSpaces } from "./api.core.js";
+import { NodePlatform_Path_Resolve, NodePlatform_Shell_Cursor_ShowCursor } from "./api.platform-node.js";
 const PATH__RESOLVE_CACHE = new Map;
 const PATH__RESOLVED_CWD = NodePlatform_Path_Resolve(process.cwd());
 const SHELL__GENERALASCIICODES = internal_shell_create_ascii_code_map(String.raw`
@@ -46,9 +42,11 @@ const SHELL__KEYS = {
 };
 const SHELL__STDIN__LISTENERSET = new Set;
 const SHELL__STDIN__READERLOCKS = new Set;
-let internal_shell_exit_trap_is_set = false;
-let internal_shell_stdin_raw_mode_enabled = false;
-let internal_shell_stdin_reader_enabled = false;
+const internal_shell_data = {
+  exit_trap_is_set: false,
+  stdin_raw_mode_enabled: false,
+  stdin_reader_enabled: false
+};
 function internal_error_clean_call_stack(stack = "") {
   const lines = Core_String_SplitLines(stack ?? "");
   if (lines[0].trim() === "Error") {
@@ -88,237 +86,19 @@ function internal_shell_listen_for_uncaught_exception(error, origin) {
   }
 }
 function internal_shell_setup_exit_trap_for_cursor() {
-  internal_shell_exit_trap_is_set = true;
+  internal_shell_data.exit_trap_is_set = true;
   process.on("exit", NodePlatform_Shell_Cursor_ShowCursor);
   process.on("SIGINT", NodePlatform_Shell_Cursor_ShowCursor);
   process.on("uncaughtException", () => internal_shell_listen_for_uncaught_exception);
 }
-export const NodePlatform_Shell_Keys = SHELL__KEYS;
-export async function NodePlatform_Directory_Async_Create(path, recursive = true) {
-  try {
-    if (PATH__RESOLVED_CWD !== NodePlatform_Path_Resolve(path)) {
-      await internal_error_call_async(Error().stack, NODE_FS.promises.mkdir(NodePlatform_Path_Join(path), { recursive }));
-    }
-  } catch (error) {
-    switch (error.code) {
-      case "EEXIST":
-        break;
-      default:
-        throw error;
-    }
-  }
-  return (await NODE_FS.promises.stat(NodePlatform_Path_Join(path))).isDirectory();
-}
-export async function NodePlatform_Directory_Async_Delete(path, recursive = false) {
-  try {
-    if (recursive === false) {
-      await internal_error_call_async(Error().stack, NODE_FS.promises.rmdir(NodePlatform_Path_Join(path)));
-    } else {
-      await internal_error_call_async(Error().stack, NODE_FS.promises.rm(NodePlatform_Path_Join(path), { recursive: true, force: true }));
-    }
-  } catch (error) {
-    switch (error.code) {
-      case "ENOENT":
-      case "ENOTEMPTY":
-        break;
-      case "EFAULT":
-        error.message += "\nPossible Causes: Directory not empty, set parameter `recursive` to `true`";
-      default:
-        throw error;
-    }
-  }
-  return NODE_FS.existsSync(NodePlatform_Path_Join(path)) === false;
-}
-export async function NodePlatform_Directory_Async_ReadDir(path, recursive = true) {
-  try {
-    return await internal_error_call_async(Error().stack, NODE_FS.promises.readdir(NodePlatform_Path_Join(path), {
-      recursive,
-      withFileTypes: true
-    }));
-  } catch (error) {
-    switch (error.code) {
-      default:
-        throw error;
-    }
-  }
-}
-export function NodePlatform_Directory_Watch(path, callback, recursive = true) {
-  const watcher = NODE_FS.watch(NodePlatform_Path_Join(path), { persistent: true, recursive }, (event, filename) => {
-    callback(event, filename ?? "");
-  });
-  return () => {
-    watcher.close();
-  };
-}
-export async function NodePlatform_File_Async_AppendBytes(path, bytes) {
-  await internal_error_call_async(Error().stack, NodePlatform_Directory_Async_Create(NodePlatform_Path_GetParentPath(path)));
-  return await internal_error_call_async(Error().stack, NODE_FS.promises.appendFile(NodePlatform_Path_Join(path), bytes));
-}
-export async function NodePlatform_File_Async_AppendText(path, text) {
-  await internal_error_call_async(Error().stack, NodePlatform_Directory_Async_Create(NodePlatform_Path_GetParentPath(path)));
-  return await internal_error_call_async(Error().stack, NODE_FS.promises.appendFile(NodePlatform_Path_Join(path), text));
-}
-export async function NodePlatform_File_Async_ReadBytes(path) {
-  return Uint8Array.from(await internal_error_call_async(Error().stack, NODE_FS.promises.readFile(NodePlatform_Path_Join(path), {})));
-}
-export async function NodePlatform_File_Async_ReadText(path) {
-  return await internal_error_call_async(Error().stack, NODE_FS.promises.readFile(NodePlatform_Path_Join(path), { encoding: "utf8" }));
-}
-export async function NodePlatform_File_Async_WriteBytes(path, bytes) {
-  await internal_error_call_async(Error().stack, NodePlatform_Directory_Async_Create(NodePlatform_Path_GetParentPath(path)));
-  return await internal_error_call_async(Error().stack, NODE_FS.promises.writeFile(NodePlatform_Path_Join(path), bytes));
-}
-export async function NodePlatform_File_Async_WriteText(path, text) {
-  await internal_error_call_async(Error().stack, NodePlatform_Directory_Async_Create(NodePlatform_Path_GetParentPath(path)));
-  return await internal_error_call_async(Error().stack, NODE_FS.promises.writeFile(NodePlatform_Path_Join(path), text));
-}
-export async function NodePlatform_Path_Async_GetStats(path) {
-  return await internal_error_call_async(Error().stack, NODE_FS.promises.stat(NodePlatform_Path_Join(path)));
-}
-export async function NodePlatform_Path_Async_IsDirectory(path) {
-  return (await NodePlatform_Path_Async_GetStats(path)).isDirectory();
-}
-export async function NodePlatform_Path_Async_IsFile(path) {
-  return (await NodePlatform_Path_Async_GetStats(path)).isFile();
-}
-export async function NodePlatform_Path_Async_IsSymbolicLink(path) {
-  return (await NodePlatform_Path_Async_GetStats(path)).isSymbolicLink();
-}
-export function NodePlatform_Path_GetBaseName(path) {
-  return NodePlatform_Path_Slice(path, -1);
-}
-export function NodePlatform_Path_GetExtension(path) {
-  const basename = NodePlatform_Path_GetBaseName(path);
-  return basename.indexOf(".") > 0 ? basename.slice(basename.lastIndexOf(".")) : "";
-}
-export function NodePlatform_Path_GetName(path) {
-  const basename = NodePlatform_Path_GetBaseName(path);
-  return basename.indexOf(".") > 0 ? basename.slice(0, basename.lastIndexOf(".")) : basename;
-}
-export function NodePlatform_Path_GetParentPath(path) {
-  return NodePlatform_Path_Slice(path, 0, -1);
-}
-export function NodePlatform_Path_Join(...paths) {
-  return NODE_PATH.join(...paths);
-}
-export function NodePlatform_Path_JoinStandard(...paths) {
-  return NODE_PATH.join(...paths).replaceAll("\\", "/");
-}
-export function NodePlatform_Path_NewBaseName(path, value) {
-  const segments = NodePlatform_Path_Join(path).split(/[\\\/]/).filter(({ length }) => length > 0);
-  if (segments.length > 0) {
-    segments[segments.length - 1] = value;
-  } else {
-    segments[0] = value;
-  }
-  return segments.join(NODE_PATH.sep);
-}
-export function NodePlatform_Path_NewExtension(path, value) {
-  const name = NodePlatform_Path_GetName(path);
-  if (value[0] !== ".") {
-    return NodePlatform_Path_NewBaseName(path, `${name}.${value}`);
-  } else {
-    return NodePlatform_Path_NewBaseName(path, name + value);
-  }
-}
-export function NodePlatform_Path_NewName(path, value) {
-  return NodePlatform_Path_NewBaseName(path, value + NodePlatform_Path_GetExtension(path));
-}
-export function NodePlatform_Path_Resolve(...paths) {
-  return NODE_PATH.resolve(...paths);
-}
-export function NodePlatform_Path_ResolveStandard(...paths) {
-  return NODE_PATH.resolve(...paths).replaceAll("\\", "/");
-}
-export function NodePlatform_Path_Slice(path, begin, end) {
-  const segments = NodePlatform_Path_Join(path).split(/[\\\/]/).filter(({ length }) => length > 0);
-  return segments.slice(begin, end).join(NODE_PATH.sep);
-}
-export function NodePlatform_Path_SliceStandard(path, begin, end) {
-  const segments = NodePlatform_Path_Join(path).split(/[\\\/]/).filter(({ length }) => length > 0);
-  return segments.slice(begin, end).join("/");
-}
-export function NodePlatform_Shell_Cursor_EraseCurrentLine() {
-  process.stdout.write(`${SHELL__KEYS_CSI}2K`);
-}
-export function NodePlatform_Shell_Cursor_HideCursor() {
-  process.stdout.write(`${SHELL__KEYS_CSI}?25l`);
-  if (internal_shell_exit_trap_is_set === false) {
-    internal_shell_setup_exit_trap_for_cursor();
-  }
-}
-export function NodePlatform_Shell_Cursor_MoveCursorDown(count = 0, to_start = false) {
-  if (to_start === true) {
-    process.stdout.write(`${SHELL__KEYS_CSI}${count}E`);
-  } else {
-    process.stdout.write(`${SHELL__KEYS_CSI}${count}B`);
-  }
-}
-export function NodePlatform_Shell_Cursor_MoveCursorLeft(count = 0) {
-  process.stdout.write(`${SHELL__KEYS_CSI}${count}D`);
-}
-export function NodePlatform_Shell_Cursor_MoveCursorRight(count = 0) {
-  process.stdout.write(`${SHELL__KEYS_CSI}${count}C`);
-}
-export function NodePlatform_Shell_Cursor_MoveCursorStart() {
-  process.stdout.write("\r");
-}
-export function NodePlatform_Shell_Cursor_MoveCursorToColumn(count = 0) {
-  process.stdout.write(`${SHELL__KEYS_CSI}${count}G`);
-}
-export function NodePlatform_Shell_Cursor_MoveCursorUp(count = 0, to_start = false) {
-  if (to_start === true) {
-    process.stdout.write(`${SHELL__KEYS_CSI}${count}F`);
-  } else {
-    process.stdout.write(`${SHELL__KEYS_CSI}${count}A`);
-  }
-}
-export function NodePlatform_Shell_Cursor_ShowCursor() {
-  process.stdout.write(`${SHELL__KEYS_CSI}?25h`);
-}
-export function NodePlatform_Shell_StdIn_AddListener(listener) {
-  SHELL__STDIN__LISTENERSET.add(listener);
-}
-export function NodePlatform_Shell_StdIn_LockReader() {
-  const release = () => {
-    SHELL__STDIN__READERLOCKS.delete(release);
-    NodePlatform_Shell_StdIn_StopReader();
-  };
-  SHELL__STDIN__READERLOCKS.add(release);
-  return release;
-}
-export function NodePlatform_Shell_StdIn_ReaderHandler(bytes) {
-  const text = Core_Utility_DecodeBytes(bytes);
-  for (const listener of SHELL__STDIN__LISTENERSET) {
-    Core_Promise_Orphan(listener(bytes, text, () => SHELL__STDIN__LISTENERSET.delete(listener)));
-  }
-}
-export function NodePlatform_Shell_StdIn_StartReader() {
-  if (internal_shell_stdin_reader_enabled === true && internal_shell_stdin_raw_mode_enabled === true) {
-    NodePlatform_Shell_StdIn_StopReader();
-  }
-  if (internal_shell_stdin_reader_enabled === false) {
-    process.stdin.addListener("data", NodePlatform_Shell_StdIn_ReaderHandler).resume();
-    internal_shell_stdin_reader_enabled = true;
-    internal_shell_stdin_raw_mode_enabled = false;
-  }
-}
-export function NodePlatform_Shell_StdIn_StartReaderInRawMode() {
-  if (internal_shell_stdin_reader_enabled === true && internal_shell_stdin_raw_mode_enabled === false) {
-    NodePlatform_Shell_StdIn_StopReader();
-  }
-  if (internal_shell_stdin_reader_enabled === false) {
-    process.stdin.setRawMode(true).addListener("data", NodePlatform_Shell_StdIn_ReaderHandler).resume();
-    internal_shell_stdin_reader_enabled = true;
-    internal_shell_stdin_raw_mode_enabled = true;
-  }
-}
-export function NodePlatform_Shell_StdIn_StopReader() {
-  if (SHELL__STDIN__READERLOCKS.size === 0) {
-    if (internal_shell_stdin_reader_enabled === true) {
-      process.stdin.pause().removeListener("data", NodePlatform_Shell_StdIn_ReaderHandler).setRawMode(false);
-      internal_shell_stdin_reader_enabled = true;
-      internal_shell_stdin_raw_mode_enabled = false;
-    }
-  }
-}
+
+export {
+  internal_error_call_async,
+  internal_shell_data,
+  internal_shell_setup_exit_trap_for_cursor,
+  PATH__RESOLVED_CWD,
+  SHELL__KEYS,
+  SHELL__KEYS_CSI,
+  SHELL__STDIN__LISTENERSET,
+  SHELL__STDIN__READERLOCKS
+};

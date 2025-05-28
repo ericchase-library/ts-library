@@ -1,6 +1,6 @@
 import { Subprocess } from 'bun';
-import { Core_Promise_Orphan, Core_Stream_Uint8_Async_ReadLines, Core_Utility_Async_Sleep } from '../../../src/lib/ericchase/core.js';
-import { NodePlatform_Path_Join, NodePlatform_Shell_StdIn_AddListener } from '../../../src/lib/ericchase/platform-node.js';
+import { Core_Promise_Orphan, Core_Stream_Uint8_Async_ReadLines, Core_Utility_Async_Sleep } from '../../../src/lib/ericchase/api.core.js';
+import { NodePlatform_Path_Join, NodePlatform_Shell_StdIn_AddListener } from '../../../src/lib/ericchase/api.platform-node.js';
 import { Builder } from '../../core/Builder.js';
 import { Logger } from '../../core/Logger.js';
 

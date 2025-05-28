@@ -1,5 +1,5 @@
-import { Core_Console_Error, Core_Console_Log, Core_Map_GetOrDefault, Core_String_RemoveWhiteSpaceOnlyLinesFromTopAndBottom } from '../../src/lib/ericchase/core.js';
-import { NODE_PATH, NodePlatform_Directory_Async_Create, NodePlatform_File_Async_AppendText } from '../../src/lib/ericchase/platform-node.js';
+import { Core_Console_Error, Core_Console_Log, Core_Map_GetOrDefault, Core_String_RemoveWhiteSpaceOnlyLinesFromTopAndBottom } from '../../src/lib/ericchase/api.core.js';
+import { NODE_PATH, NodePlatform_Directory_Async_Create, NodePlatform_File_Async_AppendText } from '../../src/lib/ericchase/api.platform-node.js';
 
 // variables
 

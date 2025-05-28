@@ -1,5 +1,5 @@
-import { BunPlatform_Glob_Ex_Match } from '../../../src/lib/ericchase/platform-bun.js';
-import { NodePlatform_Path_NewExtension } from '../../../src/lib/ericchase/platform-node.js';
+import { BunPlatform_Glob_Ex_Match } from '../../../src/lib/ericchase/api.platform-bun.js';
+import { NodePlatform_Path_NewExtension } from '../../../src/lib/ericchase/api.platform-node.js';
 import { Builder } from '../../core/Builder.js';
 import { Logger } from '../../core/Logger.js';
 

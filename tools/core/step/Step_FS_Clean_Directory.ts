@@ -1,4 +1,4 @@
-import { NodePlatform_Directory_Async_Create, NodePlatform_Directory_Async_Delete, NodePlatform_Path_Join } from '../../../src/lib/ericchase/platform-node.js';
+import { NodePlatform_Directory_Async_Create, NodePlatform_Directory_Async_Delete, NodePlatform_Path_Join } from '../../../src/lib/ericchase/api.platform-node.js';
 import { Builder } from '../../core/Builder.js';
 import { Logger } from '../../core/Logger.js';
 
