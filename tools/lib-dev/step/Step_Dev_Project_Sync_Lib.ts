@@ -41,7 +41,7 @@ class Class implements Builder.Step {
           '.prettierignore',
           '.prettierrc',
           'index.html',
-          'biome.json',
+          // 'biome.json',
           'package.json',
           'tsconfig.json',
           //
