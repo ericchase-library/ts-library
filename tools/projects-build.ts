@@ -1,5 +1,6 @@
 import { Builder } from './core/Builder.js';
 import { SetLoggerOptions } from './core/Logger.js';
+import { Processor_Set_Writable } from './core/processor/Processor_Set_Writable.js';
 import { Step_Async } from './core/step/Step_Async.js';
 import { Step_Bun_Run } from './core/step/Step_Bun_Run.js';
 import { Step_Dev_Format } from './lib-dev/step/Step_Dev_Format.js';
@@ -13,6 +14,11 @@ Builder.SetStartUpSteps(
   Step_Bun_Run({ cmd: ['bun', 'install'], showlogs: false }),
   Step_Dev_Format({ showlogs: false }),
   // Step_Dev_Lint({ showlogs: false }),
+  //
+);
+
+Builder.SetProcessorModules(
+  Processor_Set_Writable({ exclude_patterns: ['**/*'] }),
   //
 );
 
