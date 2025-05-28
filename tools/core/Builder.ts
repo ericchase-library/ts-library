@@ -1,6 +1,6 @@
 import { Core_Map_GetOrDefault, Core_Promise_Orphan, Core_Utility_Debounce } from '../../src/lib/ericchase/api.core.js';
 import { BunPlatform_File_Async_ReadBytes, BunPlatform_File_Async_ReadText, BunPlatform_File_Async_WriteBytes, BunPlatform_File_Async_WriteText, BunPlatform_Glob_AsyncGen_Scan } from '../../src/lib/ericchase/api.platform-bun.js';
-import { NodePlatform_Directory_Watch, NodePlatform_Path_Async_GetStats, NodePlatform_Path_Join, NodePlatform_Path_JoinStandard, NodePlatform_Path_Slice, NodePlatform_Shell_Keys, NodePlatform_Shell_StdIn_AddListener, NodePlatform_Shell_StdIn_LockReader, NodePlatform_Shell_StdIn_StartReaderInRawMode } from '../../src/lib/ericchase/api.platform-node.js';
+import { NODE_FS, NodePlatform_Directory_Watch, NodePlatform_Path_Async_GetStats, NodePlatform_Path_Join, NodePlatform_Path_JoinStandard, NodePlatform_Path_Slice, NodePlatform_Shell_Keys, NodePlatform_Shell_StdIn_AddListener, NodePlatform_Shell_StdIn_LockReader, NodePlatform_Shell_StdIn_StartReaderInRawMode } from '../../src/lib/ericchase/api.platform-node.js';
 import { CACHELOCK, FILESTATS } from './Cacher.js';
 import { AddLoggerOutputDirectory, Logger, WaitForLogger } from './Logger.js';
 
@@ -672,13 +672,12 @@ namespace SrcSet {
   }
 }
 
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-
-function SecureLocks() {
-  FILESTATS.LockTable();
-  CACHELOCK.TryLockEach(['Build', 'Format']);
+async function GetStats(path: ClassRawPath): Promise<NODE_FS.Stats | undefined> {
+  try {
+    return await NodePlatform_Path_Async_GetStats(path.value);
+  } catch (error) {
+    return undefined;
+  }
 }
 function ReleaseLocks() {
   CACHELOCK.UnlockEach(['Build', 'Format']);
@@ -689,6 +688,14 @@ async function ScanSourceFolder() {
     SrcSet.PathSet.Add(RawPath(Builder.Dir.Src, path), RawPath(Builder.Dir.Out, path));
   }
 }
+function SecureLocks() {
+  FILESTATS.LockTable();
+  CACHELOCK.TryLockEach(['Build', 'Format']);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 async function StartBuild() {
   try {
@@ -725,7 +732,7 @@ async function StartDev() {
         event_paths.clear();
         for (const path of event_paths_copy) {
           const src_path = RawPath(Builder.Dir.Src, path);
-          const stats = await NodePlatform_Path_Async_GetStats(src_path.value);
+          const stats = await GetStats(src_path);
           if (stats?.isFile() === true) {
             if (SrcSet.PathSet.Has(src_path) === true) {
               SrcSet.PathSet.Update(src_path);
