@@ -2,9 +2,9 @@
   "dependencies": {},
   "devDependencies": {
     "@types/adm-zip": "^0.5.7",
-    "@types/bun": "^1.2.14",
+    "@types/bun": "^1.2.15",
     "@types/chrome": "^0.0.323",
-    "@types/node": "^22.15.23",
+    "@types/node": "^22.15.26",
     "adm-zip": "^0.5.16",
     "prettier": "^3.5.3",
     "xxhash-wasm": "^1.1.0"

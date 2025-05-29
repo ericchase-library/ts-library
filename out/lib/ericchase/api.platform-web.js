@@ -1,5 +1,5 @@
 import { Core_Stream_Uint8_Async_ReadSome } from "./api.core.js";
-import { ClassCompatBlob, ClassCompatDataTransfer, ClassCompatDataTransferItem, ClassCompatFile, ClassDomAttributeObserver, ClassDomCharacterDataObserver, ClassDomChildListObserver, ClassDomElementAddedObserver, ClassNodeReference, ClassNodeReferenceList } from "./platform-web.js";
+import { ClassCompatBlob, ClassCompatDataTransfer, ClassCompatDataTransferItem, ClassCompatFile, ClassDomAttributeObserver, ClassDomCharacterDataObserver, ClassDomChildListObserver, ClassDomElementAddedObserver, ClassNodeListReference, ClassNodeReference } from "./platform-web.js";
 export function WebPlatform_Blob_Async_ReadSome(blob, count) {
   const stream = WebPlatform_Blob_ClassCompat_Blob(blob).stream();
   if (stream !== undefined) {
@@ -51,10 +51,7 @@ export function WebPlatform_DataTransfer_ClassCompat_DataTransfer(dataTransfer) 
 export function WebPlatform_DataTransferItem_ClassCompat_DataTransferItem(item) {
   return new ClassCompatDataTransferItem(item);
 }
-export function WebPlatform_DOM_Class_AttributeObserver({
-  options = { attributeOldValue: true, subtree: true },
-  source = document.documentElement
-}) {
+export function WebPlatform_DOM_Class_AttributeObserver({ options = { attributeOldValue: true, subtree: true }, source = document.documentElement }) {
   return new ClassDomAttributeObserver({ options, source });
 }
 export function WebPlatform_DOM_Class_CharacterDataObserver({ options = { characterDataOldValue: true, subtree: true }, source = document.documentElement }) {
@@ -113,7 +110,7 @@ export function WebPlatform_HTMLInputElement_WebkitDirectoryIsSupported() {
   return WebPlatform_Utility_DeviceIsMobile() ? false : true;
 }
 export function WebPlatform_Node_Class_NodeListReference(nodes) {
-  return new ClassNodeReferenceList(nodes);
+  return new ClassNodeListReference(nodes);
 }
 export function WebPlatform_Node_Class_NodeReference(node) {
   return new ClassNodeReference(node);

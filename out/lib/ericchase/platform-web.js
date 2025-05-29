@@ -283,7 +283,7 @@ class ClassNodeReference {
   }
 }
 
-class ClassNodeReferenceList extends Array {
+class ClassNodeListReference extends Array {
   constructor(nodes) {
     if (nodes === null) {
       throw new ReferenceError("Reference list is null.");
@@ -317,6 +317,6 @@ export {
   ClassDomCharacterDataObserver,
   ClassDomChildListObserver,
   ClassDomElementAddedObserver,
-  ClassNodeReference,
-  ClassNodeReferenceList
+  ClassNodeListReference,
+  ClassNodeReference
 };
