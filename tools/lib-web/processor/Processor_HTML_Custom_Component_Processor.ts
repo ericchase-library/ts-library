@@ -18,7 +18,6 @@ class Class implements Builder.Processor {
     let trigger_reprocess = false;
     for (const file of files) {
       if (NodePlatform_Path_GetExtension(file.src_path.value) === '.html') {
-        console.log(file.src_path.value);
         if (file.src_path.value.startsWith(component_path)) {
           this.component_map.set(NodePlatform_Path_GetName(file.src_path.value), file);
           trigger_reprocess = true;

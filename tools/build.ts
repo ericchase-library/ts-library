@@ -1,6 +1,7 @@
 import { BunPlatform_Args_Has } from '../src/lib/ericchase/api.platform-bun.js';
 import { Builder } from './core/Builder.js';
 import { Processor_Set_Writable } from './core/processor/Processor_Set_Writable.js';
+import { Processor_TypeScript_Generic_Bundler } from './core/processor/Processor_TypeScript_Generic_Bundler.js';
 import { Processor_TypeScript_Generic_Transpiler } from './core/processor/Processor_TypeScript_Generic_Transpiler.js';
 import { Step_Bun_Run } from './core/step/Step_Bun_Run.js';
 import { Step_FS_Clean_Directory } from './core/step/Step_FS_Clean_Directory.js';
@@ -18,13 +19,14 @@ Builder.SetStartUpSteps(
   Step_Bun_Run({ cmd: ['bun', 'update', '--latest'], showlogs: false }),
   Step_Bun_Run({ cmd: ['bun', 'install'], showlogs: false }),
   Step_FS_Clean_Directory(Builder.Dir.Out),
-  Step_Dev_Format({ showlogs: false }),
+  // Step_Dev_Format({ showlogs: false }),
   // Step_Dev_Lint({ showlogs: true }),
   //
 );
 
 Builder.SetProcessorModules(
-  Processor_TypeScript_Generic_Transpiler({ include_patterns: ['**/*{.ts,.tsx}'], exclude_patterns: ['**/*.d.ts', '**/*{.deprecated,.example,.test}{.ts,.tsx}'] }, { target: 'browser' }),
+  // Processor_TypeScript_Generic_Transpiler({ include_patterns: ['**/*{.ts,.tsx}'], exclude_patterns: ['**/*.d.ts', '**/*{.deprecated,.example,.test}{.ts,.tsx}'] }, { target: 'browser' }),
+  Processor_TypeScript_Generic_Bundler(),
   Processor_Set_Writable({ exclude_patterns: ['**/*{.deprecated,.example,.test}{.ts,.tsx}'] }, { exclude_libdir: false }),
   //
 );

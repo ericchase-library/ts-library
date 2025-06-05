@@ -209,6 +209,9 @@ async function remapModuleImports(file: Builder.File, channel: ClassLogger) {
       const item_source = list_sources.at(Core_Array_BinarySearch_InsertionIndex(list_sources, item_import, (a, b) => a.start < b.start));
       if (item_source !== undefined) {
         try {
+          console.error(file.src_path);
+          console.error(item_source.path);
+          console.error(item_import.path);
           const remapped_import_path = getRelativePath(file.src_path.value, item_source.path, item_import.path);
           text_parts.push(text.slice(text_index, item_import.start), remapped_import_path);
           text_index = item_import.end;
@@ -225,12 +228,13 @@ function getRelativePath(file_path: string, item_source_path: string, item_impor
   if (item_import_path.startsWith('.') === true) {
     item_import_path = NodePlatform_Path_JoinStandard(NodePlatform_Path_GetParentPath(item_source_path), item_import_path);
   }
+  console.error('item_import_path:', item_import_path);
   let relative = NODE_PATH.relative(NodePlatform_Path_GetParentPath(file_path), NODE_URL.fileURLToPath(import.meta.resolve(item_import_path)));
+  console.error('relative:', relative);
   switch (NodePlatform_Path_GetExtension(relative)) {
-    case '.js':
-    case '.jsx':
     case '.ts':
     case '.tsx':
+    case '.jsx':
       relative = NodePlatform_Path_NewExtension(relative, '.js');
       break;
   }
