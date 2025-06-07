@@ -17,9 +17,17 @@
 
     // Other options
     "resolveJsonModule": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+
+    // NOTE: For testing path aliases with bundler processor
+    "paths": {
+      "src/*": ["./src/*"]
+    }
+
+    // NOTE: For library debug purposes
+    // "checkJs": true
   },
 
   // Include files for typescript/intellisense
-  "include": ["./*", "./src/**/*", "./tools/**/*"]
+  "include": ["./*.ts", "./out/**/*.js", "./src/**/*.ts", "./tools/**/*.ts"]
 }

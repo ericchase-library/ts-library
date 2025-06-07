@@ -3,6 +3,12 @@ import { Core_Utility_Debounce, Core_Utility_ImmediateDebounce } from './api.cor
 
 describe('Utility', () => {
   describe(Core_Utility_Debounce.name, async () => {
+    test('Error', async () => {
+      const fn = Core_Utility_Debounce(() => {
+        throw new Error();
+      }, 5);
+      expect(async () => await fn()).toThrow();
+    });
     test('Sync - Consecutive Awaits', async () => {
       let value = 0;
       const fn = Core_Utility_Debounce(() => value++, 5);

@@ -19,15 +19,14 @@ Builder.SetStartUpSteps(
   Step_Bun_Run({ cmd: ['bun', 'update', '--latest'], showlogs: false }),
   Step_Bun_Run({ cmd: ['bun', 'install'], showlogs: false }),
   Step_FS_Clean_Directory(Builder.Dir.Out),
-  // Step_Dev_Format({ showlogs: false }),
-  // Step_Dev_Lint({ showlogs: true }),
+  Step_Dev_Format({ showlogs: false }),
   //
 );
 
 Builder.SetProcessorModules(
-  // Processor_TypeScript_Generic_Transpiler({ include_patterns: ['**/*{.ts,.tsx}'], exclude_patterns: ['**/*.d.ts', '**/*{.deprecated,.example,.test}{.ts,.tsx}'] }, { target: 'browser' }),
-  Processor_TypeScript_Generic_Bundler(),
-  Processor_Set_Writable({ exclude_patterns: ['**/*{.deprecated,.example,.test}{.ts,.tsx}'] }, { exclude_libdir: false }),
+  Processor_TypeScript_Generic_Transpiler({ include_patterns: ['**/*{.ts,.tsx}'], exclude_patterns: ['**/*.d.ts', '**/*{.module,.iife}{.ts,.tsx,.js,.jsx}', '**/*{.deprecated,.example,.test}{.ts,.tsx}'] }, { target: 'browser' }),
+  Processor_TypeScript_Generic_Bundler({ external: ['lodash/shuffle'] }),
+  Processor_Set_Writable({ include_patterns: ['**/*{.ts,.tsx}', '**/*.d.ts'], exclude_patterns: ['**/*{.deprecated,.example,.test}{.ts,.tsx}'] }, { include_libdir: true }),
   //
 );
 

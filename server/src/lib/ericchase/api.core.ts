@@ -221,7 +221,7 @@ export function Core_Array_Uint8_FromBase64(b64_str: string): Uint8Array {
     }
     return u8_out;
   }
-  return new Uint8Array(0);
+  return Uint8Array.from([]);
 }
 
 export function Core_Array_Uint8_FromString(from: string): Uint8Array {

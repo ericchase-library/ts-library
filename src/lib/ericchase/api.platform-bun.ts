@@ -1,5 +1,5 @@
 import { Core_Stream_Uint8_Async_Compare } from './api.core.js';
-import { NodePlatform_Directory_Async_Create, NodePlatform_Path_GetParentPath, NodePlatform_Path_Join } from './api.platform-node.js';
+import { NodePlatform_Directory_Async_Create, NodePlatform_Path_GetDirName, NodePlatform_Path_Join } from './api.platform-node.js';
 
 // Exports
 
@@ -51,14 +51,14 @@ export function BunPlatform_File_Async_ReadText(path: string): Promise<string> {
 
 export async function BunPlatform_File_Async_WriteBytes(path: string, bytes: Uint8Array, createpath = true): Promise<number> {
   if (createpath === true) {
-    await NodePlatform_Directory_Async_Create(NodePlatform_Path_GetParentPath(NodePlatform_Path_Join(path)));
+    await NodePlatform_Directory_Async_Create(NodePlatform_Path_GetDirName(NodePlatform_Path_Join(path)));
   }
   return Bun.write(NodePlatform_Path_Join(path), bytes);
 }
 
 export async function BunPlatform_File_Async_WriteText(path: string, text: string, createpath = true): Promise<number> {
   if (createpath === true) {
-    await NodePlatform_Directory_Async_Create(NodePlatform_Path_GetParentPath(NodePlatform_Path_Join(path)));
+    await NodePlatform_Directory_Async_Create(NodePlatform_Path_GetDirName(NodePlatform_Path_Join(path)));
   }
   return Bun.write(NodePlatform_Path_Join(path), text);
 }

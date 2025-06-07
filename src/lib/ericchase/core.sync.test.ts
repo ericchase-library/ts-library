@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { Core_Array_AreEqual, Core_Array_BinarySearch_ExactMatch, Core_Array_BinarySearch_InsertionIndex, Core_Array_Gen_BufferToBytes, Core_Array_Gen_Chunks, Core_Array_Gen_SlidingWindow, Core_Array_Gen_Zip, Core_Array_Shuffle, Core_Array_Split, Core_Array_Uint32_ToHex, Core_Array_Uint8_Class_Group, Core_Array_Uint8_Concat, Core_Array_Uint8_Copy, Core_Array_Uint8_FromBase64, Core_Array_Uint8_FromString, Core_Array_Uint8_FromUint32, Core_Array_Uint8_Split, Core_Array_Uint8_Take, Core_Array_Uint8_TakeEnd, Core_Array_Uint8_ToASCII, Core_Array_Uint8_ToBase64, Core_Array_Uint8_ToDecimal, Core_Array_Uint8_ToHex, Core_Array_Uint8_ToLines, Core_Array_Uint8_ToString, Core_Assert_BigInt, Core_Assert_Boolean, Core_Assert_Equal, Core_Assert_Function, Core_Assert_NotEqual, Core_Assert_Number, Core_Assert_Object, Core_Assert_String, Core_Assert_Symbol, Core_Assert_Undefined, Core_Console_Error, Core_Console_ErrorWithDate, Core_Console_Log, Core_Console_LogWithDate, Core_JSON_Analyze, Core_JSON_Merge, Core_JSON_ParseRawString, Core_Map_GetOrDefault, Core_Math_Factorial, Core_Math_Gen_CartesianProduct, Core_Math_Gen_NCartesianProducts, Core_Math_Gen_NChooseRCombinations, Core_Math_Gen_NChooseRPermutations, Core_Math_nCr, Core_Math_nPr, Core_Promise_Async_CountFulfilled, Core_Promise_Async_CountRejected, Core_Promise_CallAndOrphan, Core_Promise_Orphan, Core_Stream_AsyncGen_ReadChunks, Core_Stream_Uint8_Async_Compare, Core_Stream_Uint8_Async_ReadAll, Core_Stream_Uint8_Async_ReadLines, Core_Stream_Uint8_Async_ReadSome, Core_Stream_Uint8_AsyncGen_ReadLines, Core_String_GetLeftMarginSize, Core_String_LineIsOnlyWhiteSpace, Core_String_RemoveWhiteSpaceOnlyLines, Core_String_RemoveWhiteSpaceOnlyLinesFromTopAndBottom, Core_String_Split, Core_String_SplitLines, Core_String_SplitMultipleSpaces, Core_String_SplitMultipleWhiteSpace, Core_String_ToSnakeCase, Core_String_TrimLines, Core_Utility_Async_Sleep, Core_Utility_Class_CRC32, Core_Utility_CRC32, Core_Utility_DecodeBytes, Core_Utility_EncodeText } from './api.core.js';
+import { Core_Array_AreEqual, Core_Array_BinarySearch_ExactMatch, Core_Array_BinarySearch_InsertionIndex, Core_Array_Gen_BufferToBytes, Core_Array_Gen_Chunks, Core_Array_Gen_SlidingWindow, Core_Array_Gen_Zip, Core_Array_GetEndpoints, Core_Array_Shuffle, Core_Array_Split, Core_Array_Uint32_ToHex, Core_Array_Uint8_Class_Group, Core_Array_Uint8_Concat, Core_Array_Uint8_Copy, Core_Array_Uint8_FromBase64, Core_Array_Uint8_FromString, Core_Array_Uint8_FromUint32, Core_Array_Uint8_Split, Core_Array_Uint8_Take, Core_Array_Uint8_TakeEnd, Core_Array_Uint8_ToASCII, Core_Array_Uint8_ToBase64, Core_Array_Uint8_ToDecimal, Core_Array_Uint8_ToHex, Core_Array_Uint8_ToLines, Core_Array_Uint8_ToString, Core_Assert_BigInt, Core_Assert_Boolean, Core_Assert_Equal, Core_Assert_Function, Core_Assert_NotEqual, Core_Assert_Number, Core_Assert_Object, Core_Assert_String, Core_Assert_Symbol, Core_Assert_Undefined, Core_Console_Error, Core_Console_ErrorWithDate, Core_Console_Log, Core_Console_LogWithDate, Core_JSON_Analyze, Core_JSON_Merge, Core_JSON_ParseRawString, Core_Map_GetOrDefault, Core_Math_Factorial, Core_Math_Gen_CartesianProduct, Core_Math_Gen_NCartesianProducts, Core_Math_Gen_NChooseRCombinations, Core_Math_Gen_NChooseRPermutations, Core_Math_nCr, Core_Math_nPr, Core_Promise_Async_CountFulfilled, Core_Promise_Async_CountRejected, Core_Promise_CallAndOrphan, Core_Promise_Orphan, Core_Stream_AsyncGen_ReadChunks, Core_Stream_Uint8_Async_Compare, Core_Stream_Uint8_Async_ReadAll, Core_Stream_Uint8_Async_ReadLines, Core_Stream_Uint8_Async_ReadSome, Core_Stream_Uint8_AsyncGen_ReadLines, Core_String_GetLeftMarginSize, Core_String_LineIsOnlyWhiteSpace, Core_String_RemoveWhiteSpaceOnlyLines, Core_String_RemoveWhiteSpaceOnlyLinesFromTopAndBottom, Core_String_Split, Core_String_SplitLines, Core_String_SplitMultipleSpaces, Core_String_SplitMultipleWhiteSpace, Core_String_ToSnakeCase, Core_String_TrimLines, Core_Utility_Async_Sleep, Core_Utility_Class_CRC32, Core_Utility_CRC32, Core_Utility_DecodeBytes, Core_Utility_EncodeText } from './api.core.js';
 
 describe('Array', () => {
   describe(Core_Array_Gen_BufferToBytes.name, () => {
@@ -203,6 +203,17 @@ describe('Array', () => {
     }
     test('Unequal Arrays Fail', () => {
       expect(Core_Array_AreEqual([1], [1, 2])).toBe(false);
+      expect(Core_Array_AreEqual([1, 3], [1, 2])).toBe(false);
+    });
+  });
+  describe(Core_Array_GetEndpoints.name, () => {
+    test('[] returns [-1, -1]', () => {
+      expect(Core_Array_GetEndpoints([])).toEqual([-1, -1]);
+    });
+    test('returns [0, array length]', () => {
+      expect(Core_Array_GetEndpoints([1])).toEqual([0, 1]);
+      expect(Core_Array_GetEndpoints([1, 2])).toEqual([0, 2]);
+      expect(Core_Array_GetEndpoints([1, 2, 3])).toEqual([0, 3]);
     });
   });
   describe(Core_Array_Shuffle.name, () => {
@@ -452,6 +463,7 @@ describe('Array Uint8', () => {
         expect(Core_Array_Uint8_FromBase64(input)).toEqual(Core_Array_Uint8_FromString(expected));
       });
     }
+    expect(Core_Array_Uint8_FromBase64('123')).toEqual(Uint8Array.from([]));
   });
   describe(Core_Array_Uint8_FromString.name, () => {
     const cases = [
@@ -930,6 +942,14 @@ describe('JSON', () => {
       expect(Core_JSON_Merge({ a: [1, 2, 3] }, { a: ['a', 'b', 'c'] }, {})).toEqual({ a: [1, 2, 3, 'a', 'b', 'c'] });
       expect(Core_JSON_Merge({}, {}, {}, {}, { val: 1, arr: [1, 2, 3], obj: { val: 1, arr: [1, 2, 3] } }, {}, {}, {}, {}, { val: 'a', arr: ['a', 'b', 'c'], obj: { val: 'a', arr: ['a', 'b', 'c'] } }, {}, {}, {}, {})).toEqual({ val: 'a', arr: [1, 2, 3, 'a', 'b', 'c'], obj: { val: 'a', arr: [1, 2, 3, 'a', 'b', 'c'] } });
     });
+    test('JSON strings of different types throw error', () => {
+      expect(() => Core_JSON_Merge([1], { a: 1 })).toThrowError(TypeError);
+      expect(() => Core_JSON_Merge([1], 1)).toThrowError(TypeError);
+      expect(() => Core_JSON_Merge({ a: 1 }, [1])).toThrowError(TypeError);
+      expect(() => Core_JSON_Merge({ a: 1 }, 1)).toThrowError(TypeError);
+      expect(() => Core_JSON_Merge(1, [1])).toThrowError(TypeError);
+      expect(() => Core_JSON_Merge(1, { a: 1 })).toThrowError(TypeError);
+    });
   });
   describe(Core_JSON_ParseRawString.name, () => {
     test('returns exact same string', () => {
@@ -938,8 +958,12 @@ describe('JSON', () => {
   });
 });
 describe('Map', () => {
-  test(Core_Map_GetOrDefault.name, () => {
-    expect(Core_Map_GetOrDefault(new Map<number, string>(), 0, () => 'a')).toBe('a');
+  describe(Core_Map_GetOrDefault.name, () => {
+    test('set and return default value if key not in map, get value if key in map', () => {
+      const map = new Map<number, string>();
+      expect(Core_Map_GetOrDefault(map, 0, () => 'a')).toBe('a');
+      expect(Core_Map_GetOrDefault(map, 0, () => 'a')).toBe('a');
+    });
   });
 });
 describe('Math', () => {
@@ -2039,11 +2063,26 @@ describe('Stream Uint8', () => {
       await Core_Stream_Uint8_Async_ReadLines(stream, (line: string) => {
         lines.push(line);
       });
-      expect(lines.flat()).toEqual(['123', '456', '789']);
+      expect(lines).toEqual(['123', '456', '789']);
+    });
+    test('returning false to reader ends the call', async () => {
+      const bytes = Core_Array_Uint8_FromString('123\n456\n789');
+      const stream = new ReadableStream({
+        start(controller) {
+          controller.enqueue(bytes);
+          controller.close();
+        },
+      });
+      const lines: string[] = [];
+      await Core_Stream_Uint8_Async_ReadLines(stream, (line: string) => {
+        lines.push(line);
+        return false;
+      });
+      expect(lines).toEqual(['123']);
     });
   });
   describe(Core_Stream_Uint8_Async_ReadSome.name, () => {
-    test('[1, 2, 3, 4]', async () => {
+    test('[1, 2, 3, 4], read 2', async () => {
       const bytes = Uint8Array.from([1, 2, 3, 4]);
       const stream = new ReadableStream({
         start(controller) {
@@ -2052,6 +2091,26 @@ describe('Stream Uint8', () => {
         },
       });
       expect([...(await Core_Stream_Uint8_Async_ReadSome(stream, 2))]).toEqual([1, 2]);
+    });
+    test('[1, 2, 3, 4], read 4', async () => {
+      const bytes = Uint8Array.from([1, 2, 3, 4]);
+      const stream = new ReadableStream({
+        start(controller) {
+          controller.enqueue(bytes);
+          controller.close();
+        },
+      });
+      expect([...(await Core_Stream_Uint8_Async_ReadSome(stream, 4))]).toEqual([1, 2, 3, 4]);
+    });
+    test('[1, 2, 3, 4], read 6', async () => {
+      const bytes = Uint8Array.from([1, 2, 3, 4]);
+      const stream = new ReadableStream({
+        start(controller) {
+          controller.enqueue(bytes);
+          controller.close();
+        },
+      });
+      expect([...(await Core_Stream_Uint8_Async_ReadSome(stream, 6))]).toEqual([1, 2, 3, 4]);
     });
     test('10000 bytes', async () => {
       const bytes = new Uint8Array(10000);
@@ -2065,6 +2124,16 @@ describe('Stream Uint8', () => {
         },
       });
       expect((await Core_Stream_Uint8_Async_ReadSome(stream, 1234)).byteLength).toBe(1234);
+    });
+    test('count < 1 returns empty array', async () => {
+      const bytes = Uint8Array.from([1, 2, 3, 4]);
+      const stream = new ReadableStream({
+        start(controller) {
+          controller.enqueue(bytes);
+          controller.close();
+        },
+      });
+      expect([...(await Core_Stream_Uint8_Async_ReadSome(stream, 0))]).toEqual([]);
     });
   });
   describe(Core_Stream_Uint8_AsyncGen_ReadLines.name, () => {

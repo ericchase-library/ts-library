@@ -1,29 +1,23 @@
 import { Core_Array_BinarySearch_InsertionIndex } from '../../../src/lib/ericchase/api.core.js';
 import { BunPlatform_Glob_Match } from '../../../src/lib/ericchase/api.platform-bun.js';
-import { NODE_PATH, NODE_URL, NodePlatform_File_Async_WriteText, NodePlatform_Path_GetExtension, NodePlatform_Path_GetParentPath, NodePlatform_Path_Join, NodePlatform_Path_JoinStandard, NodePlatform_Path_NewExtension, NodePlatform_Path_Slice } from '../../../src/lib/ericchase/api.platform-node.js';
+import { NODE_PATH, NODE_URL, NodePlatform_File_Async_WriteText, NodePlatform_Path_GetDirName, NodePlatform_Path_GetExtension, NodePlatform_Path_GetSegments, NodePlatform_Path_Join, NodePlatform_Path_JoinStandard, NodePlatform_Path_ReplaceExtension } from '../../../src/lib/ericchase/api.platform-node.js';
 import { Builder } from '../../core/Builder.js';
-import { ClassLogger, Logger } from '../../core/Logger.js';
+import { Logger } from '../../core/Logger.js';
 
 export const PATTERN = {
-  MODULE: '.module{.ts,.tsx,.js,.jsx}',
-  IIFE: '.iife{.ts,.tsx,.js,.jsx}',
+  MODULE: '{.module}{.ts,.tsx,.js,.jsx}',
+  IIFE: '{.iife}{.ts,.tsx,.js,.jsx}',
   MODULE_IIFE: '{.module,.iife}{.ts,.tsx,.js,.jsx}',
   TS_TSX_JS_JSX: '{.ts,.tsx,.js,.jsx}',
 };
 
-interface Config {
-  define?: Options['define'] | (() => Options['define']);
-  env?: Options['env'];
-  external?: Options['external'];
-  sourcemap?: Options['sourcemap'];
-  target?: Options['target'];
-}
-interface Extras {
-  remap_imports?: boolean;
-}
-
 /**
  * External pattern cannot contain more than one "*" wildcard.
+ *
+ * .module and .iife scripts will be set as writable.\
+ * Non .module/.iife scripts will be set as not writable.\
+ * Use Processor_Set_Writable to directly include or exclude file patterns for writing.
+ *
  * @defaults
  * @param config.define `undefined`
  * @param config.env `"disable"`
@@ -48,20 +42,24 @@ class Class implements Builder.Processor {
     this.config.external ??= [];
     this.config.external.push('*.module.js');
     this.config.sourcemap ??= 'none';
-    this.config.target ?? 'browser';
+    this.config.target ??= 'browser';
+    this.extras.remap_imports ??= true;
   }
   async onAdd(files: Set<Builder.File>): Promise<void> {
     let trigger_reprocess = false;
     for (const file of files) {
-      const query = file.src_path.toStandard();
+      const query = file.src_path;
+      file.iswritable = false;
       if (BunPlatform_Glob_Match(query, `**/*${PATTERN.MODULE}`)) {
-        file.out_path.value = NodePlatform_Path_NewExtension(file.out_path.value, '.js');
+        file.iswritable = true;
+        file.out_path = NodePlatform_Path_ReplaceExtension(file.out_path, '.js');
         file.addProcessor(this, this.onProcessModule);
         this.bundle_set.add(file);
         continue;
       }
       if (BunPlatform_Glob_Match(query, `**/*${PATTERN.IIFE}`)) {
-        file.out_path.value = NodePlatform_Path_NewExtension(file.out_path.value, '.js');
+        file.iswritable = true;
+        file.out_path = NodePlatform_Path_ReplaceExtension(file.out_path, '.js');
         file.addProcessor(this, this.onProcessIIFEScript);
         this.bundle_set.add(file);
         continue;
@@ -79,7 +77,7 @@ class Class implements Builder.Processor {
   async onRemove(files: Set<Builder.File>): Promise<void> {
     let trigger_reprocess = false;
     for (const file of files) {
-      const query = file.src_path.toStandard();
+      const query = file.src_path;
       if (BunPlatform_Glob_Match(query, `**/*${PATTERN.MODULE_IIFE}`)) {
         this.bundle_set.delete(file);
         continue;
@@ -96,149 +94,121 @@ class Class implements Builder.Processor {
   }
 
   async onProcessModule(file: Builder.File): Promise<void> {
-    await processBuildResults(
-      file,
-      Bun.build({
-        define: typeof this.config.define === 'function' ? this.config.define() : this.config.define,
-        entrypoints: [file.src_path.value],
-        env: this.config.env,
-        external: this.config.external,
-        format: 'esm',
-        minify: {
-          identifiers: false,
-          syntax: false,
-          whitespace: false,
-        },
-        sourcemap: this.config.sourcemap,
-        target: this.config.target,
-      }),
-      this.channel,
-    );
-    await remapModuleImports(file, this.channel);
-  }
-
-  async onProcessIIFEScript(file: Builder.File): Promise<void> {
-    await processBuildResults(
-      file,
-      Bun.build({
-        define: typeof this.config.define === 'function' ? this.config.define() : this.config.define,
-        entrypoints: [file.src_path.value],
-        env: this.config.env,
-        format: 'esm',
-        minify: {
-          identifiers: false,
-          syntax: false,
-          whitespace: false,
-        },
-        sourcemap: this.config.sourcemap,
-        target: this.config.target,
-        // add iife around scripts
-        banner: '(() => {\n',
-        footer: '})();',
-      }),
-      this.channel,
-    );
-  }
-}
-async function processBuildResults(file: Builder.File, buildtask: Promise<Bun.BuildOutput>, channel: ClassLogger) {
-  try {
-    const results = await buildtask;
-    if (results.success === true) {
-      for (const artifact of results.outputs) {
-        switch (artifact.kind) {
-          case 'entry-point': {
-            const text = await artifact.text();
-            file.setText(text);
-            for (const [, ...paths] of text.matchAll(/\n?\/\/ (src\/.*)\n?/g)) {
-              for (const path of paths) {
-                file.addUpstreamPath(path);
-              }
+    try {
+      const results = await ProcessBuildResults(
+        Bun.build({
+          define: typeof this.config.define === 'function' ? this.config.define() : this.config.define,
+          entrypoints: [file.src_path],
+          env: this.config.env,
+          external: this.config.external,
+          format: 'esm',
+          minify: {
+            identifiers: false,
+            syntax: false,
+            whitespace: false,
+          },
+          sourcemap: this.config.sourcemap,
+          target: this.config.target,
+        }),
+      );
+      if (results.bundletext !== undefined) {
+        // scan bundle text for source comment paths
+        for (const [, ...paths] of results.bundletext.matchAll(/\n?\/\/ (src\/.*)\n?/g)) {
+          for (const path of paths) {
+            file.addUpstreamPath(path);
+          }
+        }
+        // remap module imports in bundle text
+        if (this.extras.remap_imports === true) {
+          try {
+            const remaptext = await RemapModuleImports(file.src_path, results.bundletext);
+            if (remaptext !== undefined) {
+              file.setText(remaptext);
+            } else {
+              file.setText(results.bundletext);
             }
+          } catch (error) {
+            this.channel.error(error, 'Remap Error');
+          }
+        } else {
+          file.setText(results.bundletext);
+        }
+      }
+      // process other artifacts
+      for (const artifact of results.artifacts) {
+        switch (artifact.kind) {
+          case 'entry-point':
+            // handled above
             break;
-          }
-          // for any non-code imports. there's probably a more elegant
-          // way to do this, but this is temporary
-          // case 'asset':
-          // case 'sourcemap':
-          default: {
-            const text = await artifact.text();
-            await NodePlatform_File_Async_WriteText(NodePlatform_Path_Join(Builder.Dir.Out, artifact.path), text);
-          }
+          default:
+            await NodePlatform_File_Async_WriteText(NodePlatform_Path_Join(Builder.Dir.Out, artifact.path), await artifact.blob.text());
+            break;
         }
       }
-    } else {
-      channel.error(`File: ${file.src_path.value}, Warnings: [`);
-      for (const log of results.logs) {
-        channel.error(' ', log);
-      }
-      channel.error(']');
-    }
-  } catch (error) {
-    channel.error(`File: ${file.src_path.value}, Errors: [`);
-    if (error instanceof AggregateError) {
-      for (const e of error.errors) {
-        channel.error(' ', e);
-      }
-    } else {
-      channel.error(error);
-    }
-    channel.error(']');
-  }
-}
-async function remapModuleImports(file: Builder.File, channel: ClassLogger) {
-  const text = await file.getText();
-  // can't do lines, because import statements will become multiline if long enough
-  const list_imports: { start: number; end: number; path: string }[] = [];
-  const matches_imports = text.matchAll(/^import[ *{"'][\s\S]*?[ }"']from *["']([^"']*?)["'];$/dgm);
-  for (const match of matches_imports) {
-    if (match.indices !== undefined) {
-      list_imports.push({ start: match.indices[1][0], end: match.indices[1][1], path: match[1] });
+    } catch (error) {
+      this.channel.error(error, 'Bundle Error');
     }
   }
-  if (list_imports.length > 0) {
-    const list_sources: { start: number; end: number; path: string }[] = [];
-    const matches_sources = text.matchAll(/^\/\/ (.*?)$/dgm);
-    for (const match of matches_sources) {
-      if (match.indices !== undefined) {
-        list_sources.push({ start: match.indices[1][0], end: match.indices[1][1], path: match[1] });
+  async onProcessIIFEScript(file: Builder.File): Promise<void> {
+    try {
+      const results = await ProcessBuildResults(
+        Bun.build({
+          define: typeof this.config.define === 'function' ? this.config.define() : this.config.define,
+          entrypoints: [file.src_path],
+          env: this.config.env,
+          format: 'esm',
+          minify: {
+            identifiers: false,
+            syntax: false,
+            whitespace: false,
+          },
+          sourcemap: this.config.sourcemap,
+          target: this.config.target,
+          // add iife around scripts
+          banner: '(() => {\n',
+          footer: '})();',
+        }),
+      );
+      if (results.bundletext !== undefined) {
+        // scan bundle text for source comment paths
+        for (const [, ...paths] of results.bundletext.matchAll(/\n?\/\/ (src\/.*)\n?/g)) {
+          for (const path of paths) {
+            file.addUpstreamPath(path);
+          }
+        }
+        file.setText(results.bundletext);
       }
-    }
-    const text_parts: string[] = [];
-    let text_index = 0;
-    for (const item_import of list_imports) {
-      const item_source = list_sources.at(Core_Array_BinarySearch_InsertionIndex(list_sources, item_import, (a, b) => a.start < b.start));
-      if (item_source !== undefined) {
-        try {
-          console.error(file.src_path);
-          console.error(item_source.path);
-          console.error(item_import.path);
-          const remapped_import_path = getRelativePath(file.src_path.value, item_source.path, item_import.path);
-          text_parts.push(text.slice(text_index, item_import.start), remapped_import_path);
-          text_index = item_import.end;
-        } catch (error) {
-          channel.log(`Skipping "${item_import.path}"`);
+      // process other artifacts
+      for (const artifact of results.artifacts) {
+        switch (artifact.kind) {
+          case 'entry-point':
+            // handled above
+            break;
+          default:
+            await NodePlatform_File_Async_WriteText(NodePlatform_Path_Join(Builder.Dir.Out, artifact.path), await artifact.blob.text());
+            break;
         }
       }
+    } catch (error) {
+      this.channel.error('build error');
     }
-    text_parts.push(text.slice(text_index));
-    file.setText(text_parts.join(''));
   }
 }
-function getRelativePath(file_path: string, item_source_path: string, item_import_path: string) {
-  if (item_import_path.startsWith('.') === true) {
-    item_import_path = NodePlatform_Path_JoinStandard(NodePlatform_Path_GetParentPath(item_source_path), item_import_path);
+class BuildArtifact {
+  blob: Blob;
+  hash: string | null;
+  kind: 'entry-point' | 'chunk' | 'asset' | 'sourcemap' | 'bytecode';
+  loader: 'js' | 'jsx' | 'ts' | 'tsx' | 'json' | 'toml' | 'file' | 'napi' | 'wasm' | 'text' | 'css' | 'html';
+  path: string;
+  sourcemap: BuildArtifact | null;
+  constructor(public artifact: Bun.BuildArtifact) {
+    this.blob = artifact;
+    this.hash = artifact.hash;
+    this.kind = artifact.kind;
+    this.loader = artifact.loader;
+    this.path = artifact.path;
+    this.sourcemap = artifact.sourcemap ? new BuildArtifact(artifact.sourcemap) : null;
   }
-  console.error('item_import_path:', item_import_path);
-  let relative = NODE_PATH.relative(NodePlatform_Path_GetParentPath(file_path), NODE_URL.fileURLToPath(import.meta.resolve(item_import_path)));
-  console.error('relative:', relative);
-  switch (NodePlatform_Path_GetExtension(relative)) {
-    case '.ts':
-    case '.tsx':
-    case '.jsx':
-      relative = NodePlatform_Path_NewExtension(relative, '.js');
-      break;
-  }
-  return NodePlatform_Path_Slice(relative, 0, 1) === '..' ? NodePlatform_Path_JoinStandard(relative) : `./${NodePlatform_Path_JoinStandard(relative)}`;
 }
 interface Config {
   define?: Options['define'] | (() => Options['define']);
@@ -251,3 +221,125 @@ interface Extras {
   remap_imports?: boolean;
 }
 type Options = Parameters<typeof Bun.build>[0];
+async function ProcessBuildResults(buildtask: Promise<Bun.BuildOutput>): Promise<{
+  artifacts: BuildArtifact[];
+  bundletext?: string;
+  logs: Bun.BuildOutput['logs'];
+  success: boolean;
+}> {
+  const buildresults = await buildtask;
+  const out: {
+    artifacts: BuildArtifact[];
+    bundletext?: string;
+    logs: Bun.BuildOutput['logs'];
+    success: boolean;
+  } = {
+    artifacts: [],
+    bundletext: undefined,
+    logs: buildresults.logs,
+    success: buildresults.success,
+  };
+  if (buildresults.success === true) {
+    for (const artifact of buildresults.outputs) {
+      switch (artifact.kind) {
+        case 'entry-point': {
+          out.bundletext = await artifact.text();
+        }
+      }
+      out.artifacts.push(new BuildArtifact(artifact));
+    }
+  }
+  return out;
+}
+async function RemapModuleImports(filepath: string, filetext: string): Promise<string | undefined> {
+  // scan for import statements
+  const array__import_statements: { start: number; end: number; path: string }[] = [];
+  {
+    // can't do lines, because import statements will become multiline if long enough
+    const array__import_matches = filetext.matchAll(/^import[ *{"'][\s\S]*?[ }"']from *["']([^"']*?)["'];$/dgm);
+    for (const match of array__import_matches) {
+      if (match.indices !== undefined) {
+        array__import_statements.push({ start: match.indices[1][0], end: match.indices[1][1], path: match[1] });
+      }
+    }
+  }
+  if (array__import_statements.length > 0) {
+    // scan for source comments
+    const array__source_comments: { start: number; end: number; path: string }[] = [];
+    {
+      // these will probably always be lines
+      const array__source_matches = filetext.matchAll(/^\/\/ (.*?)$/dgm);
+      for (const match of array__source_matches) {
+        if (match.indices !== undefined) {
+          array__source_comments.push({ start: match.indices[1][0], end: match.indices[1][1], path: match[1] });
+        }
+      }
+    }
+    if (array__source_comments.length > 0) {
+      const srcpath = NODE_PATH.resolve(Builder.Dir.Src);
+      const dirpath = NodePlatform_Path_GetDirName(filepath);
+      // remap import statements
+      const array__bundletext_parts: string[] = [];
+      let index__bundletext_parts = 0;
+      for (const import_statement of array__import_statements) {
+        // find the source_comment directly above the current import_statement
+        const source_comment = array__source_comments.at(Core_Array_BinarySearch_InsertionIndex(array__source_comments, import_statement, (a, b) => a.start < b.start));
+        if (source_comment !== undefined) {
+          /**
+           * Remap relative import path onto source path:
+           * Example Bundle Text:
+           * ```
+           * // src/directory/module.ts
+           * import { fn } from "../lib/a.js";
+           * fn();
+           * ```
+           * Import path would be remapped into a project relative path:
+           * "../lib/a.js" -> "./src/directory/../lib/a.js" -> "./src/lib/a.js".
+           *
+           */
+          let resolved_path = '';
+          try {
+            if (import_statement.path.startsWith('.')) {
+              // The import.meta.resolve api uses the current script file (this one) for resolving paths, which isn't what we want.
+              // Instead, we'll use Node's resolve api to resolve the relative path using the project directory.
+              resolved_path = NODE_PATH.resolve(NodePlatform_Path_GetDirName(source_comment.path), import_statement.path);
+            } else {
+              // Non-relative can be resolved using the import.meta.resolve api. If the file/module does not actually exist, an error will be thrown.
+              // Node's fileURLToPath api will convert the resulting url path into a valid file path.
+              resolved_path = NODE_URL.fileURLToPath(import.meta.resolve(import_statement.path));
+            }
+          } catch (error: any) {
+            throw new Error(error);
+          }
+          if (resolved_path.startsWith(srcpath)) {
+            // The resolved path must be converted back into a relative path:
+            let relative_path = NODE_PATH.relative(dirpath, resolved_path);
+            let replace_extension_to_js = false;
+            switch (NodePlatform_Path_GetExtension(relative_path)) {
+              case '.ts':
+              case '.tsx':
+              case '.jsx':
+                replace_extension_to_js = true;
+                break;
+            }
+            // If the path is a script, the final extension must be ".js":
+            if (replace_extension_to_js === true) {
+              relative_path = NodePlatform_Path_ReplaceExtension(relative_path, '.js');
+            }
+            // Make sure path uses standard slashes and starts with a . if needed.
+            if (['.', '..'].includes(NodePlatform_Path_GetSegments(relative_path)[0])) {
+              relative_path = NodePlatform_Path_JoinStandard(relative_path);
+            } else {
+              // If path doesn't start with "." or "..", prefix with ".".
+              relative_path = NodePlatform_Path_JoinStandard('.', relative_path);
+            }
+            array__bundletext_parts.push(filetext.slice(index__bundletext_parts, import_statement.start), relative_path);
+            index__bundletext_parts = import_statement.end;
+          }
+        }
+      }
+      array__bundletext_parts.push(filetext.slice(index__bundletext_parts));
+      return array__bundletext_parts.join('');
+    }
+  }
+}

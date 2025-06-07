@@ -76,12 +76,12 @@ export function NodePlatform_Directory_Watch(path: string, callback: WatchCallba
 }
 
 export async function NodePlatform_File_Async_AppendBytes(path: string, bytes: Uint8Array): Promise<void> {
-  await internal_error_call_async(Error().stack, NodePlatform_Directory_Async_Create(NodePlatform_Path_GetParentPath(path)));
+  await internal_error_call_async(Error().stack, NodePlatform_Directory_Async_Create(NodePlatform_Path_GetDirName(path)));
   return await internal_error_call_async(Error().stack, NODE_FS.promises.appendFile(NodePlatform_Path_Join(path), bytes));
 }
 
 export async function NodePlatform_File_Async_AppendText(path: string, text: string): Promise<void> {
-  await internal_error_call_async(Error().stack, NodePlatform_Directory_Async_Create(NodePlatform_Path_GetParentPath(path)));
+  await internal_error_call_async(Error().stack, NodePlatform_Directory_Async_Create(NodePlatform_Path_GetDirName(path)));
   return await internal_error_call_async(Error().stack, NODE_FS.promises.appendFile(NodePlatform_Path_Join(path), text));
 }
 
@@ -94,12 +94,12 @@ export async function NodePlatform_File_Async_ReadText(path: string): Promise<st
 }
 
 export async function NodePlatform_File_Async_WriteBytes(path: string, bytes: Uint8Array): Promise<void> {
-  await internal_error_call_async(Error().stack, NodePlatform_Directory_Async_Create(NodePlatform_Path_GetParentPath(path)));
+  await internal_error_call_async(Error().stack, NodePlatform_Directory_Async_Create(NodePlatform_Path_GetDirName(path)));
   return await internal_error_call_async(Error().stack, NODE_FS.promises.writeFile(NodePlatform_Path_Join(path), bytes));
 }
 
 export async function NodePlatform_File_Async_WriteText(path: string, text: string): Promise<void> {
-  await internal_error_call_async(Error().stack, NodePlatform_Directory_Async_Create(NodePlatform_Path_GetParentPath(path)));
+  await internal_error_call_async(Error().stack, NodePlatform_Directory_Async_Create(NodePlatform_Path_GetDirName(path)));
   return await internal_error_call_async(Error().stack, NODE_FS.promises.writeFile(NodePlatform_Path_Join(path), text));
 }
 
@@ -119,88 +119,200 @@ export async function NodePlatform_Path_Async_IsSymbolicLink(path: string): Prom
   return (await NodePlatform_Path_Async_GetStats(path)).isSymbolicLink();
 }
 
+export function NodePlatform_Path_CountSegments(path: string): number {
+  if (path.length === 0) {
+    return 0;
+  }
+  // The first segment starts at character 0 and includes the first slash if there is one.
+  // The rightmost segment starts after the rightmost slash, or the second rightmost slash if the rightmost slash is the rightmost character of the path.
+  // Slashes ARE removed from segments.
+  let count__segments = 1;
+  for (let i = 1; i < path.length; i++) {
+    // if previous character is a slash, then this index is the start of the next segment
+    if (['/', '\\'].includes(path[i - 1])) {
+      ++count__segments;
+    }
+  }
+  return count__segments;
+}
+
 export function NodePlatform_Path_GetBaseName(path: string): string {
   /**
-   * Gets the rightmost segment of the path.
+   * Returns the rightmost segment of the path (trailing slash excluded).
    */
-  return NodePlatform_Path_Slice(path, -1);
+  const rightmost_segment = NodePlatform_Path_Slice(path, -1);
+
+  // if segment contains more than 1 character
+  if (rightmost_segment.length > 1) {
+    const rightmost_character = rightmost_segment[rightmost_segment.length - 1];
+    if (['/', '\\'].includes(rightmost_character)) {
+      // remove trailing slash
+      return rightmost_segment.slice(0, -1);
+    }
+  }
+
+  return rightmost_segment;
+}
+
+export function NodePlatform_Path_GetDirName(path: string): string {
+  /**
+   * Returns the path after removing the rightmost segment (trailing slash included).
+   * If the path contains only one segment, returns . for relative paths and the entire segment for absolute paths.
+   */
+  const segment_count = NodePlatform_Path_CountSegments(path);
+  if (segment_count === 0) {
+    return '.' + NODE_PATH.sep;
+  }
+  if (segment_count === 1) {
+    // absolute path mac/linux
+    if (['/', '\\'].includes(path)) {
+      return path;
+    }
+    // absolute path windows
+    if (path.endsWith(':')) {
+      return path;
+    }
+    const rightmost_character = path[path.length - 1];
+    if (['/', '\\'].includes(rightmost_character)) {
+      // return . with existing trailing slash
+      return '.' + rightmost_character;
+    }
+    // return . with platform specific trailing slash
+    return '.' + NODE_PATH.sep;
+  }
+  // return path excluding rightmost segment
+  return NodePlatform_Path_Slice(path, 0, -1);
 }
 
 export function NodePlatform_Path_GetExtension(path: string): string {
   /**
-   * Gets all characters in the basename that appear right of the final dot,
-   * including the dot. If the basename starts with a dot and has no other
-   * dots, returns empty string. If the basename has no dots, returns empty
-   * string.
+   * Returns all characters in the basename that appear right of the rightmost dot, including the dot.
+   * If the basename has no dots, returns empty string.
+   * If the basename is '.' or '..', returns empty string.
    */
   const basename = NodePlatform_Path_GetBaseName(path);
-  return basename.indexOf('.') > 0 //
-    ? basename.slice(basename.lastIndexOf('.'))
-    : '';
+  if (['.', '..'].includes(basename)) {
+    return '';
+  }
+  const index__rightmost_dot = basename.lastIndexOf('.');
+  if (index__rightmost_dot === -1) {
+    return '';
+  }
+  return basename.slice(index__rightmost_dot);
 }
 
 export function NodePlatform_Path_GetName(path: string): string {
   /**
-   * Gets all characters in the basename that appear left of the final dot,
-   * excluding the dot. If the basename starts with a dot and has no other
-   * dots, returns the entire segment.
+   * Returns all characters in the basename that appear left of the rightmost dot, excluding the dot.
+   * If the basename has no dots, returns the entire string.
+   * If the basename is '.' or '..', returns the entire string.
    */
   const basename = NodePlatform_Path_GetBaseName(path);
-  return basename.indexOf('.') > 0 //
-    ? basename.slice(0, basename.lastIndexOf('.'))
-    : basename;
+  if (['.', '..'].includes(basename)) {
+    return basename;
+  }
+  const index__rightmost_dot = basename.lastIndexOf('.');
+  if (index__rightmost_dot === -1) {
+    return basename;
+  }
+  return basename.slice(0, index__rightmost_dot);
 }
 
-export function NodePlatform_Path_GetParentPath(path: string): string {
-  /**
-   * Gets the path excluding the rightmost segment.
-   */
-  return NodePlatform_Path_Slice(path, 0, -1);
+export function NodePlatform_Path_GetSegments(path: string): string[] {
+  if (path.length === 0) {
+    return [];
+  }
+  // The first segment starts at character 0 and includes the first slash if there is one.
+  // The rightmost segment starts after the rightmost slash, or the second rightmost slash if the rightmost slash is the rightmost character of the path.
+  // Slashes ARE removed from segments.
+  const array__segments: string[] = [];
+  let index__start = 0;
+  for (let i = 1; i < path.length; i++) {
+    // if previous character is a slash, then this index is the start of the next segment
+    if (['/', '\\'].includes(path[i - 1])) {
+      array__segments.push(path.slice(index__start, i));
+      index__start = i;
+    }
+  }
+  // add remaining segment
+  array__segments.push(path.slice(index__start));
+  // remove trailing slashes
+  for (let i = 0; i < array__segments.length; i++) {
+    if (array__segments[i].length > 1) {
+      if (['/', '\\'].includes(array__segments[i][array__segments[i].length - 1])) {
+        array__segments[i] = array__segments[i].slice(0, -1);
+      }
+    }
+  }
+  return array__segments;
 }
 
 export function NodePlatform_Path_Join(...paths: string[]): string {
-  return NODE_PATH.join(...paths);
+  return (paths[0] === '.' ? '.' + NODE_PATH.sep : '') + NODE_PATH.join(...paths);
 }
 
 export function NodePlatform_Path_JoinStandard(...paths: string[]): string {
-  return NODE_PATH.join(...paths).replaceAll('\\', '/');
+  return (paths[0] === '.' ? './' : '') + NODE_PATH.join(...paths).replaceAll('\\', '/');
 }
 
-export function NodePlatform_Path_NewBaseName(path: string, value: string): string {
+export function NodePlatform_Path_ReplaceBaseName(path: string, value: string): string {
   /**
-   * Returns a new path string with the rightmost segment of the path st to
-   * value.
+   * Replaces the basename of `path` with `value` (keeps existing trailing slash).
    */
-  const segments = NodePlatform_Path_Join(path)
-    .split(/[\\\/]/)
-    .filter(({ length }) => length > 0);
-  if (segments.length > 0) {
-    segments[segments.length - 1] = value;
-  } else {
-    segments[0] = value;
+  const segment_count = NodePlatform_Path_CountSegments(path);
+  if (segment_count === 0) {
+    return value;
   }
-  return segments.join(NODE_PATH.sep);
+  if (segment_count === 1) {
+    // absolute path mac/linux
+    if (['/', '\\'].includes(path)) {
+      return value;
+    }
+    // absolute path windows
+    if (path.endsWith(':')) {
+      return value;
+    }
+    const rightmost_character = path[path.length - 1];
+    if (['/', '\\'].includes(rightmost_character)) {
+      // keep trailing slash
+      return value + rightmost_character;
+    }
+    return value;
+  }
+  let rightmost_segment = NodePlatform_Path_Slice(path, -1);
+  const rightmost_character = rightmost_segment[rightmost_segment.length - 1];
+  if (['/', '\\'].includes(rightmost_character)) {
+    // keep trailing slash
+    return NodePlatform_Path_Slice(path, 0, -1) + value + rightmost_character;
+  }
+  return NodePlatform_Path_Slice(path, 0, -1) + value;
 }
 
-export function NodePlatform_Path_NewExtension(path: string, value: string): string {
+export function NodePlatform_Path_ReplaceExtension(path: string, value: string): string {
   /**
-   * Returns a new path string with all characters in the basename that
-   * appear right of the final dot set to `value`.
+   * Replaces the extension portion of basename of `path` with `value` (keeps existing trailing slash).
    */
-  const name = NodePlatform_Path_GetName(path);
+  // add dot separator if needed
   if (value[0] !== '.') {
-    return NodePlatform_Path_NewBaseName(path, `${name}.${value}`);
-  } else {
-    return NodePlatform_Path_NewBaseName(path, name + value);
+    value = '.' + value;
   }
+  const name = NodePlatform_Path_GetName(path);
+  // absolute path mac/linux
+  if (['/', '\\'].includes(name)) {
+    return NodePlatform_Path_ReplaceBaseName(path, value);
+  }
+  // absolute path windows
+  if (name.endsWith(':')) {
+    return NodePlatform_Path_ReplaceBaseName(path, value);
+  }
+  return NodePlatform_Path_ReplaceBaseName(path, name + value);
 }
 
-export function NodePlatform_Path_NewName(path: string, value: string): string {
+export function NodePlatform_Path_ReplaceName(path: string, value: string): string {
   /**
-   * Returns a new path string with all characters in the basename that
-   * appear left of the final dot set to `value`.
+   * Replaces the name portion of basename of `path` with `value` (keeps existing trailing slash).
    */
-  return NodePlatform_Path_NewBaseName(path, value + NodePlatform_Path_GetExtension(path));
+  return NodePlatform_Path_ReplaceBaseName(path, value + NodePlatform_Path_GetExtension(path));
 }
 
 export function NodePlatform_Path_Resolve(...paths: string[]): string {
@@ -215,18 +327,60 @@ export function NodePlatform_Path_ResolveStandard(...paths: string[]): string {
   // });
 }
 
-export function NodePlatform_Path_Slice(path: string, begin: number, end?: number): string {
-  const segments = NodePlatform_Path_Join(path)
-    .split(/[\\\/]/)
-    .filter(({ length }) => length > 0);
-  return segments.slice(begin, end).join(NODE_PATH.sep);
-}
+export function NodePlatform_Path_Slice(path: string, start?: number, end?: number): string {
+  // Trailing slashes are not removed during slicing.
+  // Based on https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/slice
+  /**
+   * `start` (Optional)
+   *  Zero-based index at which to start extraction, converted to an integer.
+   *   - Negative index counts back from the end of the array:
+   *   - If -array.length <= start < 0, start + array.length is used.
+   *   - If start < -array.length or start is omitted, 0 is used.
+   *   - If start >= array.length, an empty array is returned.
+   *
+   * `end` (Optional)
+   *  Zero-based index at which to end extraction, converted to an integer. slice() extracts up to but not including end.
+   *   - Negative index counts back from the end of the array
+   *   - If -array.length <= end < 0, end + array.length is used.
+   *   - If end < -array.length, 0 is used.
+   *   - If end >= array.length or end is omitted or undefined, array.length is used, causing all elements until the end to be extracted.
+   *   - If end implies a position before or at the position that start implies, an empty array is returned.
+   */
+  // The first segment starts at character 0 and includes the first slash if there is one.
+  // The rightmost segment starts after the rightmost slash, or the second rightmost slash if the rightmost slash is the rightmost character of the path.
+  const array__segment_indices: number[] = [0];
+  for (let i = 1; i < path.length; i++) {
+    // if previous character is a slash, then this index is the start of the next segment
+    if (['/', '\\'].includes(path[i - 1])) {
+      array__segment_indices.push(i);
+    }
+  }
 
-export function NodePlatform_Path_SliceStandard(path: string, begin: number, end?: number): string {
-  const segments = NodePlatform_Path_Join(path)
-    .split(/[\\\/]/)
-    .filter(({ length }) => length > 0);
-  return segments.slice(begin, end).join('/');
+  start ??= 0;
+  if (start < -1 * array__segment_indices.length) {
+    start = 0;
+  } else if (-1 * array__segment_indices.length <= start && start < 0) {
+    start = start + array__segment_indices.length;
+  }
+
+  end ??= array__segment_indices.length;
+  if (end < -1 * array__segment_indices.length) {
+    end = 0;
+  } else if (-1 * array__segment_indices.length <= end && end < 0) {
+    end = end + array__segment_indices.length;
+  } else if (end > array__segment_indices.length) {
+    end = array__segment_indices.length;
+  }
+
+  if (start >= array__segment_indices.length) {
+    return ''; // use empty array
+  }
+  if (end <= start) {
+    return ''; // use empty array
+  }
+
+  const index__end = array__segment_indices.at(end);
+  return path.slice(array__segment_indices.at(start), index__end ? index__end : undefined);
 }
 
 export function NodePlatform_Shell_Cursor_EraseCurrentLine(): void {
@@ -243,9 +397,8 @@ export function NodePlatform_Shell_Cursor_HideCursor(): void {
 export function NodePlatform_Shell_Cursor_MoveCursorDown(count = 0, to_start = false): void {
   if (to_start === true) {
     process.stdout.write(`${SHELL__KEYS_CSI}${count}E`);
-  } else {
-    process.stdout.write(`${SHELL__KEYS_CSI}${count}B`);
   }
+  process.stdout.write(`${SHELL__KEYS_CSI}${count}B`);
 }
 
 export function NodePlatform_Shell_Cursor_MoveCursorLeft(count = 0): void {
@@ -267,9 +420,8 @@ export function NodePlatform_Shell_Cursor_MoveCursorToColumn(count = 0): void {
 export function NodePlatform_Shell_Cursor_MoveCursorUp(count = 0, to_start = false): void {
   if (to_start === true) {
     process.stdout.write(`${SHELL__KEYS_CSI}${count}F`);
-  } else {
-    process.stdout.write(`${SHELL__KEYS_CSI}${count}A`);
   }
+  process.stdout.write(`${SHELL__KEYS_CSI}${count}A`);
 }
 
 export function NodePlatform_Shell_Cursor_ShowCursor(): void {

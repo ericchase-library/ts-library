@@ -1,10 +1,13 @@
 {
-  "dependencies": {},
+  "dependencies": {
+    "@types/lodash": "^4.17.17",
+    "lodash": "^4.17.21"
+  },
   "devDependencies": {
     "@types/adm-zip": "^0.5.7",
     "@types/bun": "^1.2.15",
     "@types/chrome": "^0.0.326",
-    "@types/node": "^22.15.29",
+    "@types/node": "^22.15.30",
     "adm-zip": "^0.5.16",
     "prettier": "^3.5.3",
     "xxhash-wasm": "^1.1.0"

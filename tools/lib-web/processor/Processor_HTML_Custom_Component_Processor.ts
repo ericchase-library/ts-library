@@ -17,9 +17,9 @@ class Class implements Builder.Processor {
     const component_path = NodePlatform_Path_Join(Builder.Dir.Lib, 'components');
     let trigger_reprocess = false;
     for (const file of files) {
-      if (NodePlatform_Path_GetExtension(file.src_path.value) === '.html') {
-        if (file.src_path.value.startsWith(component_path)) {
-          this.component_map.set(NodePlatform_Path_GetName(file.src_path.value), file);
+      if (NodePlatform_Path_GetExtension(file.src_path) === '.html') {
+        if (file.src_path.startsWith(component_path)) {
+          this.component_map.set(NodePlatform_Path_GetName(file.src_path), file);
           trigger_reprocess = true;
         }
         file.addProcessor(this, this.onProcess);
@@ -36,9 +36,9 @@ class Class implements Builder.Processor {
     const component_path = NodePlatform_Path_Join(Builder.Dir.Lib, 'components');
     let trigger_reprocess = false;
     for (const file of files) {
-      if (NodePlatform_Path_GetExtension(file.src_path.value) === '.html') {
-        if (file.src_path.value.startsWith(component_path)) {
-          this.component_map.delete(NodePlatform_Path_GetName(file.src_path.value));
+      if (NodePlatform_Path_GetExtension(file.src_path) === '.html') {
+        if (file.src_path.startsWith(component_path)) {
+          this.component_map.delete(NodePlatform_Path_GetName(file.src_path));
           trigger_reprocess = true;
         }
         this.htmlfile_set.delete(file);

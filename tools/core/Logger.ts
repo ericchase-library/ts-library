@@ -55,12 +55,8 @@ export class ClassLogger {
     readonly $channel: string,
     readonly $name: string,
   ) {}
-  error(...items: any[]) {
-    if (items[0] instanceof Error) {
-      addlog(Kind.Err, this, items.slice(1), items[0]);
-    } else {
-      addlog(Kind.Err, this, items);
-    }
+  error(error: any, ...items: any[]) {
+    addlog(Kind.Err, this, items, error);
   }
   errorNotEmpty(...items: any[]) {
     if (items[0] instanceof Error) {
@@ -169,6 +165,11 @@ async function processBuffer() {
             name_buffer.push(text);
           }
           if (error !== undefined) {
+            if (error.stack) {
+              Core_Console_Error(error.stack);
+              default_buffer.push(error.stack.toString());
+              name_buffer.push(error.stack.toString());
+            }
             Core_Console_Error(error);
             default_buffer.push(error.toString());
             name_buffer.push(error.toString());
