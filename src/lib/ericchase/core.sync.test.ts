@@ -1,5 +1,81 @@
 import { describe, expect, test } from 'bun:test';
-import { Core_Array_AreEqual, Core_Array_BinarySearch_ExactMatch, Core_Array_BinarySearch_InsertionIndex, Core_Array_Gen_BufferToBytes, Core_Array_Gen_Chunks, Core_Array_Gen_SlidingWindow, Core_Array_Gen_Zip, Core_Array_GetEndpoints, Core_Array_Shuffle, Core_Array_Split, Core_Array_Uint32_ToHex, Core_Array_Uint8_Class_Group, Core_Array_Uint8_Concat, Core_Array_Uint8_Copy, Core_Array_Uint8_FromBase64, Core_Array_Uint8_FromString, Core_Array_Uint8_FromUint32, Core_Array_Uint8_Split, Core_Array_Uint8_Take, Core_Array_Uint8_TakeEnd, Core_Array_Uint8_ToASCII, Core_Array_Uint8_ToBase64, Core_Array_Uint8_ToDecimal, Core_Array_Uint8_ToHex, Core_Array_Uint8_ToLines, Core_Array_Uint8_ToString, Core_Assert_BigInt, Core_Assert_Boolean, Core_Assert_Equal, Core_Assert_Function, Core_Assert_NotEqual, Core_Assert_Number, Core_Assert_Object, Core_Assert_String, Core_Assert_Symbol, Core_Assert_Undefined, Core_Console_Error, Core_Console_ErrorWithDate, Core_Console_Log, Core_Console_LogWithDate, Core_JSON_Analyze, Core_JSON_Merge, Core_JSON_ParseRawString, Core_Map_GetOrDefault, Core_Math_Factorial, Core_Math_Gen_CartesianProduct, Core_Math_Gen_NCartesianProducts, Core_Math_Gen_NChooseRCombinations, Core_Math_Gen_NChooseRPermutations, Core_Math_nCr, Core_Math_nPr, Core_Promise_Async_CountFulfilled, Core_Promise_Async_CountRejected, Core_Promise_CallAndOrphan, Core_Promise_Orphan, Core_Stream_AsyncGen_ReadChunks, Core_Stream_Uint8_Async_Compare, Core_Stream_Uint8_Async_ReadAll, Core_Stream_Uint8_Async_ReadLines, Core_Stream_Uint8_Async_ReadSome, Core_Stream_Uint8_AsyncGen_ReadLines, Core_String_GetLeftMarginSize, Core_String_LineIsOnlyWhiteSpace, Core_String_RemoveWhiteSpaceOnlyLines, Core_String_RemoveWhiteSpaceOnlyLinesFromTopAndBottom, Core_String_Split, Core_String_SplitLines, Core_String_SplitMultipleSpaces, Core_String_SplitMultipleWhiteSpace, Core_String_ToSnakeCase, Core_String_TrimLines, Core_Utility_Async_Sleep, Core_Utility_Class_CRC32, Core_Utility_CRC32, Core_Utility_DecodeBytes, Core_Utility_EncodeText } from './api.core.js';
+import { Core_Array_AreEqual } from './Core_Array_AreEqual.js';
+import { Core_Array_BinarySearch_ExactMatch } from './Core_Array_BinarySearch_ExactMatch.js';
+import { Core_Array_BinarySearch_InsertionIndex } from './Core_Array_BinarySearch_InsertionIndex.js';
+import { Core_Array_Gen_BufferToBytes } from './Core_Array_Gen_BufferToBytes.js';
+import { Core_Array_Gen_Chunks } from './Core_Array_Gen_Chunks.js';
+import { Core_Array_Gen_SlidingWindow } from './Core_Array_Gen_SlidingWindow.js';
+import { Core_Array_Gen_Zip } from './Core_Array_Gen_Zip.js';
+import { Core_Array_GetEndpoints } from './Core_Array_GetEndpoints.js';
+import { Core_Array_Shuffle } from './Core_Array_Shuffle.js';
+import { Core_Array_Split } from './Core_Array_Split.js';
+import { Core_Array_Uint32_ToHex } from './Core_Array_Uint32_ToHex.js';
+import { ARRAY__UINT8__EMPTY } from './Core_Array_Uint8.js';
+import { Core_Array_Uint8_Class_Group } from './Core_Array_Uint8_Class_Group.js';
+import { Core_Array_Uint8_Concat } from './Core_Array_Uint8_Concat.js';
+import { Core_Array_Uint8_Copy } from './Core_Array_Uint8_Copy.js';
+import { Core_Array_Uint8_FromBase64 } from './Core_Array_Uint8_FromBase64.js';
+import { Core_Array_Uint8_FromString } from './Core_Array_Uint8_FromString.js';
+import { Core_Array_Uint8_FromUint32 } from './Core_Array_Uint8_FromUint32.js';
+import { Core_Array_Uint8_Split } from './Core_Array_Uint8_Split.js';
+import { Core_Array_Uint8_Take } from './Core_Array_Uint8_Take.js';
+import { Core_Array_Uint8_TakeEnd } from './Core_Array_Uint8_TakeEnd.js';
+import { Core_Array_Uint8_ToASCII } from './Core_Array_Uint8_ToASCII.js';
+import { Core_Array_Uint8_ToBase64 } from './Core_Array_Uint8_ToBase64.js';
+import { Core_Array_Uint8_ToDecimal } from './Core_Array_Uint8_ToDecimal.js';
+import { Core_Array_Uint8_ToHex } from './Core_Array_Uint8_ToHex.js';
+import { Core_Array_Uint8_ToLines } from './Core_Array_Uint8_ToLines.js';
+import { Core_Array_Uint8_ToString } from './Core_Array_Uint8_ToString.js';
+import { Core_Assert_BigInt } from './Core_Assert_BigInt.js';
+import { Core_Assert_Boolean } from './Core_Assert_Boolean.js';
+import { Core_Assert_Equal } from './Core_Assert_Equal.js';
+import { Core_Assert_Function } from './Core_Assert_Function.js';
+import { Core_Assert_NotEqual } from './Core_Assert_NotEqual.js';
+import { Core_Assert_Number } from './Core_Assert_Number.js';
+import { Core_Assert_Object } from './Core_Assert_Object.js';
+import { Core_Assert_String } from './Core_Assert_String.js';
+import { Core_Assert_Symbol } from './Core_Assert_Symbol.js';
+import { Core_Assert_Undefined } from './Core_Assert_Undefined.js';
+import { Core_Console_Error } from './Core_Console_Error.js';
+import { Core_Console_ErrorWithDate } from './Core_Console_ErrorWithDate.js';
+import { Core_Console_Log } from './Core_Console_Log.js';
+import { Core_Console_LogWithDate } from './Core_Console_LogWithDate.js';
+import { Core_JSON_Analyze } from './Core_JSON_Analyze.js';
+import { Core_JSON_Merge } from './Core_JSON_Merge.js';
+import { Core_JSON_ParseRawString } from './Core_JSON_ParseRawString.js';
+import { Core_Map_GetOrDefault } from './Core_Map_GetOrDefault.js';
+import { Core_Math_Factorial } from './Core_Math_Factorial.js';
+import { Core_Math_Gen_CartesianProduct } from './Core_Math_Gen_CartesianProduct.js';
+import { Core_Math_Gen_NCartesianProducts } from './Core_Math_Gen_NCartesianProducts.js';
+import { Core_Math_Gen_NChooseRCombinations } from './Core_Math_Gen_NChooseRCombinations.js';
+import { Core_Math_Gen_NChooseRPermutations } from './Core_Math_Gen_NChooseRPermutations.js';
+import { Core_Math_nCr } from './Core_Math_nCr.js';
+import { Core_Math_nPr } from './Core_Math_nPr.js';
+import { Core_Promise_CallAndCountFulfilled_Async } from './Core_Promise_CallAndCountFulfilled_Async.js';
+import { Core_Promise_CallAndCountRejected_Async } from './Core_Promise_CallAndCountRejected_Async.js';
+import { Core_Promise_CallAndOrphan } from './Core_Promise_CallAndOrphan.js';
+import { Core_Promise_Orphan } from './Core_Promise_Orphan.js';
+import { Core_Stream_Gen_ReadChunks_Async } from './Core_Stream_Gen_ReadChunks_Async.js';
+import { Core_Stream_Uint8_Compare_Async } from './Core_Stream_Uint8_Compare_Async.js';
+import { Core_Stream_Uint8_ReadAll_Async } from './Core_Stream_Uint8_ReadAll_Async.js';
+import { Core_Stream_Uint8_ReadLines_Async } from './Core_Stream_Uint8_ReadLines_Async.js';
+import { Core_Stream_Uint8_ReadSome_Async } from './Core_Stream_Uint8_ReadSome_Async.js';
+import { Core_Stream_Uint8_Gen_ReadLines_Async } from './Core_Stream_Uint8_Gen_ReadLines_Async.js';
+import { Core_String_GetLeftMarginSize } from './Core_String_GetLeftMarginSize.js';
+import { Core_String_LineIsOnlyWhiteSpace } from './Core_String_LineIsOnlyWhiteSpace.js';
+import { Core_String_RemoveWhiteSpaceOnlyLines } from './Core_String_RemoveWhiteSpaceOnlyLines.js';
+import { Core_String_RemoveWhiteSpaceOnlyLinesFromTopAndBottom } from './Core_String_RemoveWhiteSpaceOnlyLinesFromTopAndBottom.js';
+import { Core_String_Split } from './Core_String_Split.js';
+import { Core_String_SplitLines } from './Core_String_SplitLines.js';
+import { Core_String_SplitMultipleSpaces } from './Core_String_SplitMultipleSpaces.js';
+import { Core_String_SplitMultipleWhiteSpace } from './Core_String_SplitMultipleWhiteSpace.js';
+import { Core_String_ToSnakeCase } from './Core_String_ToSnakeCase.js';
+import { Core_String_TrimLines } from './Core_String_TrimLines.js';
+import { Core_Utility_Sleep_Async } from './Core_Utility_Sleep_Async.js';
+import { Core_Utility_Class_CRC32 } from './Core_Utility_Class_CRC32.js';
+import { Core_Utility_CRC32 } from './Core_Utility_CRC32.js';
+import { Core_Utility_DecodeBytes } from './Core_Utility_DecodeBytes.js';
+import { Core_Utility_EncodeText } from './Core_Utility_EncodeText.js';
 
 describe('Array', () => {
   describe(Core_Array_Gen_BufferToBytes.name, () => {
@@ -289,6 +365,7 @@ describe('Array', () => {
     });
   });
 });
+
 describe('Array BinarySearch', () => {
   describe('[0, 2, 4, 6, 8]', () => {
     const nums = [0, 2, 4, 6, 8];
@@ -362,56 +439,69 @@ describe('Array BinarySearch', () => {
     });
   });
 });
+
 describe('Array Uint8', () => {
   describe(Core_Array_Uint8_Class_Group.name, () => {
     test('[]', () => {
       const group = Core_Array_Uint8_Class_Group();
-      group.add(Uint8Array.from([]));
+      group.add(ARRAY__UINT8__EMPTY);
+      expect(group.arrays).toEqual([ARRAY__UINT8__EMPTY]);
       expect(group.byteLength).toBe(0);
     });
-    test('[0]', () => {
-      const group = Core_Array_Uint8_Class_Group();
-      group.add(Uint8Array.from([0]));
-      expect(group.byteLength).toBe(1);
-      expect(group.get(1)).toEqual(new Uint8Array([0]));
+
+    const group012345 = Core_Array_Uint8_Class_Group();
+    group012345.add(Uint8Array.from([0]));
+    group012345.add(Uint8Array.from([1, 2]));
+    group012345.add(Uint8Array.from([3, 4, 5]));
+    test('group012345.byteLength', () => {
+      expect(group012345.byteLength).toBe(6);
     });
-    test('[0, 0]', () => {
-      const group = Core_Array_Uint8_Class_Group();
-      group.add(Uint8Array.from([0, 0]));
-      expect(group.byteLength).toBe(2);
-      expect(group.get(2)).toEqual(new Uint8Array([0, 0]));
+    test('group012345.get(0)', () => {
+      expect(group012345.get(0)).toEqual(ARRAY__UINT8__EMPTY);
     });
-    test('[0], [0]', () => {
-      const group = Core_Array_Uint8_Class_Group();
-      group.add(Uint8Array.from([0]));
-      group.add(Uint8Array.from([0]));
-      expect(group.byteLength).toBe(2);
-      expect(group.get(2)).toEqual(new Uint8Array([0, 0]));
+    test('group012345.get(1)', () => {
+      expect(group012345.get(1)).toEqual(new Uint8Array([0]));
+      expect(group012345.get(1, 1)).toEqual(new Uint8Array([1]));
+      expect(group012345.get(1, 2)).toEqual(new Uint8Array([2]));
+      expect(group012345.get(1, 3)).toEqual(new Uint8Array([3]));
+      expect(group012345.get(1, 4)).toEqual(new Uint8Array([4]));
+      expect(group012345.get(1, 5)).toEqual(new Uint8Array([5]));
     });
-    test('[1, 2, 3]', () => {
-      const group = Core_Array_Uint8_Class_Group();
-      group.add(Uint8Array.from([1, 2, 3]));
-      expect(group.get(group.byteLength)).toEqual(new Uint8Array([1, 2, 3]));
+    test('group012345.get(2)', () => {
+      expect(group012345.get(2)).toEqual(new Uint8Array([0, 1]));
+      expect(group012345.get(2, 1)).toEqual(new Uint8Array([1, 2]));
+      expect(group012345.get(2, 2)).toEqual(new Uint8Array([2, 3]));
+      expect(group012345.get(2, 3)).toEqual(new Uint8Array([3, 4]));
+      expect(group012345.get(2, 4)).toEqual(new Uint8Array([4, 5]));
     });
-    test('[1], [2], [3]', () => {
-      const group = Core_Array_Uint8_Class_Group();
-      group.add(Uint8Array.from([1]));
-      group.add(Uint8Array.from([2]));
-      group.add(Uint8Array.from([3]));
-      expect(group.get(group.byteLength)).toEqual(new Uint8Array([1, 2, 3]));
+    test('group012345.get(3)', () => {
+      expect(group012345.get(3)).toEqual(new Uint8Array([0, 1, 2]));
+      expect(group012345.get(3, 1)).toEqual(new Uint8Array([1, 2, 3]));
+      expect(group012345.get(3, 2)).toEqual(new Uint8Array([2, 3, 4]));
+      expect(group012345.get(3, 3)).toEqual(new Uint8Array([3, 4, 5]));
     });
-    test('[200, 250, 300]', () => {
-      const group = Core_Array_Uint8_Class_Group();
-      group.add(Uint8Array.from([200, 250, 300]));
-      expect(group.get(group.byteLength)).toEqual(new Uint8Array([200, 250, 44]));
+    test('group012345.get(4)', () => {
+      expect(group012345.get(4)).toEqual(new Uint8Array([0, 1, 2, 3]));
+      expect(group012345.get(4, 1)).toEqual(new Uint8Array([1, 2, 3, 4]));
+      expect(group012345.get(4, 2)).toEqual(new Uint8Array([2, 3, 4, 5]));
     });
-    test('[200], [250], [300]', () => {
-      const group = Core_Array_Uint8_Class_Group();
-      group.add(Uint8Array.from([200]));
-      group.add(Uint8Array.from([250]));
-      group.add(Uint8Array.from([300]));
-      expect(group.get(group.byteLength)).toEqual(new Uint8Array([200, 250, 44]));
+    test('group012345.get(5)', () => {
+      expect(group012345.get(5)).toEqual(new Uint8Array([0, 1, 2, 3, 4]));
+      expect(group012345.get(5, 1)).toEqual(new Uint8Array([1, 2, 3, 4, 5]));
     });
+    test('group012345.get(6)', () => {
+      expect(group012345.get(6)).toEqual(new Uint8Array([0, 1, 2, 3, 4, 5]));
+    });
+    test('group012345.get(6,-1)', () => {
+      expect(group012345.get(6, -1)).toEqual(new Uint8Array([0, 1, 2, 3, 4, 5]));
+    });
+    test('group012345.get(6,6)', () => {
+      expect(group012345.get(6, 6)).toEqual(new Uint8Array([0, 0, 0, 0, 0, 0]));
+    });
+    test('group012345.get(12)', () => {
+      expect(group012345.get(12)).toEqual(new Uint8Array([0, 1, 2, 3, 4, 5, 0, 0, 0, 0, 0, 0]));
+    });
+
     test('[0x0f, 0xff0f, 0xffff0f, 0xffffff0f]', () => {
       const group = Core_Array_Uint8_Class_Group();
       group.add(Uint8Array.from([0x0f, 0xff0f, 0xffff0f, 0xffffff0f]));
@@ -662,6 +752,7 @@ describe('Array Uint8', () => {
     }
   });
 });
+
 describe('Array Uint32', () => {
   describe(Core_Array_Uint8_ToHex.name, () => {
     const cases = [
@@ -677,6 +768,7 @@ describe('Array Uint32', () => {
     }
   });
 });
+
 describe('Assert', () => {
   test(Core_Assert_Equal.name, () => {
     expect(Core_Assert_Equal(true, true)).toBeTrue();
@@ -776,6 +868,7 @@ describe('Assert', () => {
     // expect(() => Core_Assert_Undefined(undefined)).toThrow();
   });
 });
+
 describe('Console', () => {
   test(Core_Console_Error.name, () => {
     expect(Core_Console_Error('Test Error')).toBeEmpty();
@@ -790,6 +883,7 @@ describe('Console', () => {
     expect(Core_Console_LogWithDate('Test LogWithDate')).toBeEmpty();
   });
 });
+
 describe('JSON', () => {
   describe(Core_JSON_Analyze.name, () => {
     test('Primitives', () => {
@@ -957,6 +1051,7 @@ describe('JSON', () => {
     });
   });
 });
+
 describe('Map', () => {
   describe(Core_Map_GetOrDefault.name, () => {
     test('set and return default value if key not in map, get value if key in map', () => {
@@ -966,6 +1061,7 @@ describe('Map', () => {
     });
   });
 });
+
 describe('Math', () => {
   describe(Core_Math_Gen_CartesianProduct.name, () => {
     describe('homogeneous & same type', () => {
@@ -1922,9 +2018,10 @@ describe('Math', () => {
     }
   });
 });
+
 describe('Promise', () => {
-  test(Core_Promise_Async_CountFulfilled.name, async () => {
-    const count = await Core_Promise_Async_CountFulfilled([
+  test(Core_Promise_CallAndCountFulfilled_Async.name, async () => {
+    const count = await Core_Promise_CallAndCountFulfilled_Async([
       Promise.resolve(1),
       Promise.resolve(2),
       Promise.resolve(3),
@@ -1935,8 +2032,8 @@ describe('Promise', () => {
     ]);
     expect(count).toBe(3);
   });
-  test(Core_Promise_Async_CountRejected.name, async () => {
-    const count = await Core_Promise_Async_CountRejected([
+  test(Core_Promise_CallAndCountRejected_Async.name, async () => {
+    const count = await Core_Promise_CallAndCountRejected_Async([
       Promise.resolve(1),
       Promise.resolve(2),
       Promise.resolve(3),
@@ -1954,21 +2051,22 @@ describe('Promise', () => {
     expect(Core_Promise_Orphan((async () => {})())).toBeEmpty();
   });
 });
+
 describe('Stream', () => {
-  describe(Core_Stream_AsyncGen_ReadChunks.name, () => {
+  describe(Core_Stream_Gen_ReadChunks_Async.name, () => {
     test('123 456 789', async () => {
       const stream = new ReadableStream<Uint8Array>({
         async start(controller) {
           controller.enqueue(new Uint8Array([1, 2, 3]));
-          await Core_Utility_Async_Sleep(0);
+          await Core_Utility_Sleep_Async(0);
           controller.enqueue(new Uint8Array([4, 5, 6]));
-          await Core_Utility_Async_Sleep(0);
+          await Core_Utility_Sleep_Async(0);
           controller.enqueue(new Uint8Array([7, 8, 9]));
-          await Core_Utility_Async_Sleep(0);
+          await Core_Utility_Sleep_Async(0);
           controller.close();
         },
       });
-      expect(await Array.fromAsync(Core_Stream_AsyncGen_ReadChunks(stream))).toEqual([
+      expect(await Array.fromAsync(Core_Stream_Gen_ReadChunks_Async(stream))).toEqual([
         new Uint8Array([1, 2, 3]),
         new Uint8Array([4, 5, 6]),
         new Uint8Array([7, 8, 9]),
@@ -1977,8 +2075,9 @@ describe('Stream', () => {
     });
   });
 });
+
 describe('Stream Uint8', () => {
-  describe(Core_Stream_Uint8_Async_Compare.name, () => {
+  describe(Core_Stream_Uint8_Compare_Async.name, () => {
     test('returns true for equal stream', async () => {
       const stream1 = new ReadableStream({
         start(controller) {
@@ -1992,7 +2091,7 @@ describe('Stream Uint8', () => {
           controller.close();
         },
       });
-      expect(await Core_Stream_Uint8_Async_Compare(stream1, stream2)).toBeTrue();
+      expect(await Core_Stream_Uint8_Compare_Async(stream1, stream2)).toBeTrue();
     });
     test('returns false for unequal lengths', async () => {
       const stream1 = new ReadableStream({
@@ -2007,7 +2106,7 @@ describe('Stream Uint8', () => {
           controller.close();
         },
       });
-      expect(await Core_Stream_Uint8_Async_Compare(stream1, stream2)).toBeFalse();
+      expect(await Core_Stream_Uint8_Compare_Async(stream1, stream2)).toBeFalse();
     });
     test('returns false for unequal streams', async () => {
       const stream1 = new ReadableStream({
@@ -2022,10 +2121,10 @@ describe('Stream Uint8', () => {
           controller.close();
         },
       });
-      expect(await Core_Stream_Uint8_Async_Compare(stream1, stream2)).toBeFalse();
+      expect(await Core_Stream_Uint8_Compare_Async(stream1, stream2)).toBeFalse();
     });
   });
-  describe(Core_Stream_Uint8_Async_ReadAll.name, () => {
+  describe(Core_Stream_Uint8_ReadAll_Async.name, () => {
     test('[1, 2, 3, 4]', async () => {
       const bytes = Uint8Array.from([1, 2, 3, 4]);
       const stream = new ReadableStream({
@@ -2034,7 +2133,7 @@ describe('Stream Uint8', () => {
           controller.close();
         },
       });
-      expect([...(await Core_Stream_Uint8_Async_ReadAll(stream))]).toEqual([1, 2, 3, 4]);
+      expect([...(await Core_Stream_Uint8_ReadAll_Async(stream))]).toEqual([1, 2, 3, 4]);
     });
     test('10000 bytes', async () => {
       const bytes = new Uint8Array(10000);
@@ -2047,10 +2146,10 @@ describe('Stream Uint8', () => {
           controller.close();
         },
       });
-      expect((await Core_Stream_Uint8_Async_ReadAll(stream)).byteLength).toBe(10000);
+      expect((await Core_Stream_Uint8_ReadAll_Async(stream)).byteLength).toBe(10000);
     });
   });
-  describe(Core_Stream_Uint8_Async_ReadLines.name, () => {
+  describe(Core_Stream_Uint8_ReadLines_Async.name, () => {
     test('[1, 2, 3, \\n, 4, 5, 6, \\n, 7, 8, 9]', async () => {
       const bytes = Core_Array_Uint8_FromString('123\n456\n789');
       const stream = new ReadableStream({
@@ -2060,7 +2159,7 @@ describe('Stream Uint8', () => {
         },
       });
       const lines: string[] = [];
-      await Core_Stream_Uint8_Async_ReadLines(stream, (line: string) => {
+      await Core_Stream_Uint8_ReadLines_Async(stream, (line: string) => {
         lines.push(line);
       });
       expect(lines).toEqual(['123', '456', '789']);
@@ -2074,14 +2173,14 @@ describe('Stream Uint8', () => {
         },
       });
       const lines: string[] = [];
-      await Core_Stream_Uint8_Async_ReadLines(stream, (line: string) => {
+      await Core_Stream_Uint8_ReadLines_Async(stream, (line: string) => {
         lines.push(line);
         return false;
       });
       expect(lines).toEqual(['123']);
     });
   });
-  describe(Core_Stream_Uint8_Async_ReadSome.name, () => {
+  describe(Core_Stream_Uint8_ReadSome_Async.name, () => {
     test('[1, 2, 3, 4], read 2', async () => {
       const bytes = Uint8Array.from([1, 2, 3, 4]);
       const stream = new ReadableStream({
@@ -2090,7 +2189,7 @@ describe('Stream Uint8', () => {
           controller.close();
         },
       });
-      expect([...(await Core_Stream_Uint8_Async_ReadSome(stream, 2))]).toEqual([1, 2]);
+      expect([...(await Core_Stream_Uint8_ReadSome_Async(stream, 2))]).toEqual([1, 2]);
     });
     test('[1, 2, 3, 4], read 4', async () => {
       const bytes = Uint8Array.from([1, 2, 3, 4]);
@@ -2100,7 +2199,7 @@ describe('Stream Uint8', () => {
           controller.close();
         },
       });
-      expect([...(await Core_Stream_Uint8_Async_ReadSome(stream, 4))]).toEqual([1, 2, 3, 4]);
+      expect([...(await Core_Stream_Uint8_ReadSome_Async(stream, 4))]).toEqual([1, 2, 3, 4]);
     });
     test('[1, 2, 3, 4], read 6', async () => {
       const bytes = Uint8Array.from([1, 2, 3, 4]);
@@ -2110,7 +2209,7 @@ describe('Stream Uint8', () => {
           controller.close();
         },
       });
-      expect([...(await Core_Stream_Uint8_Async_ReadSome(stream, 6))]).toEqual([1, 2, 3, 4]);
+      expect([...(await Core_Stream_Uint8_ReadSome_Async(stream, 6))]).toEqual([1, 2, 3, 4]);
     });
     test('10000 bytes', async () => {
       const bytes = new Uint8Array(10000);
@@ -2123,7 +2222,7 @@ describe('Stream Uint8', () => {
           controller.close();
         },
       });
-      expect((await Core_Stream_Uint8_Async_ReadSome(stream, 1234)).byteLength).toBe(1234);
+      expect((await Core_Stream_Uint8_ReadSome_Async(stream, 1234)).byteLength).toBe(1234);
     });
     test('count < 1 returns empty array', async () => {
       const bytes = Uint8Array.from([1, 2, 3, 4]);
@@ -2133,10 +2232,10 @@ describe('Stream Uint8', () => {
           controller.close();
         },
       });
-      expect([...(await Core_Stream_Uint8_Async_ReadSome(stream, 0))]).toEqual([]);
+      expect([...(await Core_Stream_Uint8_ReadSome_Async(stream, 0))]).toEqual([]);
     });
   });
-  describe(Core_Stream_Uint8_AsyncGen_ReadLines.name, () => {
+  describe(Core_Stream_Uint8_Gen_ReadLines_Async.name, () => {
     test('[1, 2, 3, \\n, 4, 5, 6, \\n, 7, 8, 9]', async () => {
       const bytes = Core_Array_Uint8_FromString('123\n456\n789');
       const stream = new ReadableStream({
@@ -2145,11 +2244,12 @@ describe('Stream Uint8', () => {
           controller.close();
         },
       });
-      expect((await Array.fromAsync(Core_Stream_Uint8_AsyncGen_ReadLines(stream))).flat()).toEqual(['123', '456', '789']);
+      expect((await Array.fromAsync(Core_Stream_Uint8_Gen_ReadLines_Async(stream))).flat()).toEqual(['123', '456', '789']);
     });
     test('cancel', () => {});
   });
 });
+
 describe('String', () => {
   describe(Core_String_GetLeftMarginSize.name, () => {
     test('Empty', () => {
@@ -2271,10 +2371,18 @@ describe('String', () => {
     test('On spaces.', () => {
       expect(Core_String_Split('a b c', ' ')).toEqual(['a', 'b', 'c']);
     });
+    test('On consecutive spaces.', () => {
+      expect(Core_String_Split('a  b  c', ' ')).toEqual(['a', '', 'b', '', 'c']);
+      expect(Core_String_Split('a  b  c', ' ', true)).toEqual(['a', 'b', 'c']);
+    });
     test('On newlines.', () => {
       expect(Core_String_Split('a\nb\nc', '\n')).toEqual(['a', 'b', 'c']);
     });
-    test('On ,.', () => {
+    test('On consecutive newlines.', () => {
+      expect(Core_String_Split('a\n\nb\n\nc', '\n')).toEqual(['a', '', 'b', '', 'c']);
+      expect(Core_String_Split('a\n\nb\n\nc', '\n', true)).toEqual(['a', 'b', 'c']);
+    });
+    test('On comma.', () => {
       expect(Core_String_Split('a,b,c', ',')).toEqual(['a', 'b', 'c']);
     });
   });
@@ -2287,6 +2395,7 @@ describe('String', () => {
     });
     test('Only lines.', () => {
       expect(Core_String_SplitLines('\n\n\n')).toEqual(['', '', '', '']);
+      expect(Core_String_SplitLines('\n\n\n', true)).toEqual([]);
     });
     test('a/b/c', () => {
       expect(Core_String_SplitLines('a\nb\nc')).toEqual(['a', 'b', 'c']);
@@ -2301,9 +2410,14 @@ describe('String', () => {
     });
     test('Only spaces.', () => {
       expect(Core_String_SplitMultipleSpaces('   ')).toEqual(['', '']);
+      expect(Core_String_SplitMultipleSpaces('   ', true)).toEqual([]);
     });
     test('a/b/c', () => {
       expect(Core_String_SplitMultipleSpaces('a b c')).toEqual(['a', 'b', 'c']);
+      expect(Core_String_SplitMultipleSpaces('a  b  c')).toEqual(['a', 'b', 'c']);
+      expect(Core_String_SplitMultipleSpaces('a   b   c')).toEqual(['a', 'b', 'c']);
+      expect(Core_String_SplitMultipleSpaces(' a b c ')).toEqual(['', 'a', 'b', 'c', '']);
+      expect(Core_String_SplitMultipleSpaces(' a b c ', true)).toEqual(['a', 'b', 'c']);
     });
   });
   describe(Core_String_SplitMultipleWhiteSpace.name, () => {
@@ -2315,9 +2429,12 @@ describe('String', () => {
     });
     test('Only whitespace.', () => {
       expect(Core_String_SplitMultipleWhiteSpace(' \t\n \t \n  ')).toEqual(['', '']);
+      expect(Core_String_SplitMultipleWhiteSpace(' \t\n \t \n  ', true)).toEqual([]);
     });
     test('a/b/c', () => {
       expect(Core_String_SplitMultipleWhiteSpace('a \t b \n c')).toEqual(['a', 'b', 'c']);
+      expect(Core_String_SplitMultipleWhiteSpace(' \t a \t b \n c \n')).toEqual(['', 'a', 'b', 'c', '']);
+      expect(Core_String_SplitMultipleWhiteSpace(' \t a \t b \n c \n', true)).toEqual(['a', 'b', 'c']);
     });
   });
   describe(Core_String_ToSnakeCase.name, () => {
@@ -2360,6 +2477,7 @@ describe('String', () => {
     });
   });
 });
+
 describe('Utility', () => {
   describe(Core_Utility_DecodeBytes.name, () => {
     test('[49,50,51]', () => {
@@ -2390,6 +2508,8 @@ describe('Utility', () => {
     test('123456789 => 0xCBF43926', () => {
       expect(Core_Utility_CRC32(Core_Utility_EncodeText('123456789'))).toEqual(0xcbf43926);
     });
+  });
+  describe(Core_Utility_Class_CRC32.name, () => {
     test('123, 456, 789 => 0xCBF43926', () => {
       const crc = Core_Utility_Class_CRC32();
       crc.update(Core_Utility_EncodeText('123'));

@@ -24,9 +24,9 @@ Builder.SetStartUpSteps(
 );
 
 Builder.SetProcessorModules(
-  Processor_TypeScript_Generic_Transpiler({ include_patterns: ['**/*{.ts,.tsx}'], exclude_patterns: ['**/*.d.ts', '**/*{.module,.iife}{.ts,.tsx,.js,.jsx}', '**/*{.deprecated,.example,.test}{.ts,.tsx}'] }, { target: 'browser' }),
   Processor_TypeScript_Generic_Bundler({ external: ['lodash/shuffle'] }),
-  Processor_Set_Writable({ include_patterns: ['**/*{.ts,.tsx}', '**/*.d.ts'], exclude_patterns: ['**/*{.deprecated,.example,.test}{.ts,.tsx}'] }, { include_libdir: true }),
+  Processor_TypeScript_Generic_Transpiler({ include_patterns: ['**/*{.ts,.tsx}'], exclude_patterns: ['**/*.d.ts', '**/*{.module,.iife}{.ts,.tsx}', '**/*{.deprecated,.example,.test}{.ts,.tsx}'] }, { target: 'browser' }),
+  Processor_Set_Writable({ include_patterns: ['**/*{.ts,.tsx}'], exclude_patterns: ['**/*{.deprecated,.example,.test}{.ts,.tsx}'] }, { include_libdir: true }),
   //
 );
 

@@ -1,5 +1,10 @@
-import { Core_Console_Error, Core_Console_Log, Core_Map_GetOrDefault, Core_String_RemoveWhiteSpaceOnlyLinesFromTopAndBottom } from '../../src/lib/ericchase/api.core.js';
-import { NODE_PATH, NodePlatform_Directory_Async_Create, NodePlatform_File_Async_AppendText } from '../../src/lib/ericchase/api.platform-node.js';
+import { Core_Console_Error } from '../../src/lib/ericchase/Core_Console_Error.js';
+import { Core_Console_Log } from '../../src/lib/ericchase/Core_Console_Log.js';
+import { Core_Map_GetOrDefault } from '../../src/lib/ericchase/Core_Map_GetOrDefault.js';
+import { Core_String_RemoveWhiteSpaceOnlyLinesFromTopAndBottom } from '../../src/lib/ericchase/Core_String_RemoveWhiteSpaceOnlyLinesFromTopAndBottom.js';
+import { NODE_PATH } from '../../src/lib/ericchase/NodePlatform.js';
+import { NodePlatform_Directory_Create_Async } from '../../src/lib/ericchase/NodePlatform_Directory_Create_Async.js';
+import { NodePlatform_File_AppendText_Async } from '../../src/lib/ericchase/NodePlatform_File_AppendText_Async.js';
 
 // variables
 
@@ -202,7 +207,7 @@ async function processBuffer() {
   for (const path of output_set) {
     for (const [name, lines] of name_to_buffer) {
       if (lines.length > 0) {
-        await NodePlatform_File_Async_AppendText(NODE_PATH.resolve(path, `${name}.log`), `${lines.join('\n')}\n`);
+        await NodePlatform_File_AppendText_Async(NODE_PATH.resolve(path, `${name}.log`), `${lines.join('\n')}\n`);
         name_to_buffer.set(name, []);
       }
     }
@@ -219,7 +224,7 @@ export async function AddLoggerOutputDirectory(path: string) {
   path = NODE_PATH.resolve(path, 'logs');
   if (output_set.has(path) === false) {
     output_set.add(path);
-    await NodePlatform_Directory_Async_Create(path);
+    await NodePlatform_Directory_Create_Async(path);
   }
 }
 

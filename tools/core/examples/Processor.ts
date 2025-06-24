@@ -1,5 +1,5 @@
 import { BunPlatform_Glob_Match } from '../../../src/lib/ericchase/api.platform-bun.js';
-import { NodePlatform_Path_JoinStandard } from '../../../src/lib/ericchase/api.platform-node.js';
+import { NodePlatform_PathObject } from '../../../src/lib/ericchase/NodePlatform_PathObject.js';
 import { Builder } from '../Builder.js';
 import { Logger } from '../Logger.js';
 
@@ -25,8 +25,9 @@ class Class implements Builder.Processor {
   async onAdd(files: Set<Builder.File>): Promise<void> {
     // Determine which files should be processed.
     for (const file of files) {
+      const src_path = NodePlatform_PathObject(file.src_path).str('/');
       // Example glob matcher for text (.txt) files:
-      if (BunPlatform_Glob_Match(NodePlatform_Path_JoinStandard(file.src_path), '**/*.txt')) {
+      if (BunPlatform_Glob_Match(src_path, '**/*.txt')) {
         file.addProcessor(this, this.onProcess);
       }
     }

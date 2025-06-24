@@ -1,4 +1,6 @@
-import { NodePlatform_Path_GetExtension, NodePlatform_Path_GetName, NodePlatform_Path_Join } from '../../../src/lib/ericchase/api.platform-node.js';
+import { NodePlatform_Path_GetExtension } from '../../../src/lib/ericchase/NodePlatform_Path_GetExtension.js';
+import { NodePlatform_Path_GetName } from '../../../src/lib/ericchase/NodePlatform_Path_GetName.js';
+import { NodePlatform_Path_Join } from '../../../src/lib/ericchase/NodePlatform_Path_Join.js';
 import { Builder } from '../../core/Builder.js';
 import { Logger } from '../../core/Logger.js';
 import { HTML_UTIL } from '../bundle/htmlutil.js';

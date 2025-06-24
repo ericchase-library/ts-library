@@ -1,4 +1,6 @@
-import { NodePlatform_Directory_Async_Create, NodePlatform_Directory_Async_Delete, NodePlatform_Path_Join } from '../../../src/lib/ericchase/api.platform-node.js';
+import { NodePlatform_Directory_Create_Async } from '../../../src/lib/ericchase/NodePlatform_Directory_Create_Async.js';
+import { NodePlatform_Directory_Delete_Async } from '../../../src/lib/ericchase/NodePlatform_Directory_Delete_Async.js';
+import { NodePlatform_Path_Join } from '../../../src/lib/ericchase/NodePlatform_Path_Join.js';
 import { Builder } from '../../core/Builder.js';
 import { Logger } from '../../core/Logger.js';
 
@@ -12,8 +14,8 @@ class Class implements Builder.Step {
   constructor(readonly paths: string[]) {}
   async onRun(): Promise<void> {
     for (const path of this.paths) {
-      if ((await NodePlatform_Directory_Async_Delete(path, true)) === true) {
-        if ((await NodePlatform_Directory_Async_Create(path, true)) === true) {
+      if ((await NodePlatform_Directory_Delete_Async(path, true)) === true) {
+        if ((await NodePlatform_Directory_Create_Async(path, true)) === true) {
           this.channel.log(`Cleaned "${path}"`);
         }
       }

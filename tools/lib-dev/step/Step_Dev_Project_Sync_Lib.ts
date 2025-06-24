@@ -1,4 +1,5 @@
-import { NodePlatform_Directory_Async_ReadDir, NodePlatform_Path_Join } from '../../../src/lib/ericchase/api.platform-node.js';
+import { NodePlatform_Directory_ReadDir_Async } from '../../../src/lib/ericchase/NodePlatform_Directory_ReadDir_Async.js';
+import { NodePlatform_Path_Join } from '../../../src/lib/ericchase/NodePlatform_Path_Join.js';
 import { Builder } from '../../core/Builder.js';
 import { Logger } from '../../core/Logger.js';
 import { Step_FS_Copy_Files } from '../../core/step/Step_FS_Copy_Files.js';
@@ -66,7 +67,7 @@ class Class implements Builder.Step {
       }),
     ];
     // Tools
-    for (const entry of await NodePlatform_Directory_Async_ReadDir(Builder.Dir.Tools, false)) {
+    for (const entry of await NodePlatform_Directory_ReadDir_Async(Builder.Dir.Tools, false)) {
       if (entry.isDirectory()) {
         this.steps.push(
           Step_FS_Mirror_Directory({

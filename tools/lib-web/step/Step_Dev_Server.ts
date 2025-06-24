@@ -1,6 +1,9 @@
 import { Subprocess } from 'bun';
-import { Core_Promise_Orphan, Core_Stream_Uint8_Async_ReadLines, Core_Utility_Async_Sleep } from '../../../src/lib/ericchase/api.core.js';
-import { NodePlatform_Path_Join, NodePlatform_Shell_StdIn_AddListener } from '../../../src/lib/ericchase/api.platform-node.js';
+import { Core_Promise_Orphan } from '../../../src/lib/ericchase/Core_Promise_Orphan.js';
+import { Core_Stream_Uint8_ReadLines_Async } from '../../../src/lib/ericchase/Core_Stream_Uint8_ReadLines_Async.js';
+import { Core_Utility_Sleep_Async } from '../../../src/lib/ericchase/Core_Utility_Sleep_Async.js';
+import { NodePlatform_Path_Join } from '../../../src/lib/ericchase/NodePlatform_Path_Join.js';
+import { NodePlatform_Shell_StdIn_AddListener } from '../../../src/lib/ericchase/NodePlatform_Shell_StdIn.js';
 import { Builder } from '../../core/Builder.js';
 import { Logger } from '../../core/Logger.js';
 
@@ -25,7 +28,7 @@ class Class implements Builder.Step {
     const [stdout, stdout_tee] = p0.stdout.tee();
     // wait for server to finish starting up
     // grab host and setup listener to toggle hot reloading
-    await Core_Stream_Uint8_Async_ReadLines(stdout_tee, (line) => {
+    await Core_Stream_Uint8_ReadLines_Async(stdout_tee, (line) => {
       if (line.startsWith('Serving at')) {
         DEVSERVERHOST = new URL(line.slice('Serving at'.length).trim()).host;
       } else if (line.startsWith('Console at')) {
@@ -43,14 +46,14 @@ class Class implements Builder.Step {
         return false;
       }
     });
-    Core_Promise_Orphan(Core_Stream_Uint8_Async_ReadLines(p0.stderr, (line) => this.channel.error(line)));
-    Core_Promise_Orphan(Core_Stream_Uint8_Async_ReadLines(stdout, (line) => this.channel.log(line)));
+    Core_Promise_Orphan(Core_Stream_Uint8_ReadLines_Async(p0.stderr, (line) => this.channel.error(line)));
+    Core_Promise_Orphan(Core_Stream_Uint8_ReadLines_Async(stdout, (line) => this.channel.log(line)));
     this.process_server = p0;
   }
   async onRun(): Promise<void> {
     if (this.process_server !== undefined && this.hotreload_enabled === true) {
       fetch(`http://${DEVSERVERHOST}/server/reload`)
-        .then(() => Core_Utility_Async_Sleep(1000))
+        .then(() => Core_Utility_Sleep_Async(1000))
         .then(() => {
           // a reminder to dev that the server is running
           this.channel.log(`Serving at http://${DEVSERVERHOST}/`);

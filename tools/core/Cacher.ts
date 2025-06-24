@@ -1,13 +1,16 @@
 import { Database } from 'bun:sqlite';
 import { default as xxhash } from 'xxhash-wasm';
-import { Core_Console_Error, Core_Promise_Orphan } from '../../src/lib/ericchase/api.core.js';
 import { BunPlatform_File_Async_ReadBytes } from '../../src/lib/ericchase/api.platform-bun.js';
-import { NodePlatform_Directory_Async_Create, NodePlatform_Path_Async_GetStats, NodePlatform_Path_Join } from '../../src/lib/ericchase/api.platform-node.js';
+import { Core_Console_Error } from '../../src/lib/ericchase/Core_Console_Error.js';
+import { Core_Promise_Orphan } from '../../src/lib/ericchase/Core_Promise_Orphan.js';
+import { NodePlatform_Directory_Create_Async } from '../../src/lib/ericchase/NodePlatform_Directory_Create_Async.js';
+import { NodePlatform_Path_GetStats_Async } from '../../src/lib/ericchase/NodePlatform_Path_GetStats_Async.js';
+import { NodePlatform_Path_Join } from '../../src/lib/ericchase/NodePlatform_Path_Join.js';
 
 // constants
 const { h64Raw } = await xxhash();
 export const cachepath = NodePlatform_Path_Join('cache');
-if ((await NodePlatform_Directory_Async_Create(cachepath)) === false) {
+if ((await NodePlatform_Directory_Create_Async(cachepath)) === false) {
   throw 'Could not create cache database path.';
 }
 export const cachedb = new Database(NodePlatform_Path_Join(cachepath, 'cache.db'), { create: true, strict: true });
@@ -441,7 +444,7 @@ export class FILESTATS {
     return h64Raw(await BunPlatform_File_Async_ReadBytes(path));
   }
   static async GetMTimeMS(path: string): Promise<number> {
-    return (await NodePlatform_Path_Async_GetStats(path)).mtimeMs;
+    return (await NodePlatform_Path_GetStats_Async(path)).mtimeMs;
   }
 }
 

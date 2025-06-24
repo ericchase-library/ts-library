@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { Core_Utility_Debounce, Core_Utility_ImmediateDebounce } from './api.core.js';
+import { Core_Utility_Debounce } from './Core_Utility_Debounce.js';
+import { Core_Utility_ImmediateDebounce } from './Core_Utility_ImmediateDebounce.js';
 
 describe('Utility', () => {
   describe(Core_Utility_Debounce.name, async () => {
@@ -98,6 +99,12 @@ describe('Utility', () => {
     });
   });
   describe(Core_Utility_ImmediateDebounce.name, () => {
+    test('Error', async () => {
+      const fn = Core_Utility_ImmediateDebounce(() => {
+        throw new Error();
+      }, 5);
+      expect(async () => await fn()).toThrow();
+    });
     test('Sync - Consecutive Awaits', async () => {
       let value = 0;
       const fn = Core_Utility_ImmediateDebounce(() => value++, 5);

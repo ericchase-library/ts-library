@@ -1,5 +1,6 @@
 import AdmZip from 'adm-zip';
-import { NodePlatform_Path_Async_GetStats, NodePlatform_Path_Join } from '../../../src/lib/ericchase/api.platform-node.js';
+import { NodePlatform_Path_GetStats_Async } from '../../../src/lib/ericchase/NodePlatform_Path_GetStats_Async.js';
+import { NodePlatform_Path_Join } from '../../../src/lib/ericchase/NodePlatform_Path_Join.js';
 import { Builder } from '../../core/Builder.js';
 import { Logger } from '../../core/Logger.js';
 
@@ -19,7 +20,7 @@ class Class implements Builder.Step {
       const zip_instance = new AdmZip();
       zip_instance.addLocalFolder(this.dir);
       zip_instance.writeZip(this.outpath);
-      const stats = await NodePlatform_Path_Async_GetStats(this.outpath);
+      const stats = await NodePlatform_Path_GetStats_Async(this.outpath);
       if (stats.isFile() === true) {
         this.channel.log(`ZIP: [${stats.size}] ${this.outpath}`);
       }

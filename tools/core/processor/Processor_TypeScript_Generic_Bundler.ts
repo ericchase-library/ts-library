@@ -1,6 +1,13 @@
-import { Core_Array_BinarySearch_InsertionIndex } from '../../../src/lib/ericchase/api.core.js';
 import { BunPlatform_Glob_Match } from '../../../src/lib/ericchase/api.platform-bun.js';
-import { NODE_PATH, NODE_URL, NodePlatform_File_Async_WriteText, NodePlatform_Path_GetDirName, NodePlatform_Path_GetExtension, NodePlatform_Path_GetSegments, NodePlatform_Path_Join, NodePlatform_Path_JoinStandard, NodePlatform_Path_ReplaceExtension } from '../../../src/lib/ericchase/api.platform-node.js';
+import { Core_Array_BinarySearch_InsertionIndex } from '../../../src/lib/ericchase/Core_Array_BinarySearch_InsertionIndex.js';
+import { NODE_PATH, NODE_URL } from '../../../src/lib/ericchase/NodePlatform.js';
+import { NodePlatform_File_WriteText_Async } from '../../../src/lib/ericchase/NodePlatform_File_WriteText_Async.js';
+import { NodePlatform_Path_GetDirName } from '../../../src/lib/ericchase/NodePlatform_Path_GetDirName.js';
+import { NodePlatform_Path_Join } from '../../../src/lib/ericchase/NodePlatform_Path_Join.js';
+import { NodePlatform_Path_ReplaceExtension } from '../../../src/lib/ericchase/NodePlatform_Path_ReplaceExtension.js';
+import { NodePlatform_PathObject } from '../../../src/lib/ericchase/NodePlatform_PathObject.js';
+import { NodePlatform_PathObject_GetExtension } from '../../../src/lib/ericchase/NodePlatform_PathObject_GetExtension.js';
+import { NodePlatform_PathObject_GetName } from '../../../src/lib/ericchase/NodePlatform_PathObject_GetName.js';
 import { Builder } from '../../core/Builder.js';
 import { Logger } from '../../core/Logger.js';
 
@@ -49,7 +56,6 @@ class Class implements Builder.Processor {
     let trigger_reprocess = false;
     for (const file of files) {
       const query = file.src_path;
-      file.iswritable = false;
       if (BunPlatform_Glob_Match(query, `**/*${PATTERN.MODULE}`)) {
         file.iswritable = true;
         file.out_path = NodePlatform_Path_ReplaceExtension(file.out_path, '.js');
@@ -65,6 +71,7 @@ class Class implements Builder.Processor {
         continue;
       }
       if (BunPlatform_Glob_Match(query, `**/*${PATTERN.TS_TSX_JS_JSX}`)) {
+        file.iswritable = false;
         trigger_reprocess = true;
       }
     }
@@ -141,7 +148,7 @@ class Class implements Builder.Processor {
             // handled above
             break;
           default:
-            await NodePlatform_File_Async_WriteText(NodePlatform_Path_Join(Builder.Dir.Out, artifact.path), await artifact.blob.text());
+            await NodePlatform_File_WriteText_Async(NodePlatform_Path_Join(Builder.Dir.Out, artifact.path), await artifact.blob.text());
             break;
         }
       }
@@ -185,7 +192,7 @@ class Class implements Builder.Processor {
             // handled above
             break;
           default:
-            await NodePlatform_File_Async_WriteText(NodePlatform_Path_Join(Builder.Dir.Out, artifact.path), await artifact.blob.text());
+            await NodePlatform_File_WriteText_Async(NodePlatform_Path_Join(Builder.Dir.Out, artifact.path), await artifact.blob.text());
             break;
         }
       }
@@ -312,28 +319,28 @@ async function RemapModuleImports(filepath: string, filetext: string): Promise<s
             throw new Error(error);
           }
           if (resolved_path.startsWith(srcpath)) {
-            // The resolved path must be converted back into a relative path:
-            let relative_path = NODE_PATH.relative(dirpath, resolved_path);
-            let replace_extension_to_js = false;
-            switch (NodePlatform_Path_GetExtension(relative_path)) {
+            // Convert resolved path into relative path
+            let relative_path_object = NodePlatform_PathObject(NODE_PATH.relative(dirpath, resolved_path));
+            // Set path extension to .js if the path is a script
+            switch (NodePlatform_PathObject_GetExtension(relative_path_object)) {
               case '.ts':
               case '.tsx':
               case '.jsx':
-                replace_extension_to_js = true;
+                relative_path_object.update_segment(relative_path_object.segments.length - 1, () => {
+                  return NodePlatform_PathObject_GetName(relative_path_object) + '.js';
+                });
                 break;
             }
-            // If the path is a script, the final extension must be ".js":
-            if (replace_extension_to_js === true) {
-              relative_path = NodePlatform_Path_ReplaceExtension(relative_path, '.js');
+            // Start path with . if needed
+            switch (relative_path_object.segments[0]) {
+              case '.':
+              case '..':
+                break;
+              default:
+                relative_path_object.dot();
             }
-            // Make sure path uses standard slashes and starts with a . if needed.
-            if (['.', '..'].includes(NodePlatform_Path_GetSegments(relative_path)[0])) {
-              relative_path = NodePlatform_Path_JoinStandard(relative_path);
-            } else {
-              // If path doesn't start with "." or "..", prefix with ".".
-              relative_path = NodePlatform_Path_JoinStandard('.', relative_path);
-            }
-            array__bundletext_parts.push(filetext.slice(index__bundletext_parts, import_statement.start), relative_path);
+            // Convert path separators to /
+            array__bundletext_parts.push(filetext.slice(index__bundletext_parts, import_statement.start), relative_path_object.str('/'));
             index__bundletext_parts = import_statement.end;
           }
         }

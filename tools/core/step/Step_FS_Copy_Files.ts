@@ -1,5 +1,7 @@
 import { BunPlatform_File_Async_Copy, BunPlatform_Glob_Ex_Async_Scan } from '../../../src/lib/ericchase/api.platform-bun.js';
-import { NodePlatform_Directory_Async_Create, NodePlatform_Path_Async_GetStats, NodePlatform_Path_Join } from '../../../src/lib/ericchase/api.platform-node.js';
+import { NodePlatform_Directory_Create_Async } from '../../../src/lib/ericchase/NodePlatform_Directory_Create_Async.js';
+import { NodePlatform_Path_GetStats_Async } from '../../../src/lib/ericchase/NodePlatform_Path_GetStats_Async.js';
+import { NodePlatform_Path_Join } from '../../../src/lib/ericchase/NodePlatform_Path_Join.js';
 import { Builder } from '../../core/Builder.js';
 import { FILESTATS } from '../../core/Cacher.js';
 import { Logger } from '../../core/Logger.js';
@@ -31,8 +33,8 @@ class Class implements Builder.Step {
       // same directory, skip
       return;
     }
-    await NodePlatform_Path_Async_GetStats(this.options.from);
-    await NodePlatform_Directory_Async_Create(this.options.to);
+    await NodePlatform_Path_GetStats_Async(this.options.from);
+    await NodePlatform_Directory_Create_Async(this.options.to);
     const set_from = await BunPlatform_Glob_Ex_Async_Scan(this.options.from, this.options.include_patterns, this.options.exclude_patterns);
     const set_to = await BunPlatform_Glob_Ex_Async_Scan(this.options.to, this.options.include_patterns, this.options.exclude_patterns);
     // copy all files that are missing

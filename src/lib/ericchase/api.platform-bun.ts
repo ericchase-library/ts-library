@@ -1,5 +1,7 @@
-import { Core_Stream_Uint8_Async_Compare } from './api.core.js';
-import { NodePlatform_Directory_Async_Create, NodePlatform_Path_GetDirName, NodePlatform_Path_Join } from './api.platform-node.js';
+import { Core_Stream_Uint8_Compare_Async } from './Core_Stream_Uint8_Compare_Async.js';
+import { NodePlatform_Directory_Create_Async } from './NodePlatform_Directory_Create_Async.js';
+import { NodePlatform_Path_GetDirName } from './NodePlatform_Path_GetDirName.js';
+import { NodePlatform_Path_Join } from './NodePlatform_Path_Join.js';
 
 // Exports
 
@@ -8,7 +10,7 @@ export function BunPlatform_Args_Has(arg: string): boolean {
 }
 
 export function BunPlatform_File_Async_Compare(frompath: string, topath: string): Promise<boolean> {
-  return Core_Stream_Uint8_Async_Compare(Bun.file(NodePlatform_Path_Join(frompath)).stream(), Bun.file(NodePlatform_Path_Join(topath)).stream());
+  return Core_Stream_Uint8_Compare_Async(Bun.file(NodePlatform_Path_Join(frompath)).stream(), Bun.file(NodePlatform_Path_Join(topath)).stream());
 }
 
 export async function BunPlatform_File_Async_Copy(frompath: string, topath: string, overwrite = false): Promise<boolean> {
@@ -23,7 +25,18 @@ export async function BunPlatform_File_Async_Copy(frompath: string, topath: stri
 }
 
 export async function BunPlatform_File_Async_Delete(path: string): Promise<boolean> {
-  await Bun.file(NodePlatform_Path_Join(path)).delete();
+  try {
+    await Bun.file(NodePlatform_Path_Join(path)).delete();
+  } catch (error: any) {
+    switch (error.code) {
+      case 'ENOENT':
+        break;
+      // @ts-ignore
+      // biome-ignore lint/suspicious/noFallthroughSwitchClause: we want the fallthrough
+      default:
+        throw error;
+    }
+  }
   return (await Bun.file(NodePlatform_Path_Join(path)).exists()) === false;
 }
 
@@ -51,14 +64,14 @@ export function BunPlatform_File_Async_ReadText(path: string): Promise<string> {
 
 export async function BunPlatform_File_Async_WriteBytes(path: string, bytes: Uint8Array, createpath = true): Promise<number> {
   if (createpath === true) {
-    await NodePlatform_Directory_Async_Create(NodePlatform_Path_GetDirName(NodePlatform_Path_Join(path)));
+    await NodePlatform_Directory_Create_Async(NodePlatform_Path_GetDirName(NodePlatform_Path_Join(path)));
   }
   return Bun.write(NodePlatform_Path_Join(path), bytes);
 }
 
 export async function BunPlatform_File_Async_WriteText(path: string, text: string, createpath = true): Promise<number> {
   if (createpath === true) {
-    await NodePlatform_Directory_Async_Create(NodePlatform_Path_GetDirName(NodePlatform_Path_Join(path)));
+    await NodePlatform_Directory_Create_Async(NodePlatform_Path_GetDirName(NodePlatform_Path_Join(path)));
   }
   return Bun.write(NodePlatform_Path_Join(path), text);
 }
@@ -87,20 +100,17 @@ export async function BunPlatform_Glob_Ex_Async_Scan(path: string, include_patte
 }
 
 export function BunPlatform_Glob_Ex_Match(query: string, include_patterns: string[], exclude_patterns: string[]): boolean {
-  let matched = false;
-  for (const pattern of include_patterns) {
-    if (BunPlatform_Glob_Match(query, pattern) === true) {
-      matched = true;
-      break;
-    }
-  }
   for (const pattern of exclude_patterns) {
     if (BunPlatform_Glob_Match(query, pattern) === true) {
-      matched = false;
-      break;
+      return false;
     }
   }
-  return matched;
+  for (const pattern of include_patterns) {
+    if (BunPlatform_Glob_Match(query, pattern) === true) {
+      return true;
+    }
+  }
+  return false;
 }
 
 export function BunPlatform_Glob_Match(query: string, pattern: string): boolean {

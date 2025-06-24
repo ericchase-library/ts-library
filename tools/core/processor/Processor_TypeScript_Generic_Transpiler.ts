@@ -1,5 +1,6 @@
-import { BunPlatform_Glob_Match } from '../../../src/lib/ericchase/api.platform-bun.js';
-import { NodePlatform_Path_ReplaceExtension } from '../../../src/lib/ericchase/api.platform-node.js';
+import { BunPlatform_Glob_Ex_Match } from '../../../src/lib/ericchase/api.platform-bun.js';
+import { NodePlatform_Path_ReplaceExtension } from '../../../src/lib/ericchase/NodePlatform_Path_ReplaceExtension.js';
+import { NodePlatform_PathObject } from '../../../src/lib/ericchase/NodePlatform_PathObject.js';
 import { Builder } from '../../core/Builder.js';
 import { Logger } from '../../core/Logger.js';
 
@@ -30,27 +31,15 @@ class Class implements Builder.Processor {
   }
   async onAdd(files: Set<Builder.File>): Promise<void> {
     for (const file of files) {
-      let matched = false;
-      for (const pattern of this.include_patterns) {
-        if (BunPlatform_Glob_Match(file.src_path, pattern) === true) {
-          matched = true;
-          break;
-        }
+      const src_path = NodePlatform_PathObject(file.src_path).str('/');
+      if (BunPlatform_Glob_Ex_Match(src_path, this.exclude_patterns, []) === true) {
+        file.iswritable = false;
+        continue;
       }
-      if (matched === true) {
-        for (const pattern of this.exclude_patterns) {
-          if (BunPlatform_Glob_Match(file.src_path, pattern) === true) {
-            matched = false;
-            break;
-          }
-        }
-        if (matched === true) {
-          file.iswritable = true;
-          file.out_path = NodePlatform_Path_ReplaceExtension(file.out_path, '.js');
-          file.addProcessor(this, this.onProcess);
-        } else {
-          file.iswritable = false;
-        }
+      if (BunPlatform_Glob_Ex_Match(src_path, this.include_patterns, []) === true) {
+        file.iswritable = true;
+        file.out_path = NodePlatform_Path_ReplaceExtension(file.out_path, '.js');
+        file.addProcessor(this, this.onProcess);
       }
     }
   }

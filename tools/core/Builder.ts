@@ -1,6 +1,6 @@
 import { Core_Map_GetOrDefault, Core_Type_Utility_Class_Defer } from '../../src/lib/ericchase/api.core.js';
 import { BunPlatform_File_Async_ReadBytes, BunPlatform_File_Async_ReadText, BunPlatform_File_Async_WriteBytes, BunPlatform_File_Async_WriteText, BunPlatform_Glob_AsyncGen_Scan } from '../../src/lib/ericchase/api.platform-bun.js';
-import { NODE_FS, NODE_PATH, NodePlatform_Directory_Watch, NodePlatform_Path_Async_GetStats, NodePlatform_Path_Join, NodePlatform_Shell_Keys, NodePlatform_Shell_StdIn_AddListener, NodePlatform_Shell_StdIn_LockReader, NodePlatform_Shell_StdIn_StartReaderInRawMode } from '../../src/lib/ericchase/api.platform-node.js';
+import { NODE_FS, NODE_PATH, NodePlatform_Directory_Watch, NodePlatform_Path_Async_GetStats, NodePlatform_Path_Join, NodePlatform_Shell_Keys, NodePlatform_Shell_StdIn_AddListener, NodePlatform_Shell_StdIn_LockReader, NodePlatform_Shell_StdIn_StartReaderInRawMode } from '../../src/lib/ericchase/NodePlatform.js';
 import { CACHELOCK, FILESTATS } from './Cacher.js';
 import { AddLoggerOutputDirectory, Logger } from './Logger.js';
 
@@ -348,7 +348,7 @@ async function ProcessNextTransition() {
   }
 }
 
-const set__unprocessed_raw_paths = new Set<string>();
+const set__unprocessed_paths = new Set<string>();
 const set__unprocessed_files_to_add = new Set<Builder.File>();
 const set__unprocessed_files_to_update = new Set<Builder.File>();
 
@@ -375,7 +375,7 @@ async function StartUp() {
     {
       Log(_logs._watching_dir_(Builder.Dir.Src));
       unwatch_source_directory = NodePlatform_Directory_Watch(Builder.Dir.Src, (_, raw_path) => {
-        set__unprocessed_raw_paths.add(raw_path);
+        set__unprocessed_paths.add(raw_path);
         RequestTransition('Process');
       });
     }
@@ -406,7 +406,7 @@ async function StartUp() {
   {
     Log(_logs._scanning_dir_(Builder.Dir.Src));
     for await (const raw_path of BunPlatform_Glob_AsyncGen_Scan(Builder.Dir.Src, '**/*')) {
-      set__unprocessed_raw_paths.add(raw_path);
+      set__unprocessed_paths.add(raw_path);
     }
   }
 
@@ -432,7 +432,7 @@ async function StartUp() {
     }
   }
 
-  // All Processors onStartUp
+  // Processor Modules onStartUp
   for (const processor of array__processor_modules) {
     try {
       Log(_logs._processor_onstartup_(processor.ProcessorName), Builder.VERBOSITY._2_DEBUG);
@@ -477,10 +477,10 @@ async function Process() {
     // Do this before awaiting any async stuff.
     {
       // Copy Unprocessed Paths
-      for (const raw_path of set__unprocessed_raw_paths) {
+      for (const raw_path of set__unprocessed_paths) {
         set__unprocessed_paths.add(raw_path);
       }
-      set__unprocessed_raw_paths.clear();
+      set__unprocessed_paths.clear();
     }
 
     const set__paths_on_disk = new Set<string>();
@@ -541,6 +541,7 @@ async function Process() {
 
   // Process Removed Files
   if (set__files_to_remove.size > 0) {
+    // Processor Modules onRemove
     for (const processor of array__processor_modules) {
       try {
         Log(_logs._processor_onremove_(processor.ProcessorName), Builder.VERBOSITY._2_DEBUG);
@@ -555,9 +556,9 @@ async function Process() {
   // Process Added Files
   if (set__files_to_add.size > 0) {
     for (const file of set__files_to_add) {
-      file.resetBytes();
       set__files_to_update.add(file);
     }
+    // Processor Modules onAdd
     for (const processor of array__processor_modules) {
       try {
         Log(_logs._processor_onadd_(processor.ProcessorName), Builder.VERBOSITY._2_DEBUG);
@@ -565,6 +566,30 @@ async function Process() {
       } catch (error) {
         Err(error, `Unhandled exception in ${processor.ProcessorName} onAdd:`);
         throw new Error();
+      }
+    }
+    // Processor Modules onProcess
+    for (const file of set__files_to_add) {
+      file.resetBytes();
+      for (const { processor, method } of file.$processor_list) {
+        try {
+          Log(_logs._processor_onprocess_(processor.ProcessorName, file.src_path), Builder.VERBOSITY._2_DEBUG);
+          await method.call(processor, file);
+        } catch (error) {
+          Err(error, `Unhandled exception in ${processor.ProcessorName} for "${file.src_path}":`);
+          // throw new Error();
+        }
+      }
+    }
+    // Write Files
+    for (const file of set__files_to_add) {
+      if (file.iswritable === true) {
+        if (file.$data.text !== undefined) {
+          await BunPlatform_File_Async_WriteText(file.out_path, file.$data.text);
+        } else {
+          await BunPlatform_File_Async_WriteBytes(file.out_path, await file.getBytes());
+        }
+        file.ismodified = false;
       }
     }
   }
@@ -656,7 +681,7 @@ async function CleanUp() {
     unwatch_source_directory();
   }
 
-  // All Processors onCleanUp
+  // Processor Modules onCleanUp
   for (const processor of array__processor_modules) {
     try {
       Log(_logs._processor_oncleanup_(processor.ProcessorName), Builder.VERBOSITY._2_DEBUG);
