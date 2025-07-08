@@ -1,5 +1,5 @@
 import { Core_Promise_Orphan } from './Core_Promise_Orphan.js';
-import { Core_Utility_DecodeBytes } from './Core_Utility_DecodeBytes.js';
+import { Core_Utility_Decode_Bytes } from './Core_Utility_Decode_Bytes.js';
 import { Data_Internal_NodePlatform_Shell } from './NodePlatform_Shell.js';
 
 /**
@@ -24,7 +24,7 @@ export function NodePlatform_Shell_StdIn_LockReader(): () => void {
 }
 
 export function NodePlatform_Shell_StdIn_ReaderHandler(bytes: Uint8Array): void {
-  const text = Core_Utility_DecodeBytes(bytes);
+  const text = Core_Utility_Decode_Bytes(bytes);
   for (const listener of SHELL__STDIN__LISTENERSET) {
     Core_Promise_Orphan(listener(bytes, text, () => SHELL__STDIN__LISTENERSET.delete(listener)));
   }

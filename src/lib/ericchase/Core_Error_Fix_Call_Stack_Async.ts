@@ -1,7 +1,7 @@
-import { Core_String_SplitLines } from './Core_String_SplitLines.js';
+import { Core_String_Split_Lines } from './Core_String_Split_Lines.js';
 
 function Clean_Call_Stack(stack = ''): string {
-  const lines = Core_String_SplitLines(stack ?? '');
+  const lines = Core_String_Split_Lines(stack ?? '');
   if (lines[0].trim() === 'Error') {
     lines[0] = 'Fixed Call Stack:';
   }

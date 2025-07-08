@@ -1,7 +1,7 @@
 import { Core_Array_Split } from './Core_Array_Split.js';
-import { Core_JSON_ParseRawString } from './Core_JSON_ParseRawString.js';
+import { Core_JSON_Parse_Raw_String } from './Core_JSON_Parse_Raw_String.js';
 import { Core_String_Split } from './Core_String_Split.js';
-import { Core_String_SplitMultipleSpaces } from './Core_String_SplitMultipleSpaces.js';
+import { Core_String_Split_Multiple_Spaces } from './Core_String_Split_Multiple_Spaces.js';
 
 /**
  * The Core_JSON_ParseRawString(String.raw``)s are to keep bundlers (i.e Bun)
@@ -23,10 +23,10 @@ const SHELL__KEYS_ESC = SHELL__GENERALASCIICODES.ESC;
 
 const SHELL__KEYS = {
   ARROWS: {
-    DOWN: Core_JSON_ParseRawString(String.raw`\u001B[B`),
-    LEFT: Core_JSON_ParseRawString(String.raw`\u001B[D`),
-    RIGHT: Core_JSON_ParseRawString(String.raw`\u001B[C`),
-    UP: Core_JSON_ParseRawString(String.raw`\u001B[A`),
+    DOWN: Core_JSON_Parse_Raw_String(String.raw`\u001B[B`),
+    LEFT: Core_JSON_Parse_Raw_String(String.raw`\u001B[D`),
+    RIGHT: Core_JSON_Parse_Raw_String(String.raw`\u001B[C`),
+    UP: Core_JSON_Parse_Raw_String(String.raw`\u001B[A`),
   },
   GENERAL: {
     BEL: SHELL__GENERALASCIICODES.BEL,
@@ -42,13 +42,13 @@ const SHELL__KEYS = {
     OSC: `${SHELL__KEYS_ESC}]`,
     VT: SHELL__GENERALASCIICODES.VT,
   },
-  SIGINT: Core_JSON_ParseRawString(String.raw`\u0003`), // Kill the currently running task in terminal.
+  SIGINT: Core_JSON_Parse_Raw_String(String.raw`\u0003`), // Kill the currently running task in terminal.
 };
 
 function Create_Ascii_Code_Map(table: string): Record<string, string> {
   const map: Record<string, string> = {};
   for (const [name, code] of Core_Array_Split(Core_String_Split(table.trim(), '|', true), 3)) {
-    map[name.trim()] = Core_JSON_ParseRawString(Core_String_SplitMultipleSpaces(code, true)[0]);
+    map[name.trim()] = Core_JSON_Parse_Raw_String(Core_String_Split_Multiple_Spaces(code, true)[0]);
   }
   return map;
 }
