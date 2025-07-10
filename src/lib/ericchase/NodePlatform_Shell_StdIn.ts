@@ -4,8 +4,9 @@ import { Data_Internal_NodePlatform_Shell } from './NodePlatform_Shell.js';
 
 /**
  * Gotchas:
- * If the stdin stream is switched to utf8 mode, it cannot be switched back to byte
- * mode (need to verify again). Instead, leave it in byte mode, and decode the bytes.
+ * If the stdin stream is switched to utf8 mode, it cannot be switched back to
+ * byte mode (As far as I can tell. Could use some verification.). Instead,
+ * leave it in byte mode and decode the bytes.
  */
 const SHELL__STDIN__LISTENERSET = new Set<(bytes: Uint8Array, text: string, removeSelf: () => boolean) => void | Promise<void>>();
 const SHELL__STDIN__READERLOCKS = new Set<() => void>();

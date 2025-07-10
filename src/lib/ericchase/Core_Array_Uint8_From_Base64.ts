@@ -22,7 +22,7 @@ export function Core_Array_Uint8_From_Base64(b64_str: string): Uint8Array {
       b64_index += 4;
     }
     switch (u8_out.length - u8_offset) {
-      case 2: {
+      case 2:
         for (const byte of new Uint8Array([
           ((0b00111111 & b64_bytes[b64_index]) << 2) | ((0b00110000 & b64_bytes[b64_index + 1]) >> 4), //
           /*                                        */ ((0b00001111 & b64_bytes[b64_index + 1]) << 4) | ((0b00111100 & b64_bytes[b64_index + 2]) >> 2),
@@ -31,8 +31,7 @@ export function Core_Array_Uint8_From_Base64(b64_str: string): Uint8Array {
           ++u8_offset;
         }
         break;
-      }
-      case 1: {
+      case 1:
         for (const byte of new Uint8Array([
           ((0b00111111 & b64_bytes[b64_index]) << 2) | ((0b00110000 & b64_bytes[b64_index + 1]) >> 4), //
         ])) {
@@ -40,7 +39,6 @@ export function Core_Array_Uint8_From_Base64(b64_str: string): Uint8Array {
           ++u8_offset;
         }
         break;
-      }
     }
     return u8_out;
   }

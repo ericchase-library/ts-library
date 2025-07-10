@@ -1,0 +1,4 @@
+[test]
+root = "src"  # Only scan for tests in the src directory
+coverageIgnoreSourcemaps = true  # Don't use sourcemaps for coverage analysis
+coverageSkipTestFiles = true  # Exclude test files from coverage reports
