@@ -21,8 +21,23 @@ export const temp_symboliclink_to_file_path = NODE_PATH.join(temp_dir_path, 'tem
 export const temp_nonexistent_path = NODE_PATH.join(temp_dir_path, 'does_not_exist');
 export const temp_symboliclink_to_nonexistent_path = NODE_PATH.join(temp_dir_path, 'temp_syboliclink_to_nonexistent_file');
 
-export function NodePlatform_SetupTempDirectory() {
+// basename refers to name + ext (if extension exists)
+export const case_dir_basename = 'case_dir';
+export const case_subdir_basename = 'case_subdir';
+export const case_file_basename = 'case_file.txt';
+export const case_nested_subdir_basename = 'case_nested_subdir';
+export const case_nested_file_basename = 'case_nested_file.txt';
+
+export const case_dir_path = NODE_PATH.join(temp_dir_path, case_dir_basename);
+export const case_subdir_path = NODE_PATH.join(case_dir_path, case_subdir_basename);
+export const case_file_path = NODE_PATH.join(case_dir_path, case_file_basename);
+export const case_nested_subdir_path = NODE_PATH.join(case_subdir_path, case_nested_subdir_basename);
+export const case_nested_file_path = NODE_PATH.join(case_subdir_path, case_nested_file_basename);
+
+export async function NodePlatform_SetupTempDirectory_Async() {
   Core_Console_Log('Temp Directory:', temp_dir_path);
+
+  await NodePlatform_Directory_Delete_Async(temp_dir_path, true);
 
   beforeAll(async () => {
     await NodePlatform_Directory_Create_Async(temp_dir_path, true);

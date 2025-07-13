@@ -1,65 +1,146 @@
 import { afterEach, describe, expect, test } from 'bun:test';
-import { Core_Console_Error } from '../../Core_Console_Error.js';
+import { Core_Error_Fix_Call_Stack_Async } from '../../Core_Error_Fix_Call_Stack_Async.js';
 import { NODE_PATH } from '../../NodePlatform.js';
 import { NodePlatform_Directory_Create_Async } from '../../NodePlatform_Directory_Create_Async.js';
 import { NodePlatform_Directory_Delete_Async } from '../../NodePlatform_Directory_Delete_Async.js';
-import { NodePlatform_SetupTempDirectory, temp_dir_path, temp_file_path } from '../test-setup.js';
+import { NodePlatform_File_Read_Text_Async } from '../../NodePlatform_File_Read_Text_Async.js';
+import { NodePlatform_File_Write_Text_Async } from '../../NodePlatform_File_Write_Text_Async.js';
+import { NodePlatform_Path_Is_Directory_Async } from '../../NodePlatform_Path_Is_Directory_Async.js';
+import { case_dir_path, case_file_path, case_subdir_path, NodePlatform_SetupTempDirectory_Async, temp_dir_path } from '../test-setup.js';
 
-NodePlatform_SetupTempDirectory();
+await Core_Error_Fix_Call_Stack_Async(Error().stack, NodePlatform_SetupTempDirectory_Async());
+
+/**
+ * Would need some complex setup to handle permission cases. Until then, the
+ * fs.mkdir call will always succeed, and coverage will not be 100%.
+ */
 
 describe(NodePlatform_Directory_Create_Async.name, () => {
-  const case_dir_path = NODE_PATH.join(temp_dir_path, 'case_dir');
-  const case_nested_dir_path = NODE_PATH.join(temp_dir_path, 'case_dir', 'nested_dir');
   afterEach(async () => {
     await NodePlatform_Directory_Delete_Async(case_dir_path, true);
   });
 
-  describe('Error Cases', () => {
-    test('Throws When Creating Nested Directory Without Recursive', async () => {
+  //## Basic Cases
+
+  test('Should return `true` for non-existent path and existent parent path when `recursive` is `false`.', async () => {
+    expect(await NodePlatform_Path_Is_Directory_Async(temp_dir_path)).toBeTrue();
+    expect(await NodePlatform_Path_Is_Directory_Async(case_dir_path)).toBeFalse();
+
+    expect(await NodePlatform_Directory_Create_Async(case_dir_path, false)).toBeTrue();
+  });
+  test('Should return `true` for non-existent path and existent parent path when `recursive` is `true`.', async () => {
+    expect(await NodePlatform_Path_Is_Directory_Async(temp_dir_path)).toBeTrue();
+    expect(await NodePlatform_Path_Is_Directory_Async(case_dir_path)).toBeFalse();
+
+    expect(await NodePlatform_Directory_Create_Async(case_dir_path, true)).toBeTrue();
+  });
+
+  test('Should throw `ENOENT` for non-existent path and non-existent parent path when `recursive` is `false`.', async () => {
+    expect(await NodePlatform_Path_Is_Directory_Async(case_dir_path)).toBeFalse();
+    expect(await NodePlatform_Path_Is_Directory_Async(case_subdir_path)).toBeFalse();
+
+    try {
+      await NodePlatform_Directory_Create_Async(case_subdir_path, false);
+      throw new Error('FAIL-CASE');
+    } catch (error: any) {
+      expect(error.message).toStartWith('ENOENT: no such file or directory');
+      expect(error.code).toBe('ENOENT');
+    }
+  });
+  test('Should return `true` for non-existent path and non-existent parent path when `recursive` is `true`.', async () => {
+    expect(await NodePlatform_Path_Is_Directory_Async(case_dir_path)).toBeFalse();
+    expect(await NodePlatform_Path_Is_Directory_Async(case_subdir_path)).toBeFalse();
+
+    expect(await NodePlatform_Directory_Create_Async(case_subdir_path, true)).toBeTrue();
+  });
+
+  test('Should return `true` if directory already exists when `recursive` is `false`.', async () => {
+    expect(await NodePlatform_Directory_Create_Async(case_dir_path, false)).toBeTrue();
+
+    expect(await NodePlatform_Directory_Create_Async(case_dir_path, false)).toBeTrue();
+  });
+  test('Should return `true` if directory already exists when `recursive` is `true`.', async () => {
+    expect(await NodePlatform_Directory_Create_Async(case_dir_path, true)).toBeTrue();
+
+    expect(await NodePlatform_Directory_Create_Async(case_dir_path, true)).toBeTrue();
+  });
+
+  test('Should throw `EEXIST` for file when `recursive` is `false`.', async () => {
+    await NodePlatform_File_Write_Text_Async(case_file_path, 'ABC');
+    expect(await NodePlatform_File_Read_Text_Async(case_file_path)).toBe('ABC');
+
+    try {
+      await NodePlatform_Directory_Create_Async(case_file_path, false);
+      throw new Error('FAIL-CASE');
+    } catch (error: any) {
+      expect(error.message).toStartWith('EEXIST: file already exists');
+      expect(error.code).toBe('EEXIST');
+    }
+  });
+  test('Should throw `EEXIST` for file when `recursive` is `true`.', async () => {
+    await NodePlatform_File_Write_Text_Async(case_file_path, 'ABC');
+    expect(await NodePlatform_File_Read_Text_Async(case_file_path)).toBe('ABC');
+
+    try {
+      await NodePlatform_Directory_Create_Async(case_file_path, true);
+      throw new Error('FAIL-CASE');
+    } catch (error: any) {
+      expect(error.message).toStartWith('EEXIST: file already exists');
+      expect(error.code).toBe('EEXIST');
+    }
+  });
+
+  //## Edge Cases
+
+  if (process.platform === 'win32') {
+    test('On win32, should throw `ENOENT` if a parent path segment is a file when `recursive` is `false`.', async () => {
+      await NodePlatform_File_Write_Text_Async(case_file_path, 'ABC');
+      expect(await NodePlatform_File_Read_Text_Async(case_file_path)).toBe('ABC');
+
       try {
-        await NodePlatform_Directory_Create_Async(case_nested_dir_path, false);
+        await NodePlatform_Directory_Create_Async(NODE_PATH.join(case_file_path, 'subdir'), false);
         throw new Error('FAIL-CASE');
       } catch (error: any) {
         expect(error.message).toStartWith('ENOENT: no such file or directory');
         expect(error.code).toBe('ENOENT');
       }
     });
-    test('Throws When A Path Segment Is A File', async () => {
+    test('On win32, should throw `ENOENT` if a parent path segment is a file when `recursive` is `false`.', async () => {
+      await NodePlatform_File_Write_Text_Async(case_file_path, 'ABC');
+      expect(await NodePlatform_File_Read_Text_Async(case_file_path)).toBe('ABC');
+
       try {
-        await NodePlatform_Directory_Create_Async(NODE_PATH.join(temp_file_path, 'nested_dir'), true);
+        await NodePlatform_Directory_Create_Async(NODE_PATH.join(case_file_path, 'subdir'), true);
         throw new Error('FAIL-CASE');
       } catch (error: any) {
-        switch (error.code) {
-          /** Seems to be the code of choice for Windows. */
-          case 'ENOENT':
-            expect(error.message).toStartWith('ENOENT: no such file or directory');
-            expect(error.code).toBe('ENOENT');
-            break;
-          /** Seems to be the code of choice for Posix. */
-          case 'ENOTDIR':
-            expect(error.message).toStartWith('ENOTDIR: not a directory');
-            expect(error.code).toBe('ENOTDIR');
-            break;
-          /** If you find yourself here, then we need a case for your particular system. */
-          default:
-            Core_Console_Error(error);
-            expect(false).toBeTrue();
-            break;
-        }
+        expect(error.message).toStartWith('ENOENT: no such file or directory');
+        expect(error.code).toBe('ENOENT');
       }
     });
-  });
+  } else {
+    test('On posix, should throw `ENOTDIR` if a parent path segment is a file when `recursive` is `false`.', async () => {
+      await NodePlatform_File_Write_Text_Async(case_file_path, 'ABC');
+      expect(await NodePlatform_File_Read_Text_Async(case_file_path)).toBe('ABC');
 
-  test('Create Directory', async () => {
-    expect(await NodePlatform_Directory_Create_Async(case_dir_path, false)).toBeTrue();
-  });
-  test('Create Nested Directory', async () => {
-    expect(await NodePlatform_Directory_Create_Async(case_nested_dir_path, true)).toBeTrue();
-  });
-  test('Do Nothing If Directory Already Exists', async () => {
-    expect(await NodePlatform_Directory_Create_Async(case_dir_path, false)).toBeTrue();
-    expect(await NodePlatform_Directory_Create_Async(case_dir_path, false)).toBeTrue();
-    expect(await NodePlatform_Directory_Create_Async(case_nested_dir_path, true)).toBeTrue();
-    expect(await NodePlatform_Directory_Create_Async(case_nested_dir_path, true)).toBeTrue();
-  });
+      try {
+        await NodePlatform_Directory_Create_Async(NODE_PATH.join(case_file_path, 'subdir'), false);
+        throw new Error('FAIL-CASE');
+      } catch (error: any) {
+        expect(error.message).toStartWith('ENOTDIR: not a directory');
+        expect(error.code).toBe('ENOTDIR');
+      }
+    });
+    test('On posix, should throw `ENOTDIR` if a parent path segment is a file when `recursive` is `false`.', async () => {
+      await NodePlatform_File_Write_Text_Async(case_file_path, 'ABC');
+      expect(await NodePlatform_File_Read_Text_Async(case_file_path)).toBe('ABC');
+
+      try {
+        await NodePlatform_Directory_Create_Async(NODE_PATH.join(case_file_path, 'subdir'), true);
+        throw new Error('FAIL-CASE');
+      } catch (error: any) {
+        expect(error.message).toStartWith('ENOTDIR: not a directory');
+        expect(error.code).toBe('ENOTDIR');
+      }
+    });
+  }
 });

@@ -12,9 +12,10 @@ export async function NodePlatform_Directory_ReadDir_Async(path: string, recursi
       }),
     );
   } catch (error: any) {
-    switch (error.code) {
-      default:
-        throw error;
-    }
+    throw error;
+    // switch (error.code) {
+    //   default:
+    //     throw error;
+    // }
   }
 }

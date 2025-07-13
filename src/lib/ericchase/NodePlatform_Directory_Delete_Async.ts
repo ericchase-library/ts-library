@@ -4,12 +4,17 @@ import { NODE_FS, NODE_PATH } from './NodePlatform.js';
 export async function NodePlatform_Directory_Delete_Async(path: string, recursive = false): Promise<boolean> {
   path = NODE_PATH.normalize(path);
 
+  // check if path exists
   try {
-    await NODE_FS.promises.access(path, NODE_FS.constants.F_OK);
-  } catch (error) {
-    /** If `path` is NOT accessible, we need not do anything else. */
+    await Core_Error_Fix_Call_Stack_Async(Error().stack, NODE_FS.promises.stat(path));
+    // exists, continue
+  } catch {
+    // does not exist, deletion not necessary
     return true;
   }
+
+  // check if path is a directory
+  await Core_Error_Fix_Call_Stack_Async(Error().stack, NODE_FS.promises.readdir(path));
 
   if (recursive === false) {
     await Core_Error_Fix_Call_Stack_Async(Error().stack, NODE_FS.promises.rmdir(path));
@@ -17,12 +22,14 @@ export async function NodePlatform_Directory_Delete_Async(path: string, recursiv
     await Core_Error_Fix_Call_Stack_Async(Error().stack, NODE_FS.promises.rm(path, { recursive: true, force: true }));
   }
 
+  // check if path exists
   try {
-    await NODE_FS.promises.access(path, NODE_FS.constants.F_OK);
-    /** If `path` is accessible, deletion failed. */
+    await Core_Error_Fix_Call_Stack_Async(Error().stack, NODE_FS.promises.stat(path));
+    // exists, deletion failed
     return false;
-  } catch (error) {
-    /** If `path` is NOT accessible, deletion succeeded. */
-    return true;
+  } catch {
+    // does not exist, deletion succeeded
   }
+
+  return true;
 }

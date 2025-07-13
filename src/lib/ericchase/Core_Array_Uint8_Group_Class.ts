@@ -1,4 +1,4 @@
-export type Type_Core_Array_Uint8_Class_Group = Class_Core_Array_Uint8_Group_Class;
+export type Type_Core_Array_Uint8_Group_Class = Class_Core_Array_Uint8_Group_Class;
 
 export class Class_Core_Array_Uint8_Group_Class {
   arrays = new Array<Uint8Array>();

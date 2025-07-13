@@ -1,20 +1,20 @@
-import { Core_Utility_Defer_Class } from './Core_Utility_Defer_Class.js';
+import { Core_Promise_Deferred_Class } from './Core_Promise_Deferred_Class.js';
 
 export function Core_Utility_Debounce<T extends (...args: any[]) => Promise<any> | any>(fn: T, delay_ms: number): (...args: Parameters<T>) => Promise<void> {
   /** debounced functions return nothing when called; by design */
-  let defer = Core_Utility_Defer_Class();
+  let deferred = Core_Promise_Deferred_Class();
   let timeout: ReturnType<typeof setTimeout>;
   return (...args: Parameters<T>) => {
     clearTimeout(timeout);
     timeout = setTimeout(async () => {
       try {
         await fn(...args);
-        defer.resolve();
+        deferred.resolve();
       } catch (error) {
-        defer.reject(error);
+        deferred.reject(error);
       }
-      defer = Core_Utility_Defer_Class();
+      deferred = Core_Promise_Deferred_Class();
     }, delay_ms);
-    return defer.promise;
+    return deferred.promise;
   };
 }

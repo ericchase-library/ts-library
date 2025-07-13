@@ -2,9 +2,9 @@ import { describe, expect, test } from 'bun:test';
 import { NodePlatform_File_Append_Bytes_Async } from '../../NodePlatform_File_Append_Bytes_Async.js';
 import { NodePlatform_File_Read_Bytes_Async } from '../../NodePlatform_File_Read_Bytes_Async.js';
 import { NodePlatform_File_Write_Bytes_Async } from '../../NodePlatform_File_Write_Bytes_Async.js';
-import { NodePlatform_SetupTempDirectory, temp_dir_path, temp_file_path } from '../test-setup.js';
+import { NodePlatform_SetupTempDirectory_Async, temp_dir_path, temp_file_path } from '../test-setup.js';
 
-NodePlatform_SetupTempDirectory();
+await NodePlatform_SetupTempDirectory_Async();
 
 describe(NodePlatform_File_Append_Bytes_Async.name, () => {
   describe('Error Cases', () => {
