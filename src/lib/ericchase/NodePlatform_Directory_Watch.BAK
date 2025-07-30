@@ -1,0 +1,131 @@
+const fs = require('fs');
+const path = require('path');
+const EventEmitter = require('events');
+
+class FileWatcher extends EventEmitter {
+  #watcher = null;
+  #snapshot = new Map();
+  #rootDir;
+  #pendingScan = false;
+  #debounceTimeout = null;
+
+  constructor(rootDir, options = {}) {
+    super();
+    this.#rootDir = path.resolve(rootDir);
+    this.debounceMs = options.debounceMs ?? 100;
+    this.filter = options.filter;
+  }
+
+  async start() {
+    if (this.#watcher) {
+      throw new Error('Watcher already started');
+    }
+    this.#snapshot = await buildSnapshot(this.#rootDir, this.filter);
+    this.#watcher = fs.watch(this.#rootDir, { recursive: true }, () => this.#scheduleScan());
+    this.emit('ready');
+  }
+
+  async stop() {
+    if (!this.#watcher) {
+      return;
+    }
+    this.#watcher.close();
+    this.#watcher = null;
+    if (this.#debounceTimeout) {
+      clearTimeout(this.#debounceTimeout);
+    }
+  }
+
+  #scheduleScan() {
+    if (this.#pendingScan) {
+      return;
+    }
+    this.#pendingScan = true;
+    if (this.#debounceTimeout) {
+      clearTimeout(this.#debounceTimeout);
+    }
+    this.#debounceTimeout = setTimeout(() => this.#performScan(), this.debounceMs);
+  }
+
+  async #performScan() {
+    this.#pendingScan = false;
+    const nextSnapshot = await buildSnapshot(this.#rootDir, this.filter);
+    const diff = diffSnapshots(this.#snapshot, nextSnapshot);
+    this.#snapshot = nextSnapshot;
+    this.#emitDiff(diff);
+  }
+
+  #emitDiff({ added, removed, changed }) {
+    if (added.length) {
+      this.emit('added', added);
+    }
+    if (removed.length) {
+      this.emit('removed', removed);
+    }
+    if (changed.length) {
+      this.emit('changed', changed);
+    }
+    if (added.length || removed.length || changed.length) {
+      this.emit('all', { added, removed, changed });
+    }
+  }
+}
+
+async function* walkDir(dir) {
+  let entries;
+  try {
+    entries = await fs.promises.readdir(dir, { withFileTypes: true });
+  } catch {
+    return;
+  }
+  for (const entry of entries) {
+    const fullPath = path.join(dir, entry.name);
+    if (entry.isSymbolicLink()) {
+      continue;
+    }
+    if (entry.isDirectory()) {
+      yield* walkDir(fullPath);
+    } else if (entry.isFile()) {
+      yield fullPath;
+    }
+  }
+}
+
+async function buildSnapshot(rootDir, filter) {
+  const snapshot = new Map();
+  for await (const filePath of walkDir(rootDir)) {
+    if (filter && !filter(filePath)) {
+      continue;
+    }
+    try {
+      const stat = await fs.promises.stat(filePath);
+      snapshot.set(filePath, { mtimeMs: stat.mtimeMs, size: stat.size });
+    } catch {}
+  }
+  return snapshot;
+}
+
+function diffSnapshots(prev, next) {
+  const added = [];
+  const removed = [];
+  const changed = [];
+
+  for (const [file, meta] of next) {
+    const oldMeta = prev.get(file);
+    if (!oldMeta) {
+      added.push(file);
+    } else if (oldMeta.mtimeMs !== meta.mtimeMs || oldMeta.size !== meta.size) {
+      changed.push(file);
+    }
+  }
+
+  for (const file of prev.keys()) {
+    if (!next.has(file)) {
+      removed.push(file);
+    }
+  }
+
+  return { added, removed, changed };
+}
+
+module.exports = FileWatcher;

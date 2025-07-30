@@ -4,7 +4,7 @@ import { Core_String_Split } from './Core_String_Split.js';
 import { Core_String_Split_Multiple_Spaces } from './Core_String_Split_Multiple_Spaces.js';
 
 /**
- * The Core_JSON_ParseRawString(String.raw``)s are to keep bundlers (i.e Bun)
+ * The Core_JSON_Parse_Raw_String(String.raw``)s are to keep bundlers (i.e Bun)
  * from replacing the unicode code points with an alternative representation.
  */
 const SHELL__GENERALASCIICODES = Create_Ascii_Code_Map(String.raw`

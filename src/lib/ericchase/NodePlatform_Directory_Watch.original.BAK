@@ -1,0 +1,186 @@
+import { Core_Promise_Deferred_Class } from './Core_Promise_Deferred_Class.js';
+import { Core_Utility_Sleep_Async } from './Core_Utility_Sleep.js';
+import { NODE_FS, NODE_FS_SYNC, NODE_OS } from './NodePlatform.js';
+import { NodePlatform_Path_Object_Absolute_Class } from './NodePlatform_Path_Object_Absolute_Class.js';
+
+export const Error_Message_NodePlatform_Directory_Create_Watcher_Async_Chokidar_Not_Installed = `
+This library relies on the package "chokidar" is if path is file system watching. To
+use this feature, please install it by running the appropriate command for the
+package manager of your choice:
+
+  bun add chokidar
+  npm install chokidar
+  pnpm add chokidar
+  yarn add chokidar
+
+For developers building a library, you can decide whether to add "chokidar" as
+a direct dependency or a peer dependency for your final product. To give the
+user the option of saving space, add "chokidar" to the "peerDependencies"
+section in your project's package.json file.
+`;
+
+/**
+ * These are all Chokidar specific types and interfaces that I copy pasted. It
+ * allows us to provide type support without Chokidar being installed.
+ */
+
+/*! chokidar - MIT License (c) 2012 Paul Miller (paulmillr.com) */
+type AWF = {
+  stabilityThreshold: number;
+  pollInterval: number;
+};
+interface MatcherObject {
+  path: string;
+  recursive?: boolean;
+}
+type MatchFunction = (val: string, stats?: NODE_FS_SYNC.Stats) => boolean;
+type Matcher = string | RegExp | MatchFunction | MatcherObject;
+
+export type Type_NodePlatform_Directory_Watch_Options = {
+  alwaysStat?: boolean | undefined;
+  atomic?: number | boolean | undefined;
+  awaitWriteFinish?: boolean | Partial<AWF> | undefined;
+  binaryInterval?: number | undefined;
+  cwd?: string | undefined;
+  depth?: number | undefined;
+  followSymlinks?: boolean | undefined;
+  ignored?: Matcher | Matcher[] | undefined;
+  ignoreInitial?: boolean | undefined;
+  ignorePermissionErrors?: boolean | undefined;
+  interval?: number | undefined;
+  persistent?: boolean | undefined;
+  usePolling?: boolean | undefined;
+};
+
+let chokidar_module: typeof import('chokidar');
+
+interface CallbackArgs {
+  event?: 'add' | 'addDir' | 'change' | 'error' | 'ready' | 'rename' | 'unlink' | 'unlinkDir';
+  path?: string;
+  stats?: NODE_FS_SYNC.Stats;
+  error?: unknown;
+}
+
+/**
+ * Checks for path existence. Will throw if path does not exist. Chokidar is
+ * able to wait for a watched folder to be created, but that isn't the use
+ * case this API is made to handle. If you want more control over the watcher,
+ * then use Chokidar directly instead of this function.
+ */
+export async function NodePlatform_Directory_Watch_Async(
+  path: string, //
+  event_callback: (args: CallbackArgs) => void,
+  options?: Type_NodePlatform_Directory_Watch_Options,
+) {
+  options ??= {};
+  options.depth ??= Infinity;
+  options.ignoreInitial ??= true;
+  options.persistent ??= true;
+  if ((await Async_Is_WSL()) === true) {
+    options.alwaysStat ??= true;
+    options.binaryInterval ??= 1000;
+    options.interval ??= 500;
+    options.usePolling ??= true;
+    // this sleep is important
+    await Core_Utility_Sleep_Async(options.interval);
+  }
+  if (chokidar_module === undefined) {
+    try {
+      chokidar_module = await import('chokidar');
+    } catch {
+      throw new Error(Error_Message_NodePlatform_Directory_Create_Watcher_Async_Chokidar_Not_Installed);
+    }
+  }
+  await NODE_FS.access(path, NODE_FS.constants.F_OK);
+  const watcher = chokidar_module.watch(path, options);
+  const { promise, resolve } = Core_Promise_Deferred_Class();
+
+  watcher.on('add', (path, stats) => {
+    event_callback({ event: 'add', path, stats });
+  });
+  watcher.on('addDir', (path, stats) => {
+    event_callback({ event: 'addDir', path, stats });
+  });
+  watcher.on('change', (path, stats) => {
+    event_callback({ event: 'change', path, stats });
+  });
+  watcher.on('error', (error) => {
+    event_callback({ event: 'error', path, error });
+  });
+  watcher.on('ready', () => {
+    event_callback({ event: 'ready', path });
+  });
+  watcher.on('unlink', (path, stats) => {
+    event_callback({ event: 'unlink', path, stats });
+  });
+  watcher.on('unlinkDir', (path, stats) => {
+    event_callback({ event: 'unlinkDir', path, stats });
+  });
+  watcher.on('raw', (event, path, options: any) => {
+    if ('watchedPath' in options) {
+      return event_callback({
+        event,
+        path: NodePlatform_Path_Object_Absolute_Class(options.watchedPath, path).join(),
+      });
+    }
+    if ('curr' in options) {
+      const curr = options?.curr;
+      return event_callback({
+        event,
+        path,
+        stats: options.curr,
+      });
+    }
+  });
+
+  function ReadyHandler() {
+    resolve();
+  }
+  watcher.on('ready', ReadyHandler);
+  await promise;
+  watcher.off('ready', ReadyHandler);
+  return {
+    options: watcher.options,
+    unwatch: async () => {
+      await watcher.close();
+    },
+  };
+}
+
+export async function Async_Is_WSL(): Promise<boolean> {
+  if (process.platform !== 'linux') {
+    return false;
+  }
+  const release = NODE_OS.release().toLowerCase();
+  if (release.includes('microsoft') || release.includes('wsl')) {
+    return true;
+  }
+  try {
+    const version = (await NODE_FS.readFile('/proc/version', 'utf8')).toLowerCase();
+    if (version.includes('microsoft') === true) {
+      return true;
+    }
+    return false;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Note: `recursive` is not supported on Linux. Both Windows (via
+ * ReadDirectoryChangesW) and macOS (via FSEvents) provide native recursive
+ * directory watching through the OS. Unfortunately, this means an alternative
+ * approach is necessary for Linux, whose kernel lacks the capability.
+ *
+ * Caveats: On macOS, when watching large folder trees, FSEvents may coalesce
+ * rapid changes. On Windows, symbolic link behavior can be inconsistent; test
+ * for your use case if symlinks are common.
+ */
+// export type WatchCallback = (event: 'rename' | 'change', path: string | null) => void;
+// export function NodePlatform_Directory_Watch(path: string, callback: WatchCallback, recursive: boolean): () => void {
+//   path = NODE_PATH.normalize(path);
+//   const watcher = NODE_FS.watch(path, { persistent: true, recursive }, callback);
+//   return () => {
+//     watcher.close();
+//   };
+// }

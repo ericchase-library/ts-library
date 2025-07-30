@@ -1,15 +1,16 @@
 {
   "dependencies": {
-    "@types/lodash": "^4.17.17",
-    "lodash": "^4.17.21"
+    "@types/lodash": "^4.17.20",
+    "lodash": "^4.17.21",
+    "prettier": "^3.6.2"
   },
   "devDependencies": {
     "@types/adm-zip": "^0.5.7",
-    "@types/bun": "^1.2.15",
-    "@types/chrome": "^0.0.326",
-    "@types/node": "^22.15.30",
+    "@types/bun": "^1.2.19",
+    "@types/chrome": "^0.1.1",
+    "@types/node": "^24.1.0",
     "adm-zip": "^0.5.16",
-    "prettier": "^3.5.3",
+    "chokidar": "^4.0.3",
     "xxhash-wasm": "^1.1.0"
   },
   "scripts": {

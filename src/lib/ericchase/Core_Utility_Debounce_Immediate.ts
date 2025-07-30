@@ -1,24 +1,28 @@
 import { Core_Promise_Deferred_Class } from './Core_Promise_Deferred_Class.js';
 
 export function Core_Utility_Debounce_Immediate<T extends (...args: any[]) => Promise<any> | any>(fn: T, delay_ms: number): (...args: Parameters<T>) => Promise<void> {
-  /** aka leading edge debounce */
-  /** debounced functions return nothing when called; by design */
   let deferred = Core_Promise_Deferred_Class();
   let timeout: ReturnType<typeof setTimeout> | undefined;
+  async function cb(...args: Parameters<T>) {
+    try {
+      await fn(...args);
+      deferred.resolve();
+    } catch (error) {
+      deferred.reject(error);
+    }
+  }
   return (...args: Parameters<T>) => {
     if (timeout === undefined) {
-      (async () => {
-        await fn(...args);
-        deferred.resolve();
-      })().catch((error) => {
-        deferred.reject(error);
-      });
+      cb(...args);
     }
     clearTimeout(timeout);
     timeout = setTimeout(() => {
-      timeout = undefined;
       deferred = Core_Promise_Deferred_Class();
+      timeout = undefined;
     }, delay_ms);
     return deferred.promise;
   };
 }
+
+/** aka leading edge debounce */
+/** debounced functions return nothing when called; by design */

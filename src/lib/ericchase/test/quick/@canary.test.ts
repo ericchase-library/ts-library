@@ -10,11 +10,3 @@ describe('Canary', () => {
     }).toThrowError();
   });
 });
-
-// describe('Error Cases', () => {
-//   if (process.platform === 'win32') {
-//     describe('Win32', () => {});
-//   } else {
-//     describe('Posix', () => {});
-//   }
-// });
