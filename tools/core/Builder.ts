@@ -16,6 +16,7 @@ await AddLoggerOutputDirectory('cache');
 namespace _errors {
   export const _dependency_cycle_ = (p0: string, p1: string) => `Dependency Cycle: Between upstream "${p0}" and downstream "${p1}"!`;
   export const _dependency_cycle_self_ = (p0: string) => `Dependency Cycle: "${p0}" - A file cannot depend on itself!`;
+  export const _path_does_not_exist_ = (p0: string) => `Path "${p0}" does not exist!`;
   export const _upstream_does_not_exist_ = (p0: string) => `Upstream path "${p0}" does not exist!`;
   export const _upstream_not_in_src_ = (p0: string) => `Upstream path "${p0}" must reside in src directory!`;
 }
@@ -144,7 +145,7 @@ export namespace Builder {
           if (text !== undefined) {
             this.$data.text = text;
           } else {
-            Err(error, `path '${this.src_path}' does not exist`);
+            Err(error, _errors._path_does_not_exist_(this.src_path));
             throw new Error();
           }
         } else {
@@ -277,8 +278,6 @@ let unwatch_source_directory: () => void;
 let unlock_stdin_reader: () => void;
 
 async function Init() {
-  Log('Init');
-
   // Secure Locks
   {
     FILESTATS.LockTable();
@@ -344,15 +343,12 @@ async function Async_SetupWatcher() {
   unwatch_source_directory?.();
   unwatch_source_directory = await Async_Cacher_Watch_Directory(Builder.Dir.Src, 250, 2_000, async (added, deleted, modified) => {
     for (const path of added) {
-      console.log({ added: path });
       set__added_paths.add(path);
     }
     for (const path of deleted) {
-      console.log({ deleted: path });
       set__deleted_paths.add(path);
     }
     for (const path of modified) {
-      console.log({ modified: path });
       set__modified_paths.add(path);
     }
     if (set__added_paths.size > 0 || set__deleted_paths.size > 0 || set__modified_paths.size > 0) {
@@ -402,12 +398,6 @@ async function Async_StartUp() {
 }
 
 async function Async_Process() {
-  Log('Process');
-
-  // if (array__processor_modules.length === 0) {
-  //   return;
-  // }
-
   Log(_logs._phase_begin_('Process'));
 
   const temp__deleted_paths = new Set<string>(set__deleted_paths);
@@ -429,7 +419,7 @@ async function Async_Process() {
       if (file !== undefined) {
         set__files_to_remove.add(file);
       } else {
-        Log(`path '${path}' not found`);
+        Err(new Error(_errors._path_does_not_exist_(path)), _errors._path_does_not_exist_(path));
       }
     }
     if (set__files_to_remove.size > 0) {
@@ -510,7 +500,7 @@ async function Async_Process() {
         Log(_logs._file_updated_(path));
         set__files_to_update.add(file);
       } else {
-        Log(`could not find file for path '${path}'`);
+        Err(new Error(_errors._path_does_not_exist_(path)), _errors._path_does_not_exist_(path));
       }
     }
     if (set__files_to_update.size > 0) {
@@ -530,7 +520,6 @@ async function Async_Process() {
         file.resetBytes();
         set__unprocessed_files.add(file);
         for (const downstream_file of file.getDownstreamFiles()) {
-          Log(`added ${downstream_file.src_path} to unprocessed file set`);
           downstream_file.resetBytes();
           set__unprocessed_files.add(downstream_file);
           set__files_to_update.add(downstream_file);
@@ -554,7 +543,6 @@ async function Async_Process() {
                 // throw new Error();
               }
             }
-            Log(`done processing '${file.src_path}'`);
             set__unprocessed_files.delete(file);
           });
         }
@@ -588,18 +576,15 @@ async function Async_Process() {
     }
   }
 
-  Log(_logs._phase_end_('Process'));
-  _channel.newLine();
-
   if (set__added_paths.size > 0 || set__deleted_paths.size > 0 || set__modified_paths.size > 0) {
-    Log(`${set__added_paths.size} ${set__deleted_paths.size} ${set__modified_paths.size}`);
-    Log('chained process call');
     await Async_Process();
+  } else {
+    Log(_logs._phase_end_('Process'));
+    _channel.newLine();
   }
 }
 
 async function Async_CleanUp() {
-  Log('CleanUp');
   Log(_logs._phase_begin_('CleanUp'));
 
   unwatch_source_directory?.();
