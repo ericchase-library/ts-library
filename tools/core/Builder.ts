@@ -289,6 +289,7 @@ async function Init() {
   {
     FILESTATS.LockTable();
     CACHELOCK.TryLockEach(['Build', 'Format']);
+    FILESTATS.RemoveAllStats();
   }
 
   // Setup Stdin Reader
@@ -708,22 +709,24 @@ function GetChildrenPIDs(pid: number) {
 }
 
 async function KillChildren() {
-  try {
-    const pids = GetChildrenPIDs(process.pid);
-    for (const pid of pids) {
-      pids.push(...GetChildrenPIDs(pid));
-    }
-    const tasks: Promise<string>[] = [];
-    for (const pid of pids) {
-      tasks.push(KillProcess(pid));
-    }
-    for (const task of await Promise.allSettled(tasks)) {
-      if (task.status === 'rejected') {
-        Core_Console_Error(task.reason);
+  if (process.platform !== 'win32') {
+    try {
+      const pids = GetChildrenPIDs(process.pid);
+      for (const pid of pids) {
+        pids.push(...GetChildrenPIDs(pid));
       }
+      const tasks: Promise<string>[] = [];
+      for (const pid of pids) {
+        tasks.push(KillProcess(pid));
+      }
+      for (const task of await Promise.allSettled(tasks)) {
+        if (task.status === 'rejected') {
+          Core_Console_Error(task.reason);
+        }
+      }
+    } catch (error) {
+      Core_Console_Error(error);
     }
-  } catch (error) {
-    Core_Console_Error(error);
   }
 }
 
