@@ -155,10 +155,10 @@ export namespace Builder {
       }
       return this.$data.text;
     }
-    // Treats the file as both newly added and updated during the next Process phase.
+    // Treats the file as modified during the next Process phase.
     refresh(): void {
-      set__deleted_paths.add(this.src_path);
-      set__added_paths.add(this.src_path);
+      Log(_logs._file_refreshed_(this.src_path), VERBOSITY._2_DEBUG);
+      set__modified_paths.add(this.src_path);
     }
     // Clears the cached contents and resets attributes.
     resetBytes(): void {
@@ -274,6 +274,8 @@ const set__added_paths = new Set<string>();
 const set__deleted_paths = new Set<string>();
 const set__modified_paths = new Set<string>();
 
+const set__error_paths = new Set<string>();
+
 let unwatch_source_directory: () => void;
 let unlock_stdin_reader: () => void;
 
@@ -352,6 +354,12 @@ async function Async_SetupWatcher() {
       set__modified_paths.add(path);
     }
     if (set__added_paths.size > 0 || set__deleted_paths.size > 0 || set__modified_paths.size > 0) {
+      for (const path of set__error_paths) {
+        set__added_paths.add(path);
+        set__deleted_paths.add(path);
+        set__modified_paths.add(path);
+      }
+      set__error_paths.clear();
       await Async_Process();
     }
   });
@@ -412,6 +420,8 @@ async function Async_Process() {
   const set__files_to_add = new Set<Builder.File>();
   const set__files_to_update = new Set<Builder.File>();
 
+  let caught_error = false;
+
   // Process Removed Files
   {
     for (const path of temp__deleted_paths) {
@@ -430,7 +440,7 @@ async function Async_Process() {
           await processor.onRemove?.(set__files_to_remove);
         } catch (error) {
           Err(error, `Unhandled exception in ${processor.ProcessorName} onRemove:`);
-          throw new Error();
+          caught_error = true;
         }
       }
       for (const file of set__files_to_remove) {
@@ -446,11 +456,13 @@ async function Async_Process() {
   // Process Added Files
   {
     for (const path of temp__added_paths) {
-      const file = new Builder.File(path, NODE_PATH.join(Builder.Dir.Out, NODE_PATH.relative(Builder.Dir.Src, path)));
-      map__path_to_file.set(path, file);
-      set__files.add(file);
-      set__paths.add(path);
-      Log(_logs._file_added_(path));
+      const file = Core_Map_Get_Or_Default(map__path_to_file, path, () => {
+        const new_file = new Builder.File(path, NODE_PATH.join(Builder.Dir.Out, NODE_PATH.relative(Builder.Dir.Src, path)));
+        set__files.add(new_file);
+        set__paths.add(path);
+        Log(_logs._file_added_(path));
+        return new_file;
+      });
       set__files_to_add.add(file);
       set__files_to_update.add(file);
     }
@@ -462,7 +474,7 @@ async function Async_Process() {
           await processor.onAdd?.(set__files_to_add);
         } catch (error) {
           Err(error, `Unhandled exception in ${processor.ProcessorName} onAdd:`);
-          throw new Error();
+          caught_error = true;
         }
       }
       // Processor Modules onProcess
@@ -474,7 +486,7 @@ async function Async_Process() {
             await method.call(processor, file);
           } catch (error) {
             Err(error, `Unhandled exception in ${processor.ProcessorName} for "${file.src_path}":`);
-            // throw new Error();
+            caught_error = true;
           }
         }
       }
@@ -501,6 +513,7 @@ async function Async_Process() {
         set__files_to_update.add(file);
       } else {
         Err(new Error(_errors._path_does_not_exist_(path)), _errors._path_does_not_exist_(path));
+        caught_error = true;
       }
     }
     if (set__files_to_update.size > 0) {
@@ -511,7 +524,7 @@ async function Async_Process() {
           await step.onRun?.();
         } catch (error) {
           Err(error, `Unhandled exception in ${step.StepName} onRun:`);
-          throw new Error();
+          caught_error = true;
         }
       }
       // Processor Modules onProcess
@@ -540,7 +553,7 @@ async function Async_Process() {
                 await method.call(processor, file);
               } catch (error) {
                 Err(error, `Unhandled exception in ${processor.ProcessorName} for "${file.src_path}":`);
-                // throw new Error();
+                caught_error = true;
               }
             }
             set__unprocessed_files.delete(file);
@@ -570,17 +583,24 @@ async function Async_Process() {
           await step.onRun?.();
         } catch (error) {
           Err(error, `Unhandled exception in ${step.StepName} onRun:`);
-          throw new Error();
+          caught_error = true;
         }
       }
     }
   }
 
-  if (set__added_paths.size > 0 || set__deleted_paths.size > 0 || set__modified_paths.size > 0) {
+  Log(_logs._phase_end_('Process'));
+  _channel.newLine();
+
+  if (caught_error === true) {
+    for (const path of set__added_paths.union(set__deleted_paths).union(set__modified_paths)) {
+      set__error_paths.add(path);
+    }
+    set__deleted_paths.clear();
+    set__added_paths.clear();
+    set__modified_paths.clear();
+  } else if (set__added_paths.size > 0 || set__deleted_paths.size > 0 || set__modified_paths.size > 0) {
     await Async_Process();
-  } else {
-    Log(_logs._phase_end_('Process'));
-    _channel.newLine();
   }
 }
 
