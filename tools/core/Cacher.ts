@@ -534,7 +534,7 @@ process.on('exit', () => {
 
 // watcher
 
-export function Cacher_Watch_Directory(
+export async function Async_Cacher_Watch_Directory(
   path: string, //
   min_delay_ms: number,
   max_delay_ms: number,
@@ -603,7 +603,7 @@ export function Cacher_Watch_Directory(
     setTimeout(scan, delay_ms);
   }
 
-  scan();
+  await scan();
 
   return () => {
     abort = true;

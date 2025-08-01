@@ -123,7 +123,7 @@ class Class implements Builder.Processor {
         // remap module imports in bundle text
         if (this.extras.remap_imports === true) {
           try {
-            const remaptext = await RemapModuleImports(file.src_path, results.bundletext);
+            const remaptext = RemapModuleImports(file.src_path, results.bundletext);
             if (remaptext !== undefined) {
               file.setText(remaptext);
             } else {
@@ -253,7 +253,7 @@ async function ProcessBuildResults(buildtask: Promise<Bun.BuildOutput>): Promise
   }
   return out;
 }
-async function RemapModuleImports(filepath: string, filetext: string): Promise<string | undefined> {
+function RemapModuleImports(filepath: string, filetext: string): string | undefined {
   // scan for import statements
   const array__import_statements: { start: number; end: number; path: string }[] = [];
   {

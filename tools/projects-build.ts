@@ -13,7 +13,6 @@ Builder.SetStartUpSteps(
   Step_Bun_Run({ cmd: ['bun', 'update', '--latest'], showlogs: false }),
   Step_Bun_Run({ cmd: ['bun', 'install'], showlogs: false }),
   Step_Dev_Format({ showlogs: false }),
-  // Step_Dev_Lint({ showlogs: false }),
   //
 );
 

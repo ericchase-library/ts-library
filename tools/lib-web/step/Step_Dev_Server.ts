@@ -32,7 +32,7 @@ class Class implements Builder.Step {
       if (line.startsWith('Serving at')) {
         DEVSERVERHOST = new URL(line.slice('Serving at'.length).trim()).host;
       } else if (line.startsWith('Console at')) {
-        NodePlatform_Shell_StdIn_AddListener(async (bytes, text) => {
+        NodePlatform_Shell_StdIn_AddListener((bytes, text) => {
           if (text === 'h') {
             this.hotreload_enabled = !this.hotreload_enabled;
             if (this.hotreload_enabled === true) {

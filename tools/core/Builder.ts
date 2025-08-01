@@ -8,7 +8,7 @@ import { Async_NodePlatform_File_Delete } from '../../src/lib/ericchase/NodePlat
 import { NodePlatform_PathObject_Relative_Class } from '../../src/lib/ericchase/NodePlatform_PathObject_Relative_Class.js';
 import { NodePlatform_Shell_Keys } from '../../src/lib/ericchase/NodePlatform_Shell_Keys.js';
 import { NodePlatform_Shell_StdIn_AddListener, NodePlatform_Shell_StdIn_LockReader, NodePlatform_Shell_StdIn_StartReaderInRawMode } from '../../src/lib/ericchase/NodePlatform_Shell_StdIn.js';
-import { CACHELOCK, Cacher_Watch_Directory, FILESTATS } from './Cacher.js';
+import { Async_Cacher_Watch_Directory, CACHELOCK, FILESTATS } from './Cacher.js';
 import { AddLoggerOutputDirectory, Logger } from './Logger.js';
 
 await AddLoggerOutputDirectory('cache');
@@ -292,7 +292,7 @@ async function Init() {
       if (text === 'q') {
         removeSelf();
         Log(_logs._user_command_('Quit'));
-        Async_CleanUp();
+        await Async_CleanUp();
       }
     });
     NodePlatform_Shell_StdIn_AddListener((bytes, text, removeSelf) => {
@@ -330,19 +330,19 @@ async function Init() {
       await Async_CleanUp();
       break;
     case Builder.MODE.DEV:
-      SetupWatcher();
+      await Async_SetupWatcher();
       NodePlatform_Shell_StdIn_AddListener(async (bytes, text, removeSelf) => {
         if (text === 'r') {
-          SetupWatcher();
+          await Async_SetupWatcher();
         }
       });
       break;
   }
 }
 
-function SetupWatcher() {
+async function Async_SetupWatcher() {
   unwatch_source_directory?.();
-  unwatch_source_directory = Cacher_Watch_Directory(Builder.Dir.Src, 250, 2_000, async (added, deleted, modified) => {
+  unwatch_source_directory = await Async_Cacher_Watch_Directory(Builder.Dir.Src, 250, 2_000, async (added, deleted, modified) => {
     for (const path of added) {
       console.log({ added: path });
       set__added_paths.add(path);

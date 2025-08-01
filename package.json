@@ -1,8 +1,7 @@
 {
   "dependencies": {
     "@types/lodash": "^4.17.20",
-    "lodash": "^4.17.21",
-    "prettier": "^3.6.2"
+    "lodash": "^4.17.21"
   },
   "devDependencies": {
     "@types/adm-zip": "^0.5.7",
@@ -10,7 +9,7 @@
     "@types/chrome": "^0.1.1",
     "@types/node": "^24.1.0",
     "adm-zip": "^0.5.16",
-    "chokidar": "^4.0.3",
+    "prettier": "^3.6.2",
     "xxhash-wasm": "^1.1.0"
   },
   "scripts": {

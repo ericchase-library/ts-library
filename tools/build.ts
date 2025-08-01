@@ -7,6 +7,7 @@ import { Step_Bun_Run } from './core/step/Step_Bun_Run.js';
 import { Step_FS_Clean_Directory } from './core/step/Step_FS_Clean_Directory.js';
 import { Step_FS_Mirror_Directory } from './core/step/Step_FS_Mirror_Directory.js';
 import { Step_Dev_Format } from './lib-dev/step/Step_Dev_Format.js';
+import { Step_Dev_Project_Sync_Lib } from './lib-dev/step/Step_Dev_Project_Sync_Lib.js';
 import { Step_Dev_Server } from './lib-web/step/Step_Dev_Server.js';
 
 if (BunPlatform_Args_Has('--dev')) {
@@ -61,7 +62,7 @@ Builder.SetCleanUpSteps(
     ],
   }),
   // Update Template Project
-  // Step_Dev_Project_Sync_Lib({ from: './', to: 'C:/Code/Base/JavaScript-TypeScript/@Template' }),
+  Step_Dev_Project_Sync_Lib({ from: './', to: 'C:/Code/Base/JavaScript-TypeScript/@Template' }),
   //
 );
 
