@@ -1916,28 +1916,32 @@ describe(Async_NodePlatform_File_Write_Text.name + ' { recursive = true }', asyn
 });
 
 /**
+ * Shell Cursor API:
+ * These are highly experimental, and so I have no tests for them, yet.
+ *
+ * Shell StdIn API:
+ * There's probably a way to test stdin/stdout, but this is a niche API, so I
+ * will figure it out some other month.
+ */
+
+/**
  * ### ENOENT / ENOTDIR
  *
  * When certain directory API are called on paths that are files, Node/Bun will
  * either throw ENOENT or ENOTDIR depending on the operating system and
  * platform. Over time, I have seen these errors change, making it difficult to
- * rely on the error codes. For that reason, every Node API in this library
- * wraps raw Node API errors inside a Class_NodePlatform_Error instance with
- * more consistent error codes. Using some logic, ENOENT errors will be wrapped
- * inside ENOTDIR Class_NodePlatform_Error instances when applicable.
+ * rely on the error codes. For that reason, I experimented with wrapping raw
+ * Node API errors inside a Class_NodePlatform_Error instance with more
+ * consistent error codes. It was a decent idea, but it felt like I was adding
+ * to the problem instead of taking away. Eventually, I decided to change most
+ * of the API to return an "optional" object with the expected value and a
+ * possible error. The user can decide what to do with the information provided
+ * by the error.
  *
  * ### EPERM / EEXIST / EISDIR
  *
  * Similar to the problem above, Windows sometimes uses EPERM when attempting a
  * file operation on a directory. The EISDIR code makes more sense here.
- *
- * ### ENOTFILE
- *
- * Many of Node's FileSystem API accept objects that aren't common files. While
- * this is expected, we oftentimes only want to operate on what fs.stat says is
- * a file via the isFile() method. For that reason, I decided to create a new
- * error code ENOTFILE to indicate that an operation is valid while the API
- * expects an object that returns true for isFile().
  *
  * ### Reserved Names
  *

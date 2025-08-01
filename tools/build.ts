@@ -1,4 +1,4 @@
-import { BunPlatform_Args_Has } from '../src/lib/ericchase/api.platform-bun.js';
+import { BunPlatform_Args_Has } from '../src/lib/ericchase/BunPlatform_Args_Has.js';
 import { Builder } from './core/Builder.js';
 import { Processor_Set_Writable } from './core/processor/Processor_Set_Writable.js';
 import { Processor_TypeScript_Generic_Bundler } from './core/processor/Processor_TypeScript_Generic_Bundler.js';
@@ -7,7 +7,6 @@ import { Step_Bun_Run } from './core/step/Step_Bun_Run.js';
 import { Step_FS_Clean_Directory } from './core/step/Step_FS_Clean_Directory.js';
 import { Step_FS_Mirror_Directory } from './core/step/Step_FS_Mirror_Directory.js';
 import { Step_Dev_Format } from './lib-dev/step/Step_Dev_Format.js';
-import { Step_Dev_Project_Sync_Lib } from './lib-dev/step/Step_Dev_Project_Sync_Lib.js';
 import { Step_Dev_Server } from './lib-web/step/Step_Dev_Server.js';
 
 if (BunPlatform_Args_Has('--dev')) {
@@ -25,8 +24,20 @@ Builder.SetStartUpSteps(
 
 Builder.SetProcessorModules(
   Processor_TypeScript_Generic_Bundler({ external: ['lodash/shuffle'] }),
-  Processor_TypeScript_Generic_Transpiler({ include_patterns: ['**/*{.ts,.tsx}'], exclude_patterns: ['**/*.d.ts', '**/*{.module,.iife}{.ts,.tsx}', '**/*{.deprecated,.example,.test}{.ts,.tsx}'] }, { target: 'browser' }),
-  Processor_Set_Writable({ include_patterns: ['**/*{.ts,.tsx}'], exclude_patterns: ['**/*{.deprecated,.example,.test}{.ts,.tsx}'] }, { include_libdir: true }),
+  Processor_TypeScript_Generic_Transpiler(
+    {
+      include_patterns: ['**/*{.ts,.tsx}'],
+      exclude_patterns: ['**/*.d.ts', '**/*{.module,.iife}{.ts,.tsx}', '**/*{.deprecated,.example,.test}{.ts,.tsx}'],
+    },
+    { target: 'browser' },
+  ),
+  Processor_Set_Writable(
+    {
+      include_patterns: ['**/*{.ts,.tsx}'],
+      exclude_patterns: ['**/*{.deprecated,.example,.test}{.ts,.tsx}'],
+    },
+    { include_libdir: true },
+  ),
   //
 );
 
@@ -37,9 +48,20 @@ Builder.SetAfterProcessingSteps(
 
 Builder.SetCleanUpSteps(
   // Update Local Server Files
-  Step_FS_Mirror_Directory({ from: 'src/lib/ericchase/', to: 'server/src/lib/ericchase/', include_patterns: ['*core.ts', '*platform-node.ts'] }),
+  Step_FS_Mirror_Directory({
+    from: 'src/lib/ericchase/',
+    to: 'server/src/lib/ericchase/',
+    include_patterns: [
+      'Core_Console_Log.ts', //
+      'NodePlatform_Directory_ReadDir.ts',
+      'NodePlatform_Path_Is_Directory.ts',
+      'NodePlatform_Path_Is_SymbolicLink.ts',
+      'NodePlatform_PathObject_Relative_Class.ts',
+      'NodePlatform.ts',
+    ],
+  }),
   // Update Template Project
-  Step_Dev_Project_Sync_Lib({ from: './', to: 'C:/Code/Base/JavaScript-TypeScript/@Template' }),
+  // Step_Dev_Project_Sync_Lib({ from: './', to: 'C:/Code/Base/JavaScript-TypeScript/@Template' }),
   //
 );
 

@@ -112,6 +112,30 @@ export class Class_NodePlatform_PathObject_Absolute_Class {
     }
     return new Class_NodePlatform_PathObject_Absolute_Class(this.os).overwrite(...this.split().slice(0, end));
   }
+
+  replaceExt(ext: string): Class_NodePlatform_PathObject_Absolute_Class {
+    if (ext.length > 0) {
+      this.ext = ext[0] === '.' ? ext : '.' + ext;
+    } else {
+      this.ext = '';
+    }
+    return this;
+  }
+
+  toPosix(): Class_NodePlatform_PathObject_Absolute_Class {
+    if (this.os === 'win32') {
+      return NodePlatform_PathObject_Absolute_Posix_Class(...this.split());
+    } else {
+      return this;
+    }
+  }
+  toWin32(): Class_NodePlatform_PathObject_Absolute_Class {
+    if (this.os === 'win32') {
+      return this;
+    } else {
+      return NodePlatform_PathObject_Absolute_Win32_Class(...this.split());
+    }
+  }
 }
 
 export function NodePlatform_PathObject_Absolute_Class(...pathlike: string[]): Class_NodePlatform_PathObject_Absolute_Class {

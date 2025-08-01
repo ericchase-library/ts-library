@@ -1,5 +1,5 @@
-import { Core_Array_Uint8_ToString } from '../../../src/lib/ericchase/Core_Array_Uint8_ToString.js';
-import { Core_Stream_Uint8_ReadAll_Async } from '../../../src/lib/ericchase/Core_Stream_Uint8_ReadAll_Async.js';
+import { Core_Array_Uint8_To_String } from '../../../src/lib/ericchase/Core_Array_Uint8_To_String.js';
+import { Async_Core_Stream_Uint8_Read_All } from '../../../src/lib/ericchase/Core_Stream_Uint8_Read_All.js';
 import { Builder } from '../../core/Builder.js';
 import { Logger } from '../../core/Logger.js';
 
@@ -21,8 +21,8 @@ class Class implements Builder.Step {
       this.channel.log(`Run: "${this.config.cmd.join(' ')}" | Directory: "${this.config.dir}"`);
       await p0.exited;
       if (this.config.showlogs === true) {
-        this.channel.errorNotEmpty(Core_Array_Uint8_ToString(await Core_Stream_Uint8_ReadAll_Async(p0.stderr)));
-        this.channel.logNotEmpty(Core_Array_Uint8_ToString(await Core_Stream_Uint8_ReadAll_Async(p0.stdout)));
+        this.channel.errorNotEmpty(Core_Array_Uint8_To_String(await Async_Core_Stream_Uint8_Read_All(p0.stderr)));
+        this.channel.logNotEmpty(Core_Array_Uint8_To_String(await Async_Core_Stream_Uint8_Read_All(p0.stdout)));
       }
       this.channel.log(`End: "${this.config.cmd.join(' ')}" | Directory: "${this.config.dir}"`);
     } catch (error) {

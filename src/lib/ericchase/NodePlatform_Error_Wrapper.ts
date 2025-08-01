@@ -10,18 +10,14 @@ export class Class_NodePlatform_Error extends Error {
 }
 
 export function NodePlatform_Error(original: any): Class_NodePlatform_Error {
-  if (original instanceof Class_NodePlatform_Error) {
-    return original;
-  } else {
-    const error = new Class_NodePlatform_Error();
-    error.path = original.path;
-    error.syscall = original.syscall;
-    error.errno = original.errno;
-    error.code = 'NODE.' + original.code;
-    error.original = original;
-    error.stack = original.stack;
-    return error;
-  }
+  const error = new Class_NodePlatform_Error();
+  error.path = original.path;
+  error.syscall = original.syscall;
+  error.errno = original.errno;
+  error.code = original.code;
+  error.original = original;
+  error.stack = original.stack;
+  return error;
 }
 
 /**

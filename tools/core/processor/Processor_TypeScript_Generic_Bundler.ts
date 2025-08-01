@@ -1,13 +1,8 @@
-import { BunPlatform_Glob_Match } from '../../../src/lib/ericchase/api.platform-bun.js';
-import { Core_Array_BinarySearch_InsertionIndex } from '../../../src/lib/ericchase/Core_Array_BinarySearch_InsertionIndex.js';
+import { BunPlatform_Glob_Match } from '../../../src/lib/ericchase/BunPlatform_Glob_Match.js';
+import { Core_Array_Binary_Search_Insertion_Index } from '../../../src/lib/ericchase/Core_Array_Binary_Search_Insertion_Index.js';
 import { NODE_PATH, NODE_URL } from '../../../src/lib/ericchase/NodePlatform.js';
-import { NodePlatform_File_WriteText_Async } from '../../../src/lib/ericchase/NodePlatform_File_WriteText_Async.js';
-import { NodePlatform_Path_GetDirName } from '../../../src/lib/ericchase/NodePlatform_Path_GetDirName.js';
-import { NodePlatform_Path_Join } from '../../../src/lib/ericchase/NodePlatform_Path_Join.js';
-import { NodePlatform_Path_ReplaceExtension } from '../../../src/lib/ericchase/NodePlatform_Path_ReplaceExtension.js';
-import { NodePlatform_PathObject } from '../../../src/lib/ericchase/NodePlatform_PathObject.js';
-import { NodePlatform_PathObject_GetExtension } from '../../../src/lib/ericchase/NodePlatform_PathObject_GetExtension.js';
-import { NodePlatform_PathObject_GetName } from '../../../src/lib/ericchase/NodePlatform_PathObject_GetName.js';
+import { Async_NodePlatform_File_Write_Text } from '../../../src/lib/ericchase/NodePlatform_File_Write_Text.js';
+import { NodePlatform_PathObject_Relative_Class } from '../../../src/lib/ericchase/NodePlatform_PathObject_Relative_Class.js';
 import { Builder } from '../../core/Builder.js';
 import { Logger } from '../../core/Logger.js';
 
@@ -58,14 +53,14 @@ class Class implements Builder.Processor {
       const query = file.src_path;
       if (BunPlatform_Glob_Match(query, `**/*${PATTERN.MODULE}`)) {
         file.iswritable = true;
-        file.out_path = NodePlatform_Path_ReplaceExtension(file.out_path, '.js');
+        file.out_path = NodePlatform_PathObject_Relative_Class(file.out_path).replaceExt('.js').join();
         file.addProcessor(this, this.onProcessModule);
         this.bundle_set.add(file);
         continue;
       }
       if (BunPlatform_Glob_Match(query, `**/*${PATTERN.IIFE}`)) {
         file.iswritable = true;
-        file.out_path = NodePlatform_Path_ReplaceExtension(file.out_path, '.js');
+        file.out_path = NodePlatform_PathObject_Relative_Class(file.out_path).replaceExt('.js').join();
         file.addProcessor(this, this.onProcessIIFEScript);
         this.bundle_set.add(file);
         continue;
@@ -148,7 +143,7 @@ class Class implements Builder.Processor {
             // handled above
             break;
           default:
-            await NodePlatform_File_WriteText_Async(NodePlatform_Path_Join(Builder.Dir.Out, artifact.path), await artifact.blob.text());
+            await Async_NodePlatform_File_Write_Text(NODE_PATH.join(Builder.Dir.Out, artifact.path), await artifact.blob.text(), true);
             break;
         }
       }
@@ -192,7 +187,7 @@ class Class implements Builder.Processor {
             // handled above
             break;
           default:
-            await NodePlatform_File_WriteText_Async(NodePlatform_Path_Join(Builder.Dir.Out, artifact.path), await artifact.blob.text());
+            await Async_NodePlatform_File_Write_Text(NODE_PATH.join(Builder.Dir.Out, artifact.path), await artifact.blob.text(), true);
             break;
         }
       }
@@ -284,13 +279,13 @@ async function RemapModuleImports(filepath: string, filetext: string): Promise<s
     }
     if (array__source_comments.length > 0) {
       const srcpath = NODE_PATH.resolve(Builder.Dir.Src);
-      const dirpath = NodePlatform_Path_GetDirName(filepath);
+      const dirpath = NODE_PATH.parse(filepath).dir;
       // remap import statements
       const array__bundletext_parts: string[] = [];
       let index__bundletext_parts = 0;
       for (const import_statement of array__import_statements) {
         // find the source_comment directly above the current import_statement
-        const source_comment = array__source_comments.at(Core_Array_BinarySearch_InsertionIndex(array__source_comments, import_statement, (a, b) => a.start < b.start));
+        const source_comment = array__source_comments.at(Core_Array_Binary_Search_Insertion_Index(array__source_comments, import_statement, (a, b) => a.start < b.start));
         if (source_comment !== undefined) {
           /**
            * Remap relative import path onto source path:
@@ -308,8 +303,8 @@ async function RemapModuleImports(filepath: string, filetext: string): Promise<s
           try {
             if (import_statement.path.startsWith('.')) {
               // The import.meta.resolve api uses the current script file (this one) for resolving paths, which isn't what we want.
-              // Instead, we'll use Node's resolve api to resolve the relative path using the project directory.
-              resolved_path = NODE_PATH.resolve(NodePlatform_Path_GetDirName(source_comment.path), import_statement.path);
+              // Instead, we'll use Node's resolve api to resolve the relative path using the source file's directory.
+              resolved_path = NODE_PATH.resolve(NODE_PATH.parse(source_comment.path).dir, import_statement.path);
             } else {
               // Non-relative can be resolved using the import.meta.resolve api. If the file/module does not actually exist, an error will be thrown.
               // Node's fileURLToPath api will convert the resulting url path into a valid file path.
@@ -320,27 +315,18 @@ async function RemapModuleImports(filepath: string, filetext: string): Promise<s
           }
           if (resolved_path.startsWith(srcpath)) {
             // Convert resolved path into relative path
-            let relative_path_object = NodePlatform_PathObject(NODE_PATH.relative(dirpath, resolved_path));
+            // Import paths generally follow posix path rules, so we can convert to a posix relative path object here
+            let relative_path_object = NodePlatform_PathObject_Relative_Class(NODE_PATH.relative(dirpath, resolved_path)).toPosix();
             // Set path extension to .js if the path is a script
-            switch (NodePlatform_PathObject_GetExtension(relative_path_object)) {
+            switch (relative_path_object.ext) {
               case '.ts':
               case '.tsx':
               case '.jsx':
-                relative_path_object.update_segment(relative_path_object.segments.length - 1, () => {
-                  return NodePlatform_PathObject_GetName(relative_path_object) + '.js';
-                });
+                relative_path_object.replaceExt('.js');
                 break;
-            }
-            // Start path with . if needed
-            switch (relative_path_object.segments[0]) {
-              case '.':
-              case '..':
-                break;
-              default:
-                relative_path_object.dot();
             }
             // Convert path separators to /
-            array__bundletext_parts.push(filetext.slice(index__bundletext_parts, import_statement.start), relative_path_object.str('/'));
+            array__bundletext_parts.push(filetext.slice(index__bundletext_parts, import_statement.start), relative_path_object.join({ dot: true }));
             index__bundletext_parts = import_statement.end;
           }
         }

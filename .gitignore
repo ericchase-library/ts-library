@@ -235,5 +235,5 @@ sync.ffs_db
 ##
 
 /cache/
+/coverage/report/
 synced-projects.jsonc
-coverage-report

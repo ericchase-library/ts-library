@@ -1,10 +1,10 @@
 import { Core_Console_Error } from '../../src/lib/ericchase/Core_Console_Error.js';
 import { Core_Console_Log } from '../../src/lib/ericchase/Core_Console_Log.js';
-import { Core_Map_GetOrDefault } from '../../src/lib/ericchase/Core_Map_GetOrDefault.js';
-import { Core_String_RemoveWhiteSpaceOnlyLinesFromTopAndBottom } from '../../src/lib/ericchase/Core_String_RemoveWhiteSpaceOnlyLinesFromTopAndBottom.js';
+import { Core_Map_Get_Or_Default } from '../../src/lib/ericchase/Core_Map_Get_Or_Default.js';
+import { Core_String_Remove_WhiteSpace_Only_Lines_From_Top_And_Bottom } from '../../src/lib/ericchase/Core_String_Remove_WhiteSpace_Only_Lines_From_Top_And_Bottom.js';
 import { NODE_PATH } from '../../src/lib/ericchase/NodePlatform.js';
-import { NodePlatform_Directory_Create_Async } from '../../src/lib/ericchase/NodePlatform_Directory_Create_Async.js';
-import { NodePlatform_File_AppendText_Async } from '../../src/lib/ericchase/NodePlatform_File_AppendText_Async.js';
+import { Async_NodePlatform_Directory_Create } from '../../src/lib/ericchase/NodePlatform_Directory_Create.js';
+import { Async_NodePlatform_File_Append_Text } from '../../src/lib/ericchase/NodePlatform_File_Append_Text.js';
 
 // variables
 
@@ -123,7 +123,7 @@ function getNextChannel(uuid: string): string {
   return channel.toString().padStart(2, '0');
 }
 function getUuid(name: string): string {
-  return Core_Map_GetOrDefault(name_to_uuid, name, () => {
+  return Core_Map_Get_Or_Default(name_to_uuid, name, () => {
     const uuid = (name_to_uuid.size + 1).toString().padStart(2, '0');
     uuid_to_name.set(uuid, name);
     return uuid;
@@ -143,13 +143,13 @@ function setTimer() {
 }
 
 async function processBuffer() {
-  const default_buffer = Core_Map_GetOrDefault(name_to_buffer, DEFAULT_LOGGER, () => []);
+  const default_buffer = Core_Map_Get_Or_Default(name_to_buffer, DEFAULT_LOGGER, () => []);
   const temp_buffer = buffer;
   buffer = [];
   for (const { date, kind, uuid, channel, items, error } of temp_buffer) {
     unprocessedlogcount--;
     const name = uuid_to_name.get(uuid) ?? DEFAULT_LOGGER;
-    const name_buffer = Core_Map_GetOrDefault(name_to_buffer, name, () => []);
+    const name_buffer = Core_Map_Get_Or_Default(name_to_buffer, name, () => []);
     if (isLoggerEnabled(name) === false) {
       continue;
     }
@@ -157,7 +157,7 @@ async function processBuffer() {
     switch (kind) {
       case Kind.Err:
         {
-          for (const line of Core_String_RemoveWhiteSpaceOnlyLinesFromTopAndBottom(items.join(' '))) {
+          for (const line of Core_String_Remove_WhiteSpace_Only_Lines_From_Top_And_Bottom(items.join(' '))) {
             const text = `${datestring} |${uuid}.${channel}| [${name}] <ERROR> ${line}`;
             if (LoggerOptions.console === true) {
               if (LoggerOptions.ceremony === true) {
@@ -183,7 +183,7 @@ async function processBuffer() {
         break;
       case Kind.Log:
         {
-          for (const line of Core_String_RemoveWhiteSpaceOnlyLinesFromTopAndBottom(items.join(' '))) {
+          for (const line of Core_String_Remove_WhiteSpace_Only_Lines_From_Top_And_Bottom(items.join(' '))) {
             const text = `${datestring} |${uuid}.${channel}| [${name}] ${line}`;
             if (LoggerOptions.console === true) {
               if (LoggerOptions.ceremony === true) {
@@ -207,7 +207,7 @@ async function processBuffer() {
   for (const path of output_set) {
     for (const [name, lines] of name_to_buffer) {
       if (lines.length > 0) {
-        await NodePlatform_File_AppendText_Async(NODE_PATH.resolve(path, `${name}.log`), `${lines.join('\n')}\n`);
+        await Async_NodePlatform_File_Append_Text(NODE_PATH.resolve(path, `${name}.log`), `${lines.join('\n')}\n`, true);
         name_to_buffer.set(name, []);
       }
     }
@@ -215,7 +215,7 @@ async function processBuffer() {
 }
 
 export function Logger(name = DEFAULT_LOGGER): ClassLogger {
-  return Core_Map_GetOrDefault(name_to_logger, name, () => new ClassLogger(getUuid(name), '00', name));
+  return Core_Map_Get_Or_Default(name_to_logger, name, () => new ClassLogger(getUuid(name), '00', name));
 }
 
 /** Important: don't forget to await this! */
@@ -224,7 +224,7 @@ export async function AddLoggerOutputDirectory(path: string) {
   path = NODE_PATH.resolve(path, 'logs');
   if (output_set.has(path) === false) {
     output_set.add(path);
-    await NodePlatform_Directory_Create_Async(path);
+    await Async_NodePlatform_Directory_Create(path, true);
   }
 }
 

@@ -2,7 +2,7 @@ import { Core_Promise_Deferred_Class } from './Core_Promise_Deferred_Class.js';
 
 export function Core_Utility_Debounce_Immediate<T extends (...args: any[]) => Promise<any> | any>(fn: T, delay_ms: number): (...args: Parameters<T>) => Promise<void> {
   let deferred = Core_Promise_Deferred_Class();
-  let timeout: ReturnType<typeof setTimeout> | undefined;
+  let timeout: Parameters<typeof clearTimeout>[0] = undefined;
   async function cb(...args: Parameters<T>) {
     try {
       await fn(...args);
