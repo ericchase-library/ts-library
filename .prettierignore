@@ -10,7 +10,7 @@ bun.lock
 *-lock.yaml
 
 # processor bundles
-tools/core-web/bundle/htmlutil.js
+tools/core-web/bundle/
 
 # up to you whether you want to format the resulting files
 out/
