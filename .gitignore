@@ -231,9 +231,14 @@ web_modules/
 sync.ffs_db
 
 ##
-## Repo Specific
+## Build Tools Specific
 ##
 
 /cache/
 /coverage/report/
+
+##
+## Repo Specific
+##
+
 synced-projects.jsonc

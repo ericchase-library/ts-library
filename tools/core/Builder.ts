@@ -271,9 +271,6 @@ let set__paths = new Set<string>();
 let map__downstream_to_upstream = new Map<Builder.File, Set<Builder.File>>();
 let map__upstream_to_downstream = new Map<Builder.File, Set<Builder.File>>();
 
-// const set__unprocessed_files_to_add = new Set<Builder.File>();
-// const set__unprocessed_files_to_update = new Set<Builder.File>();
-
 const set__added_paths = new Set<string>();
 const set__deleted_paths = new Set<string>();
 const set__modified_paths = new Set<string>();
@@ -288,8 +285,8 @@ async function Init() {
   // Secure Locks
   {
     FILESTATS.LockTable();
+    // FILESTATS.RemoveAllStats();
     CACHELOCK.TryLockEach(['Build', 'Format']);
-    FILESTATS.RemoveAllStats();
   }
 
   // Setup Stdin Reader

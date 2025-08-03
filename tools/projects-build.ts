@@ -1,9 +1,9 @@
+import { Step_Dev_Format } from './core-dev/step/Step_Dev_Format.js';
 import { Builder } from './core/Builder.js';
 import { SetLoggerOptions } from './core/Logger.js';
 import { Processor_Set_Writable } from './core/processor/Processor_Set_Writable.js';
 import { Step_Async } from './core/step/Step_Async.js';
 import { Step_Bun_Run } from './core/step/Step_Bun_Run.js';
-import { Step_Dev_Format } from './lib-dev/step/Step_Dev_Format.js';
 
 import project_paths from './synced-projects.jsonc' assert { type: 'jsonc' };
 
