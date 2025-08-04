@@ -18,17 +18,17 @@ Builder.SetProcessorModules(
 
 Builder.SetCleanUpSteps(
   // Update Template Project
-  Step_Dev_Project_Sync_Lib({ from: './', to: 'C:/Code/Base/JavaScript-TypeScript/@Template' }),
+  Step_Dev_Project_Sync_Lib({ from_path: './', to_path: 'C:/Code/Base/JavaScript-TypeScript/@Template' }),
   Step_Bun_Run({ cmd: ['bunx', 'prettier', '--write', '.'], dir: 'C:/Code/Base/JavaScript-TypeScript/@Template', showlogs: false }),
 
   // Sync Files
   Step_Log('--- push ---'),
-  Step_Async(project_paths.map((path: string) => Step_Dev_Project_Sync_Lib({ from: 'C:/Code/Base/JavaScript-TypeScript/@Template', to: path }))),
+  Step_Async(project_paths.map((path: string) => Step_Dev_Project_Sync_Lib({ from_path: 'C:/Code/Base/JavaScript-TypeScript/@Template', to_path: path }))),
   Step_Log('--- push again ---'),
-  Step_Async(project_paths.map((path: string) => Step_Dev_Project_Sync_Lib({ from: 'C:/Code/Base/JavaScript-TypeScript/@Template', to: path }))),
+  Step_Async(project_paths.map((path: string) => Step_Dev_Project_Sync_Lib({ from_path: 'C:/Code/Base/JavaScript-TypeScript/@Template', to_path: path }))),
   // Update Config
   Step_Log('--- sync config ---'),
-  Step_Async(project_paths.map((path: string) => Step_Dev_Project_Sync_Config({ to: path }))),
+  Step_Async(project_paths.map((path: string) => Step_Dev_Project_Sync_Config({ project_path: path }))),
   // Format
   Step_Async(project_paths.map((path: string) => Step_Bun_Run({ cmd: ['bunx', 'prettier', '--write', '.'], dir: path, showlogs: false }))),
 );
