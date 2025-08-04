@@ -24,13 +24,13 @@ class Class implements Builder.Step {
         from: NODE_PATH.join(this.from, Builder.Dir.Src, '@types'),
         to: NODE_PATH.join(this.to, Builder.Dir.Src, '@types'),
         include_patterns: ['**/*'],
-        exclude_patterns: ['**/*{.deprecated,.example,.test}.ts'],
+        // exclude_patterns: ['**/*{.deprecated,.example,.test}.ts'],
       }),
       Step_FS_Mirror_Directory({
         from: NODE_PATH.join(this.from, Builder.Dir.Lib, 'ericchase'),
         to: NODE_PATH.join(this.to, Builder.Dir.Lib, 'ericchase'),
         include_patterns: ['**/*'],
-        exclude_patterns: ['**/*{.deprecated,.example,.test}.ts'],
+        // exclude_patterns: ['**/*{.deprecated,.example,.test}.ts'],
       }),
       // Loose Files
       Step_FS_Copy_Files({
@@ -75,7 +75,7 @@ class Class implements Builder.Step {
             from: NODE_PATH.join(this.from, entry.parentPath, entry.name),
             to: NODE_PATH.join(this.to, entry.parentPath, entry.name),
             include_patterns: ['**/*'],
-            exclude_patterns: ['**/*{.deprecated,.example,.test}.ts'],
+            // exclude_patterns: ['**/*{.deprecated,.example,.test}.ts'],
           }),
         );
       }
