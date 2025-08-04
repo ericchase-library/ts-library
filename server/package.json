@@ -4,8 +4,7 @@
   },
   "devDependencies": {
     "@types/bun": "^1.2.14",
-    "@types/pg": "^8.15.2",
-    "prettier": "^3.5.3"
+    "@types/pg": "^8.15.2"
   },
   "scripts": {
     "format": "bun run tools/format.ts",
