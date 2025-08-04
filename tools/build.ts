@@ -1,5 +1,6 @@
 import { BunPlatform_Args_Has } from '../src/lib/ericchase/BunPlatform_Args_Has.js';
 import { Step_Dev_Format } from './core-dev/step/Step_Dev_Format.js';
+import { Step_Dev_Project_Sync_Lib } from './core-dev/step/Step_Dev_Project_Sync_Lib.js';
 import { Step_Dev_Server } from './core-web/step/Step_Dev_Server.js';
 import { Builder } from './core/Builder.js';
 import { Processor_TypeScript_Generic_Bundler } from './core/processor/Processor_TypeScript_Generic_Bundler.js';
@@ -53,6 +54,9 @@ Builder.SetCleanUpSteps(
       'NodePlatform.ts',
     ],
   }),
+  // Update Template Project
+  Step_Dev_Project_Sync_Lib({ from_path: './', to_path: 'C:/Code/Base/JavaScript-TypeScript/@Template' }),
+  Step_Bun_Run({ cmd: ['bunx', 'prettier', '--write', '.'], dir: 'C:/Code/Base/JavaScript-TypeScript/@Template', showlogs: false }),
   //
 );
 
