@@ -4,7 +4,7 @@ export function WebPlatform_Utility_Download(data, filename) {
       return URL.createObjectURL(data.blob);
     }
     if (data.bytes !== undefined) {
-      return URL.createObjectURL(new Blob([data.bytes], { type: "application/octet-stream;charset=utf-8" }));
+      return URL.createObjectURL(new Blob([data.bytes.slice()], { type: "application/octet-stream;charset=utf-8" }));
     }
     if (data.json !== undefined) {
       return URL.createObjectURL(new Blob([data.json], { type: "application/json;charset=utf-8" }));
