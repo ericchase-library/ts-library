@@ -347,7 +347,7 @@ async function Init() {
       break;
     case Builder.MODE.DEV:
       SetupWatcher();
-      NodePlatform_Shell_StdIn_AddListener(async (bytes, text, removeSelf) => {
+      NodePlatform_Shell_StdIn_AddListener((bytes, text, removeSelf) => {
         if (text === 'r') {
           SetupWatcher();
         }
