@@ -11,7 +11,7 @@ import { Logger } from '../../core/Logger.js';
  * @param config.exclude_patterns `[]`
  * @param config.include_patterns `[]`
  * @param config.value `true`
- * @param extras.include_libdir `true`
+ * @param extras.include_libdir `false`
  */
 export function Processor_Set_Writable(config: Config = {}, extras: Extras = {}): Builder.Processor {
   return new Class(config, extras);
@@ -24,8 +24,9 @@ class Class implements Builder.Processor {
     readonly config: Config,
     readonly extras: Extras,
   ) {
-    this.config.exclude_patterns;
-    this.config.include_patterns;
+    this.config.exclude_patterns ??= [];
+    this.config.include_patterns ??= [];
+    this.config.value ??= true;
     this.extras.include_libdir ??= false;
   }
   async onStartUp(): Promise<void> {
