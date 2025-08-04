@@ -1,5 +1,5 @@
 import { BunPlatform_Glob_Match_Ex } from '../../../src/lib/ericchase/BunPlatform_Glob_Match_Ex.js';
-import { NodePlatform_PathObject_Relative_Class } from '../../../src/lib/ericchase/NodePlatform_PathObject_Relative_Class.js';
+import { NODE_PATH } from '../../../src/lib/ericchase/NodePlatform.js';
 import { Builder } from '../../core/Builder.js';
 import { Logger } from '../../core/Logger.js';
 
@@ -35,7 +35,7 @@ class Class implements Builder.Processor {
   }
   async onAdd(files: Set<Builder.File>): Promise<void> {
     for (const file of files) {
-      const src_path = NodePlatform_PathObject_Relative_Class(file.src_path).join();
+      const src_path = NODE_PATH.join(file.src_path);
       if (BunPlatform_Glob_Match_Ex(src_path, this.config.exclude_patterns ?? [], []) === true) {
         continue;
       }

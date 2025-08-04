@@ -2,7 +2,6 @@ import { Step_Dev_Project_Sync_Config } from './core-dev/step/Step_Dev_Project_S
 import { Step_Dev_Project_Sync_Lib } from './core-dev/step/Step_Dev_Project_Sync_Lib.js';
 import { Builder } from './core/Builder.js';
 import { SetLoggerOptions } from './core/Logger.js';
-import { Processor_Set_Writable } from './core/processor/Processor_Set_Writable.js';
 import { Step_Async } from './core/step/Step_Async.js';
 import { Step_Bun_Run } from './core/step/Step_Bun_Run.js';
 import { Step_Log } from './core/step/Step_Log.js';
@@ -10,11 +9,6 @@ import { Step_Log } from './core/step/Step_Log.js';
 import project_paths from './synced-projects.jsonc' assert { type: 'jsonc' };
 
 SetLoggerOptions({ ceremony: false });
-
-Builder.SetProcessorModules(
-  Processor_Set_Writable({ exclude_patterns: ['**/*'] }),
-  //
-);
 
 Builder.SetCleanUpSteps(
   // Update Template Project
