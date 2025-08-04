@@ -2,7 +2,6 @@ import { BunPlatform_Args_Has } from '../src/lib/ericchase/BunPlatform_Args_Has.
 import { Step_Dev_Format } from './core-dev/step/Step_Dev_Format.js';
 import { Step_Dev_Server } from './core-web/step/Step_Dev_Server.js';
 import { Builder } from './core/Builder.js';
-import { Processor_Set_Writable } from './core/processor/Processor_Set_Writable.js';
 import { Processor_TypeScript_Generic_Bundler } from './core/processor/Processor_TypeScript_Generic_Bundler.js';
 import { Processor_TypeScript_Generic_Transpiler } from './core/processor/Processor_TypeScript_Generic_Transpiler.js';
 import { Step_Bun_Run } from './core/step/Step_Bun_Run.js';
@@ -31,13 +30,6 @@ Builder.SetProcessorModules(
       exclude_patterns: ['**/*.d.ts', '**/*{.module,.iife}{.ts,.tsx}', '**/*{.deprecated,.example,.test}{.ts,.tsx}'],
     },
     { target: 'browser' },
-  ),
-  Processor_Set_Writable(
-    {
-      include_patterns: ['**/*{.ts,.tsx}'],
-      exclude_patterns: ['**/*{.deprecated,.example,.test}{.ts,.tsx}'],
-    },
-    { include_libdir: true },
   ),
   //
 );
