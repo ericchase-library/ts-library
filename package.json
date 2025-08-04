@@ -16,7 +16,7 @@
     "build": "bun run tools/build.ts",
     "dev": "bun run tools/build.ts --dev",
     "format": "bunx prettier --write .",
-    "pull": "bun run tools/pull.ts"
+    "pull": "bun run tools/pull-base.ts"
   },
   "type": "module"
 }
