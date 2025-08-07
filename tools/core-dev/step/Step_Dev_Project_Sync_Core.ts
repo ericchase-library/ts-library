@@ -3,14 +3,13 @@ import { NODE_PATH } from '../../../src/lib/ericchase/NodePlatform.js';
 import { Async_NodePlatform_Path_Is_Directory } from '../../../src/lib/ericchase/NodePlatform_Path_Is_Directory.js';
 import { Builder } from '../../core/Builder.js';
 import { Logger } from '../../core/Logger.js';
-import { Step_FS_Copy_Files } from '../../core/step/Step_FS_Copy_Files.js';
 import { Step_FS_Mirror_Directory } from '../../core/step/Step_FS_Mirror_Directory.js';
 
-export function Step_Dev_Project_Sync_Lib(config: Config): Builder.Step {
+export function Step_Dev_Project_Sync_Core(config: Config): Builder.Step {
   return new Class(config);
 }
 class Class implements Builder.Step {
-  StepName = Step_Dev_Project_Sync_Lib.name;
+  StepName = Step_Dev_Project_Sync_Core.name;
   channel = Logger(this.StepName).newChannel();
 
   steps: Builder.Step[] = [];
@@ -18,43 +17,20 @@ class Class implements Builder.Step {
   constructor(readonly config: Config) {}
   async onStartUp(): Promise<void> {
     this.steps = [
-      // Loose Project Files
-      Step_FS_Copy_Files({
-        from_path: NODE_PATH.join(this.config.from_path),
-        to_path: NODE_PATH.join(this.config.to_path),
-        include_patterns: [
-          '.vscode/settings.json',
-          '.gitignore',
-          '.prettierignore',
-          '.prettierrc',
-          'index.html',
-          'package.json',
-          'tsconfig.json',
-          //
-        ],
-        overwrite: false,
-      }),
       // Library
       Step_FS_Mirror_Directory({
         from_path: NODE_PATH.join(this.config.from_path, Builder.Dir.Lib, 'ericchase'),
         to_path: NODE_PATH.join(this.config.to_path, Builder.Dir.Lib, 'ericchase'),
         include_patterns: ['**/*'],
       }),
-      // Server
-      Step_FS_Mirror_Directory({
-        from_path: NODE_PATH.join(this.config.from_path, 'server'),
-        to_path: NODE_PATH.join(this.config.to_path, 'server'),
-        include_patterns: ['**/*'],
-        exclude_patterns: ['.git/**/*', 'node_modules/**/*'],
-      }),
     ];
-    // Tools Folders
-    for await (const entry of Async_BunPlatform_Glob_Scan_Generator(this.config.from_path, `${Builder.Dir.Tools}/*`, { only_files: false })) {
-      if (await Async_NodePlatform_Path_Is_Directory(NODE_PATH.join(this.config.from_path, entry))) {
+    // Core Tools
+    for await (const subpath of Async_BunPlatform_Glob_Scan_Generator(this.config.from_path, `${Builder.Dir.Tools}/*`, { only_files: false })) {
+      if (await Async_NodePlatform_Path_Is_Directory(NODE_PATH.join(this.config.from_path, subpath))) {
         this.steps.push(
           Step_FS_Mirror_Directory({
-            from_path: NODE_PATH.join(this.config.from_path, entry),
-            to_path: NODE_PATH.join(this.config.to_path, entry),
+            from_path: NODE_PATH.join(this.config.from_path, subpath),
+            to_path: NODE_PATH.join(this.config.to_path, subpath),
             include_patterns: ['**/*'],
           }),
         );
