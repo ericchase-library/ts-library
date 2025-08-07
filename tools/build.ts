@@ -1,6 +1,7 @@
 import { BunPlatform_Args_Has } from '../src/lib/ericchase/BunPlatform_Args_Has.js';
 import { Step_Dev_Format } from './core-dev/step/Step_Dev_Format.js';
 import { Step_Dev_Project_Sync_Core } from './core-dev/step/Step_Dev_Project_Sync_Core.js';
+import { Step_Dev_Project_Update_Config } from './core-dev/step/Step_Dev_Project_Update_Config.js';
 import { Step_Dev_Server } from './core-web/step/Step_Dev_Server.js';
 import { Builder } from './core/Builder.js';
 import { Processor_TypeScript_Generic_Bundler } from './core/processor/Processor_TypeScript_Generic_Bundler.js';
@@ -15,10 +16,10 @@ if (BunPlatform_Args_Has('--dev')) {
 Builder.SetVerbosity(Builder.VERBOSITY._1_LOG);
 
 Builder.SetStartUpSteps(
+  Step_Dev_Project_Update_Config({ project_path: './' }),
   Step_Bun_Run({ cmd: ['bun', 'update', '--latest'], showlogs: false }),
   Step_Bun_Run({ cmd: ['bun', 'install'], showlogs: false }),
   Step_FS_Clean_Directory(Builder.Dir.Out),
-  // Step_Dev_Project_Sync_Config({ project_path: './' }),
   Step_Dev_Format({ showlogs: false }),
   //
 );
