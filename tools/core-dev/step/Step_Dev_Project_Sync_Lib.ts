@@ -18,13 +18,7 @@ class Class implements Builder.Step {
   constructor(readonly config: Config) {}
   async onStartUp(): Promise<void> {
     this.steps = [
-      Step_FS_Mirror_Directory({
-        from_path: NODE_PATH.join(this.config.from_path, Builder.Dir.Lib, 'ericchase'),
-        to_path: NODE_PATH.join(this.config.to_path, Builder.Dir.Lib, 'ericchase'),
-        include_patterns: ['**/*'],
-        // exclude_patterns: ['**/*{.deprecated,.example,.test}.ts'],
-      }),
-      // Loose Files
+      // Loose Project Files
       Step_FS_Copy_Files({
         from_path: NODE_PATH.join(this.config.from_path),
         to_path: NODE_PATH.join(this.config.to_path),
@@ -34,21 +28,17 @@ class Class implements Builder.Step {
           '.prettierignore',
           '.prettierrc',
           'index.html',
-          // 'biome.json',
           'package.json',
           'tsconfig.json',
           //
         ],
         overwrite: false,
       }),
-      Step_FS_Copy_Files({
-        from_path: NODE_PATH.join(this.config.from_path, Builder.Dir.Tools),
-        to_path: NODE_PATH.join(this.config.to_path, Builder.Dir.Tools),
-        include_patterns: [
-          'pull-base.ts',
-          //
-        ],
-        overwrite: true,
+      // Library
+      Step_FS_Mirror_Directory({
+        from_path: NODE_PATH.join(this.config.from_path, Builder.Dir.Lib, 'ericchase'),
+        to_path: NODE_PATH.join(this.config.to_path, Builder.Dir.Lib, 'ericchase'),
+        include_patterns: ['**/*'],
       }),
       // Server
       Step_FS_Mirror_Directory({
@@ -58,7 +48,7 @@ class Class implements Builder.Step {
         exclude_patterns: ['.git/**/*', 'node_modules/**/*'],
       }),
     ];
-    // Tools
+    // Tools Folders
     for await (const entry of Async_BunPlatform_Glob_Scan_Generator(this.config.from_path, `${Builder.Dir.Tools}/*`, { only_files: false })) {
       if (await Async_NodePlatform_Path_Is_Directory(NODE_PATH.join(this.config.from_path, entry))) {
         this.steps.push(
@@ -66,7 +56,6 @@ class Class implements Builder.Step {
             from_path: NODE_PATH.join(this.config.from_path, entry),
             to_path: NODE_PATH.join(this.config.to_path, entry),
             include_patterns: ['**/*'],
-            // exclude_patterns: ['**/*{.deprecated,.example,.test}.ts'],
           }),
         );
       }
