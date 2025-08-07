@@ -23,6 +23,8 @@ Builder.SetCleanUpSteps(
   // Update Config
   Step_Log('--- update config ---'),
   Step_Async(project_paths.map((path: string) => Step_Dev_Project_Update_Config({ project_path: path }))),
+  // Format Code
+  Step_Async(project_paths.map((path: string) => Step_Bun_Run({ cmd: ['bunx', 'prettier', '--write', '.'], dir: path, showlogs: false }))),
 );
 
 await Builder.Start();
