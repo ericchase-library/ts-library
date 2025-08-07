@@ -148,7 +148,7 @@ class Class implements Builder.Processor {
         }
       }
     } catch (error) {
-      this.channel.error(error, 'Bundle Error');
+      this.channel.error(error, 'Module Bundle Error');
     }
   }
   async onProcessIIFEScript(file: Builder.File): Promise<void> {
@@ -192,7 +192,7 @@ class Class implements Builder.Processor {
         }
       }
     } catch (error) {
-      this.channel.error('build error');
+      this.channel.error(error, 'IIFE Bundle Error');
     }
   }
 }
