@@ -1,3 +1,20 @@
+## 2025-08-07
+
+### We are now on Build Tools v4!
+
+Please check out the updated README!
+
+- nearly everything has been modified
+- the API library is now flat, with many more tests
+- there is a simpler file watcher built into the tools/core/Cacher code
+- the tools/core/Builder code is much simpler
+  - should now correctly handle upstream/downstream dependencies
+- many of the provided processors and steps have been revamped
+- there are more systems for automating the update process
+  - use the repo-config folder to set per-project settings
+  - by default, project config files will be updated by merging repo-config and tools/base-config files
+  - you won't need this feature if you don't plan on updating your project through the push pull system. you can disable it by removing Step_Dev_Project_Update_Config in tools/build.ts
+
 ## 2025-05-26
 
 - removed namespaces from library files

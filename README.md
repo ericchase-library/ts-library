@@ -14,34 +14,42 @@ If you want to reach me sooner with modern technology, try discord:
 - Zero to Hero https://discord.gg/cXG3KGKuu6
 - JavaScript.info https://discord.gg/AuEWpFkfD4
 
-## TypeScript Template Project
+## Build Tools V4
 
-For information about my TypeScript template projects, please visit:
+Once again, the build tools and library have been completely rewritten, after a failed attempt at v3. In fact, almost everything has since been rewritten. As of now, all the template projects should be using build tools and library v4.
 
-- https://github.com/ericchase-library/ts-template
+### Template Project Update System
 
-## Build Tools V2
+I maintain a slew of template projects to help you get to work faster. You can find these projects at https://github.com/orgs/ericchase-library/repositories. The idea is that I can work on this TypeScript-Library project to improve my build tools and library APIs separately from the templates. When improvements are ready to ship, I update each and every template project accordingly. Manually, this is a rather time consuming endeavor. To make updating efficient, I've written a few helper systems.
 
-The build tools were completely rewritten, along with some of the library modules. As of now, the library should be considered on version 2.0.0. It's a work in progress, but should be much more useful than v1.
+There are some steps under `tools/core-dev` that can sync files between two project folders. `Step_Dev_Project_Sync_Core` syncs the folders under `tools` and everything under `src/lib/ericchase`. `Step_Dev_Project_Sync_Server` syncs the developer `server` folder, which I have found to be quite useful for almost every kind of project.
 
-~~These build tools use the Biome (https://biomejs.dev/) toolchain for formatting and linting most source files; as well as Prettier (https://prettier.io/) for formatting html and markdown files. Formatting has always been a massive pain point in web dev, and will probably continue to be so. From time to time, I find better tools for formatting files, and the build tools may be updated accordingly.~~
+`Step_Dev_Project_Update_Config` runs some logic that merges files from `tools/base-config` with files in `repo-config`. It takes the resulting merges and updates the corresponding project config files with them. This might be confusing at first, but it has some important use cases.
 
-## Disclaimer
+- None of the files under `repo-config` will be changed automatically from running Bun update.
+- This both forces you and lets you manually maintain a list of your project dependencies.
+- It also lets me modify reasonable base config settings without you having to do the merging yourself.
+- And of course, if you want to disable this process entirely, just remove `Step_Dev_Project_Update_Config` from `Builder.SetStartUpSteps` in `tools/build.ts`. You are already expected to modify this file at least once when setting up your projects, so it fits well into the developer flow.
+
+### Code Formatting
+
+The most important use case for code formatting is code review through version control (git). Every project should have a formatter set up that can be easily run through a command. The command could run an npm package or a custom formatting scripts. It doesn't matter how it does it, as long as it does it.
+
+Beyond that, code formatting is secondly a way to make the code base easier to read for the developer. As long as you diligently run the project formatter before committing changes, you are free to format the code temporarily however you like! And I encourage you to do so, because the more familiar the code is to you, the easier it will be to read and write for you.
+
+That said, while I hate the `Prettier` formatter, it has been the most consistent and reliable formatter for web development since I have started this project. I have tried others, like `Biome`; but I always run into a new problem every week or month when I do. So for now, I'm sticking to `Prettier` until something better comes along.
+
+## Project Disclaimer
 
 **This project is updated often!**
 
 - Expect breaking changes if you **directly** rely on it!
 - Please check the `CHANGELOG.md` file, which may or may not contain recent changes.
+- Most users should instead use one of the template projects as a base.
 
 **Read the `./tools/build.ts` file before running the build script.**
 
-- The current build script generates a folder named `Project@Template` in the parent directory. This template folder is what users will want to build their new projects from.
-
-I would highly suggest making a copy of the library files per project _instead of_ using git submodules or other similar methods. You can use a sync software like `FreeFileSync` or VSCode extension `Compare Folders` to update the library folder of your projects if needed. Generally, you wouldn't need to do this unless you want an updated version of some module. It takes a little bit of effort, but not much; and I'm sure you'll come to appreciate the process.
-
-- https://freefilesync.org/
-- https://marketplace.visualstudio.com/items?itemName=moshfeu.compare-folders
-  - insiders: https://marketplace.visualstudio.com/items?itemName=moshfeu.compare-folders-insider
+- The build script for this project attempts to update a second, hard-coded folder at `C:/Code/Base/JavaScript-TypeScript/@Template`, which exists on **_my_** machine, but extremely unlikely to exist on **_your_** machine. If you want to work on this project like I do, then you'll need to set up a folder structure similar to mine. You can find that folder structure at https://github.com/ericchase/code-base-template. This project would be in `@Library` while the base template project would be in `@Template`.
 
 ## Developer Environment Setup
 
@@ -73,11 +81,33 @@ bun run build
 
 ## Project Structure
 
+### ./docs/
+
+Some light documentation for various parts of the build tools.
+
+### ./out/
+
+This folder is produced during the normal build process and would contain the final compiled/bundled source code.
+
+For this library project, the TypeScript under `./src/lib` is transpiled into JavaScript to produce a pure JavaScript library that you could probably use directly. However, this is a TypeScript library, and you are meant to use the TypeScript files for development.
+
+**Note:**
+
+If you want a custom build or bundle, you'll need to modify the `./tools/build.ts` file and potentially write your own Processor and Step modules for any new functionality. Compared to the original build tools iteration, this process should be fairly easy. The goal, as always, is to be able to do whatever you can think of without restriction. While some things may be difficult or impossible, most things should be doable, and reasonably so.
+
+Check https://github.com/orgs/ericchase-library/repositories for pre-built template projects. If none of those projects seem to fit your needs, feel free to send me a message.
+
+### ./repo-config/
+
+Folder used by my config file update system. If desired, you can manually maintain project specific config settings here, and use the update system to merge with base config settings. More information can be found in an earlier section.
+
+### ./server/
+
+This is a local dev server I wrote for live testing project code. The server folder is a separate project with its own repository at https://github.com/ericchase/tool--basic-web-server. It has its own config files and package dependencies that I maintain and update when needed. Of course, you could also use a different dev server tool like `Vite` or the `Live Server` extension for VSCode. I prefer writing and using my own server, so that's why I include it.
+
 ### ./src/
 
-This folder contains _all_ of the library files including test files and working examples. If you _just_ want the library files themselves, then clone one of the template projects on GitHub (https://github.com/orgs/ericchase-library/repositories). If you want to build the base template project yourself, you can run the `bun run build` command.
-
-- `bun run build` will create a new directory (named `Project@Template`) in this directory's parent directory.
+This folder contains _all_ of the library API files including test files. Please rely on the tests cases for examples. If you _just_ want the library files themselves, then clone one of the template projects from https://github.com/orgs/ericchase-library/repositories.
 
 ### ./tools/
 
@@ -93,34 +123,15 @@ You can literally do anything you want, which is the point of this library. The 
 
 **Note:**
 
-The scripts under `./tools/` also use modules from this library (from `./src/`). To reiterate, the goal of these scripts is not to produce a package; though, you can do that if you want to! For new projects, you would ideally copy a template project, and customize the `./tools/build.ts` file.
-
-### ./out/
-
-This folder is produced during the normal build process and would contain the final compiled/bundled source code.
-
-For this library project, build tools v1 compiled the TypeScript files into JavaScript files to produce a pure JavaScript library. However, I didn't find the resulting library easy to use. It's much easier to simply copy a template project and build from the TypeScript library instead.
-
-**Note:**
-
-If you want a custom build or bundle, you'll need to modify the `./tools/build.ts` file and potentially write your own processor modules. Compared to build tools v1, this process should be far easier now. The goal, as always, is to be able to do whatever you can think of without restriction. While some things may be extremely difficult or impossible, most things should be doable, and reasonably so.
-
-I periodically release template projects with build scripts for different purposes. Check https://github.com/orgs/ericchase-library/repositories for a template project that you can use. If none of those projects seem to fit your needs, feel free to send me a message.
-
-### ./server/
-
-A local dev server for testing various kinds of projects that utilize a server. The server folder is a separate project with its own repository (https://github.com/ericchase/tool--basic-web-server) that I maintain and update. You could use a different dev server provided by another tool like Vite, or even the VSCode Live Server extension. I prefer writing the server myself, so that's why I include it.
+The scripts under `./tools/` also use modules from this library (from `./src/lib`). To reiterate, the goal of these scripts is not to produce a package; though, you can do that if you want to! For new projects, you would ideally clone one of the template project mentioned above, and customize the `./tools/build.ts` file how you see fit.
 
 ### ./
 
-I've tried to write these files as generic as possible so that you can use them as the base of your new projects.
+You may create whatever config files your project needs, but here is the list of miminally required ones:
 
 - .gitignore
 - .prettierignore
 - .prettierrc
-- LICENSE-APACHE
-- NOTICE
-- biome.json
 - package.json
 - tsconfig.json
 

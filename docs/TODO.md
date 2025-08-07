@@ -1,3 +1,0 @@
-- udpate template projects
-- tests
-- use either string or CPath in internal builder code
