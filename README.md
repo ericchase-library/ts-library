@@ -127,7 +127,7 @@ The scripts under `./tools/` also use modules from this library (from `./src/lib
 
 ### ./
 
-You may create whatever config files your project needs, but here is the list of miminally required ones:
+You may create whatever config files your project needs, but here is the list of minimally required ones:
 
 - .gitignore
 - .prettierignore
