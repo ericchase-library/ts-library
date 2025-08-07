@@ -154,7 +154,7 @@ The code in this repository will always be truly free and open source (unless I 
 When making a copy of this project, I _kindly ask_ that you include the text within the `NOTICE` file somewhere (perhaps in your own README.md or LICENSE or NOTICE file?) or a link to this repository so that other users of your project may also be able to find this original template.
 
 ```
-Typescript Library
+TypeScript Library
 https://github.com/ericchase-library/ts-library
 
 Copyright © 2025 ericchase
