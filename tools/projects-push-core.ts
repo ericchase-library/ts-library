@@ -1,5 +1,4 @@
 import { Step_Dev_Project_Sync_Core } from './core-dev/step/Step_Dev_Project_Sync_Core.js';
-import { Step_Dev_Project_Sync_Server } from './core-dev/step/Step_Dev_Project_Sync_Server.js';
 import { Step_Dev_Project_Update_Config } from './core-dev/step/Step_Dev_Project_Update_Config.js';
 import { Builder } from './core/Builder.js';
 import { SetLoggerOptions } from './core/Logger.js';
@@ -14,7 +13,6 @@ SetLoggerOptions({ ceremony: false });
 Builder.SetCleanUpSteps(
   // Update Template Project
   Step_Dev_Project_Sync_Core({ from_path: './', to_path: 'C:/Code/Base/JavaScript-TypeScript/@Template' }),
-  Step_Dev_Project_Sync_Server({ from_path: './', to_path: 'C:/Code/Base/JavaScript-TypeScript/@Template' }),
   Step_Bun_Run({ cmd: ['bunx', 'prettier', '--write', '.'], dir: 'C:/Code/Base/JavaScript-TypeScript/@Template', showlogs: false }),
 
   // Sync Core
