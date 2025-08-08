@@ -1,11 +1,11 @@
-export function WebPlatform_DOM_ReadyState_Callback(config: Config) {
-  function DOMContentLoaded() {
+export async function Async_WebPlatform_DOM_ReadyState_Callback(config: Config) {
+  async function DOMContentLoaded() {
     removeEventListener('DOMContentLoaded', DOMContentLoaded);
-    config.DOMContentLoaded?.();
+    await config.DOMContentLoaded?.();
   }
-  function load() {
+  async function load() {
     removeEventListener('load', load);
-    config.load?.();
+    await config.load?.();
   }
   switch (document.readyState) {
     case 'loading':
@@ -17,18 +17,18 @@ export function WebPlatform_DOM_ReadyState_Callback(config: Config) {
       }
       break;
     case 'interactive':
-      config.DOMContentLoaded?.();
+      await config.DOMContentLoaded?.();
       if (config.load !== undefined) {
         addEventListener('load', load);
       }
       break;
     case 'complete':
-      config.DOMContentLoaded?.();
-      config.load?.();
+      await config.DOMContentLoaded?.();
+      await config.load?.();
       break;
   }
 }
 interface Config {
-  DOMContentLoaded?: () => void;
-  load?: () => void;
+  DOMContentLoaded?: () => Promise<void>;
+  load?: () => Promise<void>;
 }
