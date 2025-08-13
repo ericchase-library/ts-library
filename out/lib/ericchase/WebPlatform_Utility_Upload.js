@@ -1,4 +1,4 @@
-export async function Async_WebPlatform_Utility_Upload(options) {
+export function Async_WebPlatform_Utility_Upload(options) {
   return new Promise((resolve, reject) => {
     options ??= {};
     const input = document.createElement("input");

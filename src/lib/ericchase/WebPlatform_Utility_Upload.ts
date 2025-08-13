@@ -1,4 +1,4 @@
-export async function Async_WebPlatform_Utility_Upload(options?: { ext_or_mime?: string }): Promise<string | undefined> {
+export function Async_WebPlatform_Utility_Upload(options?: { ext_or_mime?: string }): Promise<string | undefined> {
   return new Promise<string | undefined>((resolve, reject) => {
     options ??= {};
     const input = document.createElement('input');
