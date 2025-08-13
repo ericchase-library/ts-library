@@ -1,5 +1,4 @@
 import { Step_Dev_Project_Sync_Core } from './core-dev/step/Step_Dev_Project_Sync_Core.js';
-import { Step_Dev_Project_Update_Config } from './core-dev/step/Step_Dev_Project_Update_Config.js';
 import { Builder } from './core/Builder.js';
 import { SetLoggerOptions } from './core/Logger.js';
 import { Step_Async } from './core/step/Step_Async.js';
@@ -20,9 +19,6 @@ Builder.SetCleanUpSteps(
   Step_Async(project_paths.map((path: string) => Step_Dev_Project_Sync_Core({ from_path: 'C:/Code/Base/JavaScript-TypeScript/@Template', to_path: path }))),
   Step_Log('--- push again ---'),
   Step_Async(project_paths.map((path: string) => Step_Dev_Project_Sync_Core({ from_path: 'C:/Code/Base/JavaScript-TypeScript/@Template', to_path: path }))),
-  // Update Config
-  Step_Log('--- update config ---'),
-  Step_Async(project_paths.map((path: string) => Step_Dev_Project_Update_Config({ project_path: path }))),
 );
 
 await Builder.Start();
