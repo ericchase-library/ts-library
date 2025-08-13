@@ -4,7 +4,7 @@ import { Step_Dev_Project_Sync_Core } from './core-dev/step/Step_Dev_Project_Syn
 import { Step_Dev_Project_Update_Config } from './core-dev/step/Step_Dev_Project_Update_Config.js';
 import { Step_Dev_Server } from './core-web/step/Step_Dev_Server.js';
 import { Builder } from './core/Builder.js';
-import { Processor_TypeScript_Generic_Bundler } from './core/processor/Processor_TypeScript_Generic_Bundler.js';
+import { PATTERN, Processor_TypeScript_Generic_Bundler } from './core/processor/Processor_TypeScript_Generic_Bundler.js';
 import { Processor_TypeScript_Generic_Transpiler } from './core/processor/Processor_TypeScript_Generic_Transpiler.js';
 import { Step_Bun_Run } from './core/step/Step_Bun_Run.js';
 import { Step_FS_Clean_Directory } from './core/step/Step_FS_Clean_Directory.js';
@@ -25,14 +25,9 @@ Builder.SetStartUpSteps(
 );
 
 Builder.SetProcessorModules(
-  Processor_TypeScript_Generic_Bundler({ external: ['lodash/shuffle'] }),
-  Processor_TypeScript_Generic_Transpiler(
-    {
-      include_patterns: ['**/*{.ts,.tsx}'],
-      exclude_patterns: ['**/*.d.ts', '**/*{.module,.iife}{.ts,.tsx}', '**/*{.deprecated,.example,.test}{.ts,.tsx}'],
-    },
-    { target: 'browser' },
-  ),
+  Processor_TypeScript_Generic_Bundler({}, { bundler_mode: 'iife' }),
+  Processor_TypeScript_Generic_Bundler({ external: ['lodash/shuffle'] }, { bundler_mode: 'module' }),
+  Processor_TypeScript_Generic_Transpiler({}, { exclude_patterns: ['**/*.d.ts', `**/*${PATTERN.IIFE_MODULE}`, `**/*{.test}${PATTERN.JS_JSX_TS_TSX}`] }),
   //
 );
 
