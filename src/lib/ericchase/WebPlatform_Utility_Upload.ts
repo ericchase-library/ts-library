@@ -7,7 +7,7 @@ export function Async_WebPlatform_Utility_Upload(options?: { ext_or_mime?: strin
       input.setAttribute('accept', options.ext_or_mime);
     }
     input.style.setProperty('display', 'none');
-    input.addEventListener('error', async (event) => {
+    input.addEventListener('error', (event) => {
       reject(event.error);
     });
     input.addEventListener('change', async () => {
