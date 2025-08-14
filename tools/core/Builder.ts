@@ -772,7 +772,7 @@ async function KillChildren() {
 
 function KillProcess(pid: number) {
   return new Promise<string>((resolve, reject) => {
-    treekill(pid, 'SIGKILL', (error) => {
+    treekill(pid, 'SIGTERM', (error) => {
       if (error) {
         reject(error);
       } else {
