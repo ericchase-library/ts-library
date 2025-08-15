@@ -9,5 +9,5 @@
   },
 
   // Include files for typescript/intellisense
-  "include": ["./out/**/*.js"]
+  "include": ["out/**/*"]
 }

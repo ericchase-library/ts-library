@@ -10,13 +10,15 @@ import { Step_Bun_Run } from './core/step/Step_Bun_Run.js';
 import { Step_FS_Clean_Directory } from './core/step/Step_FS_Clean_Directory.js';
 import { Step_FS_Mirror_Directory } from './core/step/Step_FS_Mirror_Directory.js';
 
+const template_path = 'C:/Code/Base/JavaScript-TypeScript/@Template';
+
 if (BunPlatform_Args_Has('--dev')) {
   Builder.SetMode(Builder.MODE.DEV);
 }
 Builder.SetVerbosity(Builder.VERBOSITY._1_LOG);
 
 Builder.SetStartUpSteps(
-  Step_Dev_Project_Update_Config({ project_path: './' }),
+  Step_Dev_Project_Update_Config({ project_path: '.' }),
   Step_Bun_Run({ cmd: ['bun', 'update', '--latest'], showlogs: false }),
   Step_Bun_Run({ cmd: ['bun', 'install'], showlogs: false }),
   Step_FS_Clean_Directory(Builder.Dir.Out),
@@ -51,8 +53,8 @@ Builder.SetCleanUpSteps(
     ],
   }),
   // Update Template Project
-  Step_Dev_Project_Sync_Core({ from_path: './', to_path: 'C:/Code/Base/JavaScript-TypeScript/@Template' }),
-  Step_Bun_Run({ cmd: ['bunx', 'prettier', '--write', '.'], dir: 'C:/Code/Base/JavaScript-TypeScript/@Template', showlogs: false }),
+  Step_Dev_Project_Sync_Core({ from_path: '.', to_path: template_path }),
+  Step_Bun_Run({ cmd: ['bunx', 'prettier', '--write', '.'], dir: template_path, showlogs: false }),
   //
 );
 

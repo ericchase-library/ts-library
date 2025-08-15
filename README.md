@@ -39,6 +39,68 @@ Beyond that, code formatting is secondly a way to make the code base easier to r
 
 That said, while I hate the `Prettier` formatter, it has been the most consistent and reliable formatter for web development since I have started this project. I have tried others, like `Biome`; but I always run into a new problem every week or month when I do. So for now, I'm sticking to `Prettier` until something better comes along.
 
+## Glob Patterns
+
+Glob patterns are essential for my build tools and even many of the other tools we use: vscode, git, libraries and frameworks, etc. Unfortunately, there is no standard or specification for glob patterns. It seems like literally everyone uses their own rules when it comes to glob patterns. This makes it difficult and confusing to write glob patterns between different tools. For that reason, I decided to make this section and try to outline the different systems that are used in my template projects.
+
+- `/` to separate _path segments_
+- `*` to match zero or more characters in a _path segment_
+- `?` to match on one character in a _path segment_
+- `**` to match any number of _path segments_, including none
+- `{}` to group conditions (for example {`**/*.html`, `**/*.txt`} matches all HTML and text files)
+- `[]` to declare a range of characters to match (`example.[0-9]` to match on `example.0`, `example.1`, …)
+- `[!...]` to negate a range of characters to match (`example.[!0-9]` to match on `example.a`, `example.b`, but not `example.0`)
+
+### Glob Pattern Caveats
+
+`**`
+
+> To match any number of _path segments_, `**` must be alone in its own path segment: `**`, `**/*`, `**/dir/*`, `dir/**`, `dir/**/*`, etc. If used alongside any other characters in a _path segment_, it will be treated like a single `*` instead. For example, `**.js` is equivalent to `*.js`, and `**dir/*` is equivalent to `*dir/*`.
+>
+> `**` matches all folders, subfolders, _and_ files. Yes, that means the pattern `**` itself will match literally everything. You do not need `**/*`; `**` will suffice. That means, `dir/**` will match all files in the `dir` and all files in all subfolders of `dir`. Because of this, developers usually never use `\` in paths for cross platform code. You should stick to `/` only. Likewise, Bun and Node treat `/` as the _path separator_ for all platforms, so you almost never need to use `\` anywhere.
+
+`\` and `/`
+
+> `\` is a _path separator_ on Windows.
+>
+> `\` is **NOT** a _path separator_ on Linux/macOS. It is a valid **path character** on Linux/macOS.
+>
+> `/` is the _path separator_ on Linux/macOS.
+>
+> `/` is sometimes allowed as a _path separator_ on Windows. It is **NOT** a valid _path character_ on Windows.
+>
+> These distinctions are extremely important; and yet, few people know that `\` can be used in file and folders names on Linux/macOS. To put it simply: on Windows, `dir1\dir2` refers to a folder named `dir1` and its subfolder (or file) named `dir2`. On Linux/macOS, `dir1\dir2` is **ONE** folder (or file), not two. On Linux/macOS, `dir1/dir2` refers to a folder named `dir1` and its subfolder (or file) named `dir2`.
+>
+> Again, this distinction is extremely important.
+>
+> When writing glob patterns, `/` is **the** _path separator_ for Windows, Linux, _and_ macOS. `\` is only a valid _path character_ on Linux/macOS.
+
+`./`
+
+> When writing glob patterns, do **NOT** prefix your paths with `./` or `/`. VSCode treats patterns as starting at the project root folder. Glob patterns that start with `./` and `/` will fail. To make matters worse, `/` refers to the drive root with Bun's glob scanner, and Bun even handles `./` correctly.
+>
+> Overall, you **_should not_** prefix any glob patterns used in general with `./`, and you **_should not_** prefix any glob patterns used in project relative VSCode settings with `/`. It's safer to simply start your glob patterns with the file or folder name you want, or `*` and `**`.
+
+`.gitignore` and `.prettierignore`
+
+> These config files use a system very similar to VSCode's and Bun's glob pattern system, but there are some important differences.
+>
+> Patterns in `.gitignore` and `.prettierignore` are treated as though they are prefixed with `**/` and suffixed with `/**`. For example, the pattern `dir` will match any file, folder, and subfolder named `dir` anywhere. You don't need to add any `**`.
+>
+> On the other hand, if you want to match a file or folder in the project root folder only, then you must actualy prefix the pattern with `/`. For example, `/dir` will only match a file or folder named `dir` in the project root folder. That's right, `/` does **NOT** refer to the drive root in config files like `.gitignore` and `.prettierignore`. For these config files, `/` refers to the current folder that the config file is located. In essence `/` acts like `./`.
+>
+> So what about `./` in these config files? You guessed it, like with VSCode settings, `./` doesn't work in config files like `.gitignore` and `.prettierignore`, so just don't use it.
+>
+> Lastly, a _trailing_ `/` on a pattern in `.gitignore` and `.prettierignore` specifically means the pattern should only match a folder. That means `abc` matches files and folders named `abc`, but `abc/` _only_ matches folders named `abc`. Unfortunately, there is no counterpart for matching _only_ files. You would need to do some pattern jitsu for that.
+
+`.tsconfig.json`
+
+> Unlike with VSCode's and Bun's glob pattern rules, `**` in `.tsconfig.json` **_only_** matches folders and subfolders. Glob patterns in `.tsconfig.json` may not end with `/**`. You may use `*` or `**/*` with any number of valid path characters in the final path segment.
+
+Hopefully this is enough to keep you from making common mistakes. I generally understand these rules, so the patterns you find in this project _should_ be correct. You can use them for inspiration.
+
+When working with my build tools, you should not prefix your patterns with `./` or `/`. Doing so will likely break the processor or step you want to use.
+
 ## Project Disclaimer
 
 **This project is updated often!**
