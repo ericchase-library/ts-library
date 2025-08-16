@@ -1,4 +1,5 @@
 import { BunPlatform_Args_Has } from '../src/lib/ericchase/BunPlatform_Args_Has.js';
+import { NODE_PATH } from '../src/lib/ericchase/NodePlatform.js';
 import { Step_Dev_Format } from './core-dev/step/Step_Dev_Format.js';
 import { Step_Dev_Project_Sync_Core } from './core-dev/step/Step_Dev_Project_Sync_Core.js';
 import { Step_Dev_Project_Update_Config } from './core-dev/step/Step_Dev_Project_Update_Config.js';
@@ -41,8 +42,8 @@ Builder.SetAfterProcessingSteps(
 Builder.SetCleanUpSteps(
   // Update Local Server Files
   Step_FS_Mirror_Directory({
-    from_path: 'src/lib/ericchase/',
-    to_path: 'server/src/lib/ericchase/',
+    from_path: NODE_PATH.join(Builder.Dir.Lib, 'ericchase'),
+    to_path: NODE_PATH.join('server', 'src', 'lib', 'ericchase'),
     include_patterns: [
       'Core_Console_Error.ts',
       'Core_Console_Log.ts',
