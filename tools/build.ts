@@ -44,12 +44,14 @@ Builder.SetCleanUpSteps(
     from_path: 'src/lib/ericchase/',
     to_path: 'server/src/lib/ericchase/',
     include_patterns: [
-      'Core_Console_Log.ts', //
+      'Core_Console_Error.ts',
+      'Core_Console_Log.ts',
       'NodePlatform_Directory_ReadDir.ts',
       'NodePlatform_Path_Is_Directory.ts',
       'NodePlatform_Path_Is_SymbolicLink.ts',
       'NodePlatform_PathObject_Relative_Class.ts',
       'NodePlatform.ts',
+      //
     ],
   }),
   // Update Template Project

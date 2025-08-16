@@ -12,8 +12,9 @@
     ".gitignore": true,
     ".prettierignore": true,
     ".prettierrc": true,
-    "tsconfig.json": true,
-    "bun.lock": true
+    "bun.lock": true,
+    "package.json": true,
+    "tsconfig.json": true
   },
   "typescript.tsserver.experimental.enableProjectDiagnostics": true
 }
