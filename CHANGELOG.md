@@ -1,19 +1,54 @@
+## 2025-08-16
+
+Since last changelog entry, I have:
+
+- Added more error checking in general
+- Added `WebPlatform_Utility_Upload` API
+- Updated the basic web server to use modern bun API, better code organization, and `127.0.0.1` instead of localhost
+- Given user finer control over pattern matching in processors
+- Added some documentation to processors and steps
+- Fixed some rare bugs I found in build tools (still some rare bugs left, but should be acceptable)
+- Fixed child process killing method
+- Exposed more options in the `htmlutil` bundle to allow configuration for xml and non-standard html
+- Added documentation about glob patterns to readme
+- Condensed the `.gitignore` file a bit and removed the comments, many of which were inaccurate or wrong
+  - If you need to know what one of the patterns means, you can ask AI to help you figure it out
+- New script `track.ts` which let's you track sub-repos in main repo
+  - Added `.git.git` to `.gitignore` to manage this
+- Added logic to automatically detect server host for hot reloading
+- Added `Builder.SetWatcherDelay` function to allow control over starting delay between file watcher scans
+  - This only affects the starting delay. the current delay itself will periodically increase
+  - If the watcher detects actual file changes, the current delay will be reset back to the starting delay
+- Added `"quoteProps": "consistent"` to `.prettierrc` because consistency is key in programming
+- Updated build tools bundles
+  - Will try to automate the update process for these tools somehow
+  - Will upload those repos eventually
+
+Experimental changes:
+
+- Trying out `Bun.build({ format: 'iife' })` instead of my custom workaround
+
 ## 2025-08-07
 
 ### We are now on Build Tools v4!
 
 Please check out the updated README!
 
-- nearly everything has been modified
-- the API library is now flat, with many more tests
-- there is a simpler file watcher built into the tools/core/Cacher code
-- the tools/core/Builder code is much simpler
-  - should now correctly handle upstream/downstream dependencies
-- many of the provided processors and steps have been revamped
-- there are more systems for automating the update process
-  - use the repo-config folder to set per-project settings
-  - by default, project config files will be updated by merging repo-config and tools/base-config files
-  - you won't need this feature if you don't plan on updating your project through the push pull system. you can disable it by removing Step_Dev_Project_Update_Config in tools/build.ts
+- Nearly everything has been modified
+- The API library is now flat, with many more tests
+- There is a simpler file watcher built into the `tools/core/Cacher.ts` code
+- The `tools/core/Builder.ts` code is much simpler
+  - Should now correctly handle upstream/downstream dependencies
+- Many of the provided processors and steps have been revamped
+- There are more systems for automating the update process
+  - Use the repo-config folder to set per-project settings
+  - By default, project config files will be updated by merging repo-config and tools/base-config files
+  - You won't need this feature if you don't plan on updating your project through the push pull system. you can disable it by removing Step_Dev_Project_Update_Config in `tools/build.ts`
+
+## 2025-08-01
+
+- Massively restructured the entirety of my library API
+- Finally fixed(?) the devastating errors in the build tools
 
 ## 2025-05-26
 

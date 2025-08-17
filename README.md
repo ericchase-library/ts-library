@@ -2,15 +2,15 @@
 
 https://github.com/ericchase-library/ts-library
 
-This project houses the TypeScript library that I build to make common webdev workflows easier. Everyone is free to use it! I tried to make this comprehensive README file to explain everything about the project. If you have any questions or suggestions, or just want some basic help setting up your dev environment, please feel free to contact me!
+This project houses the TypeScript library that I build to make common web development workflows easier. Everyone is free to use it! I tried to make this comprehensive README file to explain everything about the project. If you have any questions or suggestions, or just want some basic help setting up your dev environment, please feel free to contact me!
 
-You can find the email I use for github on my github profile:
+You can find the email I use for GitHub on my GitHub profile:
 
-- github @ericchase https://github.com/ericchase
+- GitHub `@ericchase` https://github.com/ericchase
 
 If you want to reach me sooner with modern technology, try discord:
 
-- discord @chaseeric https://discordapp.com/users/208091532648120320
+- Discord `@chaseeric` https://discordapp.com/users/208091532648120320
 - Zero to Hero https://discord.gg/cXG3KGKuu6
 - JavaScript.info https://discord.gg/AuEWpFkfD4
 
@@ -33,7 +33,7 @@ There are some steps under `tools/core-dev` that can sync files between two proj
 
 ### Code Formatting
 
-The most important use case for code formatting is code review through version control (git). Every project should have a formatter set up that can be easily run through a command. The command could run an npm package or a custom formatting scripts. It doesn't matter how it does it, as long as it does it.
+The most important use case for code formatting is code review through version control (Git). Every project should have a formatter set up that can be easily run through a command. The command could run an NPM package or a custom formatting scripts. It doesn't matter how it does it, as long as it does it.
 
 Beyond that, code formatting is secondly a way to make the code base easier to read for the developer. As long as you diligently run the project formatter before committing changes, you are free to format the code temporarily however you like! And I encourage you to do so, because the more familiar the code is to you, the easier it will be to read and write for you.
 
@@ -41,7 +41,7 @@ That said, while I hate the `Prettier` formatter, it has been the most consisten
 
 ## Glob Patterns
 
-Glob patterns are essential for my build tools and even many of the other tools we use: vscode, git, libraries and frameworks, etc. Unfortunately, there is no standard or specification for glob patterns. It seems like literally everyone uses their own rules when it comes to glob patterns. This makes it difficult and confusing to write glob patterns between different tools. For that reason, I decided to make this section and try to outline the different systems that are used in my template projects.
+Glob patterns are essential for my build tools and even many of the other tools we use: VSCode, Git, libraries and frameworks, etc. Unfortunately, there is no standard or specification for glob patterns. It seems like literally everyone uses their own rules when it comes to glob patterns. This makes it difficult and confusing to write glob patterns between different tools. For that reason, I decided to make this section and try to outline the different systems that are used in my template projects.
 
 - `/` to separate _path segments_
 - `*` to match zero or more characters in a _path segment_
@@ -79,7 +79,7 @@ Glob patterns are essential for my build tools and even many of the other tools 
 
 > When writing glob patterns, do **NOT** prefix your paths with `./` or `/`. VSCode treats patterns as starting at the project root folder. Glob patterns that start with `./` and `/` will fail. To make matters worse, `/` refers to the drive root with Bun's glob scanner, and Bun even handles `./` correctly.
 >
-> Overall, you **_should not_** prefix any glob patterns used in general with `./`, and you **_should not_** prefix any glob patterns used in project relative VSCode settings with `/`. It's safer to simply start your glob patterns with the file or folder name you want, or `*` and `**`.
+> Overall, you **_should not_** prefix any glob patterns used in general with `./`, and you **_should not_** prefix any glob patterns used in project relative VSCode settings with `/`. It's safer to simply start your glob patterns with `*`, `**`, and/or the file or folder name you want.
 
 `.gitignore` and `.prettierignore`
 
@@ -87,11 +87,11 @@ Glob patterns are essential for my build tools and even many of the other tools 
 >
 > Patterns in `.gitignore` and `.prettierignore` are treated as though they are prefixed with `**/` and suffixed with `/**`. For example, the pattern `dir` will match any file, folder, and subfolder named `dir` anywhere. You don't need to add any `**`.
 >
-> On the other hand, if you want to match a file or folder in the project root folder only, then you must actualy prefix the pattern with `/`. For example, `/dir` will only match a file or folder named `dir` in the project root folder. That's right, `/` does **NOT** refer to the drive root in config files like `.gitignore` and `.prettierignore`. For these config files, `/` refers to the current folder that the config file is located. In essence `/` acts like `./`.
+> On the other hand, if you want to match a file or folder in the project root folder only, then you must actually prefix the pattern with `/`. For example, `/dir` will only match a file or folder named `dir` in the project root folder. (Technically, `/dir` will only match a file or folder named `dir` in the same folder that the `.gitignore` and/or `.prettierignore` file is inside, just to be clear.) That's right, `/` does **NOT** refer to the drive root in config files like `.gitignore` and `.prettierignore`. For these config files, `/` refers to the current folder that the config file is located. In essence `/` acts like `./`.
 >
 > So what about `./` in these config files? You guessed it, like with VSCode settings, `./` doesn't work in config files like `.gitignore` and `.prettierignore`, so just don't use it.
 >
-> Lastly, a _trailing_ `/` on a pattern in `.gitignore` and `.prettierignore` specifically means the pattern should only match a folder. That means `abc` matches files and folders named `abc`, but `abc/` _only_ matches folders named `abc`. Unfortunately, there is no counterpart for matching _only_ files. You would need to do some pattern jitsu for that.
+> Lastly, a _trailing_ `/` on a pattern in `.gitignore` and `.prettierignore` specifically means the pattern should only match a folder. That means `abc` matches files and folders named `abc`, but `abc/` _only_ matches folders named `abc`. Unfortunately, there is no counterpart for matching _only_ files. You would need to do some pattern jutsu for that.
 
 `.tsconfig.json`
 
@@ -109,7 +109,7 @@ When working with my build tools, you should not prefix your patterns with `./` 
 - Please check the `CHANGELOG.md` file, which may or may not contain recent changes.
 - Most users should instead use one of the template projects as a base.
 
-**Read the `./tools/build.ts` file before running the build script.**
+**Read the `tools/build.ts` file before running the build script.**
 
 - The build script for this project attempts to update a second, hard-coded folder at `C:/Code/Base/JavaScript-TypeScript/@Template`, which exists on **_my_** machine, but extremely unlikely to exist on **_your_** machine. If you want to work on this project like I do, then you'll need to set up a folder structure similar to mine. You can find that folder structure at https://github.com/ericchase/code-base-template. This project would be in `@Library` while the base template project would be in `@Template`.
 
@@ -121,7 +121,7 @@ I generally recommend VSCode for web development.
 
 - https://bun.sh/
 
-**Install npm dependencies**
+**Install NPM dependencies**
 
 ```
 bun install
@@ -143,35 +143,35 @@ bun run build
 
 ## Project Structure
 
-### ./docs/
+#### `docs/`
 
 Some light documentation for various parts of the build tools.
 
-### ./out/
+#### `out/`
 
 This folder is produced during the normal build process and would contain the final compiled/bundled source code.
 
-For this library project, the TypeScript under `./src/lib` is transpiled into JavaScript to produce a pure JavaScript library that you could probably use directly. However, this is a TypeScript library, and you are meant to use the TypeScript files for development.
+For this library project, the TypeScript under `src/lib/` is translated into JavaScript to produce a pure JavaScript library that you could probably use directly. However, this is a TypeScript library, and you are meant to use the TypeScript files for development.
 
 **Note:**
 
-If you want a custom build or bundle, you'll need to modify the `./tools/build.ts` file and potentially write your own Processor and Step modules for any new functionality. Compared to the original build tools iteration, this process should be fairly easy. The goal, as always, is to be able to do whatever you can think of without restriction. While some things may be difficult or impossible, most things should be doable, and reasonably so.
+If you want a custom build or bundle, you'll need to modify the `tools/build.ts` file and potentially write your own Processor and Step modules for any new functionality. Compared to the original build tools iteration, this process should be fairly easy. The goal, as always, is to be able to do whatever you can think of without restriction. While some things may be difficult or impossible, most things should be doable, and reasonably so.
 
 Check https://github.com/orgs/ericchase-library/repositories for pre-built template projects. If none of those projects seem to fit your needs, feel free to send me a message.
 
-### ./repo-config/
+#### `repo-config/`
 
 Folder used by my config file update system. If desired, you can manually maintain project specific config settings here, and use the update system to merge with base config settings. More information can be found in an earlier section.
 
-### ./server/
+#### `server/`
 
-This is a local dev server I wrote for live testing project code. The server folder is a separate project with its own repository at https://github.com/ericchase/tool--basic-web-server. It has its own config files and package dependencies that I maintain and update when needed. Of course, you could also use a different dev server tool like `Vite` or the `Live Server` extension for VSCode. I prefer writing and using my own server, so that's why I include it.
+This is a local dev server I wrote for live testing project code. The server folder is a separate project with its own repository at https://github.com/ericchase/tool--basic-web-server. It has its own config files and package dependencies that I maintain and update when needed. Of course, you could also use a different dev tool like Vite or the Live Server extension for VSCode. I prefer writing and using my own server, so that's why I include it.
 
-### ./src/
+#### `src/`
 
-This folder contains _all_ of the library API files including test files. Please rely on the tests cases for examples. If you _just_ want the library files themselves, then clone one of the template projects from https://github.com/orgs/ericchase-library/repositories.
+This folder contains _all_ of the library API files including test files. Please rely on the tests cases for examples.
 
-### ./tools/
+#### `tools/`
 
 This folder contains the scripts we use to automate work flows, like:
 
@@ -179,23 +179,23 @@ This folder contains the scripts we use to automate work flows, like:
 - performing some kind of maintenance on project files;
 - and even other operations like:
   - opening all the source files in your project;
-  - re-installing all the npm packages in your package.json file; etc.
+  - re-installing all the NPM packages in your `package.json` file; etc.
 
-You can literally do anything you want, which is the point of this library. The scripts should be easy to read, easy to write, and easy to modify. The goal isn't to produce a complete packaged build tool like Gulp, Grunt, Webpack, Makefile, etc. You can use those tools as well! The main idea here is to get away from writing clumsy npm scripts in package.json that rely on other packaged tools.
+You can literally do anything you want, which is the point of this library. The scripts should be easy to read, easy to write, and easy to modify. The goal isn't to produce a complete packaged build tool like Gulp, Grunt, Webpack, Make, etc. You can use those tools as well! The main idea here is to get away from writing clumsy NPM scripts in `package.json` that rely on other packaged tools.
 
 **Note:**
 
-The scripts under `./tools/` also use modules from this library (from `./src/lib`). To reiterate, the goal of these scripts is not to produce a package; though, you can do that if you want to! For new projects, you would ideally clone one of the template project mentioned above, and customize the `./tools/build.ts` file how you see fit.
+The scripts under `tools/` also use modules from this library (from `src/lib`). To reiterate, the goal of these scripts is not to produce a package; though, you can do that if you want to! For new projects, you would ideally clone one of the template project mentioned above, and customize the `tools/build.ts` file how you see fit.
 
-### ./
+### `.`
 
-You may create whatever config files your project needs, but here is the list of minimally required ones:
+You may create whatever config files your project needs, but here is the list of the minimally required config files, which also tie into the update system described above:
 
-- .gitignore
-- .prettierignore
-- .prettierrc
-- package.json
-- tsconfig.json
+- `.gitignore`
+- `.prettierignore`
+- `.prettierrc`
+- `package.json`
+- `tsconfig.json`
 
 ## Copyright & License
 
@@ -236,7 +236,7 @@ limitations under the License.
 
 - _your usage of this source code_
 
-That said, this license and copyright notice **DOES NOT** restrict your usage of this template in any way, except for the terms and conditions under clause 3 of the Apache 2.0 License regarding patents: `3. Grant of Patent License.` As you may or may not know, every piece of work is automatically protected and restricted by **copyright** law. The purpose of a **license** is to "unrestrict" the copyright owner's protections under that law, granting others access to use their work. The **patent system**, on the other hand, is a system for **applying restrictions** to the implementation of ideas. Specifically:
+That said, this license and copyright notice **DOES NOT** restrict your usage of this template in any way, except for the terms and conditions under clause 3 of the Apache 2.0 License regarding patents: `3. Grant of Patent License.` As you may or may not know, every piece of work is automatically protected and restricted by **copyright** law. The purpose of a **license** is to relax the copyright owner's protections under that law, granting others access to use their work. The **patent system**, on the other hand, is a system for **applying restrictions** to the implementation of ideas. Specifically:
 
 > A patent is a type of intellectual property that gives its owner the legal right to exclude others from making, using, or selling an invention for a limited period of time in exchange for publishing an enabling disclosure of the invention. - https://en.wikipedia.org/wiki/Patent
 
