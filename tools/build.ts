@@ -3,7 +3,7 @@ import { NODE_PATH } from '../src/lib/ericchase/NodePlatform.js';
 import { Step_Dev_Format } from './core-dev/step/Step_Dev_Format.js';
 import { Step_Dev_Project_Sync_Core } from './core-dev/step/Step_Dev_Project_Sync_Core.js';
 import { Step_Dev_Project_Update_Config } from './core-dev/step/Step_Dev_Project_Update_Config.js';
-import { Step_Dev_Server } from './core-web/step/Step_Dev_Server.js';
+import { Step_Run_Dev_Server } from './core-web/step/Step_Run_Dev_Server.js';
 import { Builder } from './core/Builder.js';
 import { PATTERN, Processor_TypeScript_Generic_Bundler } from './core/processor/Processor_TypeScript_Generic_Bundler.js';
 import { Processor_TypeScript_Generic_Transpiler } from './core/processor/Processor_TypeScript_Generic_Transpiler.js';
@@ -35,7 +35,7 @@ Builder.SetProcessorModules(
 );
 
 Builder.SetAfterProcessingSteps(
-  Step_Dev_Server(),
+  Step_Run_Dev_Server(),
   //
 );
 
