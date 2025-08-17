@@ -62,6 +62,74 @@ export namespace Builder {
     _2_DEBUG,
   }
 
+  export let Dir = {
+    get Lib() {
+      return _dir_lib;
+    },
+    set Lib(path: string) {
+      _dir_lib = NODE_PATH.join(path);
+    },
+    get Out() {
+      return _dir_out;
+    },
+    set Out(path: string) {
+      _dir_out = NODE_PATH.join(path);
+    },
+    get Src() {
+      return _dir_src;
+    },
+    set Src(path: string) {
+      _dir_src = NODE_PATH.join(path);
+    },
+    get Tools() {
+      return _dir_tools;
+    },
+    set Tools(path: string) {
+      _dir_tools = NODE_PATH.join(path);
+    },
+  };
+
+  export function GetMode(): Builder.MODE {
+    return _mode;
+  }
+  export function SetMode(mode: Builder.MODE): void {
+    _mode = mode;
+  }
+
+  export function GetVerbosity(): Builder.VERBOSITY {
+    return _verbosity;
+  }
+  export function SetVerbosity(verbosity: Builder.VERBOSITY): void {
+    _verbosity = verbosity;
+  }
+
+  export function GetWatcherDelay(): number {
+    return _watcher_delay;
+  }
+  export function SetWatcherDelay(delay_ms: number): void {
+    _watcher_delay = delay_ms;
+  }
+
+  export function SetStartUpSteps(...steps: Builder.Step[]): void {
+    array__startup_steps = steps;
+  }
+  export function SetBeforeProcessingSteps(...steps: Builder.Step[]): void {
+    array__before_steps = steps;
+  }
+  export function SetProcessorModules(...modules: Builder.Processor[]): void {
+    array__processor_modules = modules;
+  }
+  export function SetAfterProcessingSteps(...steps: Builder.Step[]): void {
+    array__after_steps = steps;
+  }
+  export function SetCleanUpSteps(...steps: Builder.Step[]): void {
+    array__cleanup_steps = steps;
+  }
+
+  export async function Start(): Promise<void> {
+    await Init();
+  }
+
   export interface Processor {
     ProcessorName: string;
     onStartUp?: () => Promise<void>;
@@ -69,16 +137,13 @@ export namespace Builder {
     onRemove?: (files: Set<Builder.File>) => Promise<void>;
     onCleanUp?: () => Promise<void>;
   }
-
   export type ProcessorMethod = (file: Builder.File) => Promise<void>;
-
   export interface Step {
     StepName: string;
     onStartUp?: () => Promise<void>;
     onRun?: () => Promise<void>;
     onCleanUp?: () => Promise<void>;
   }
-
   export class File {
     static Get(path: string) {
       return map__path_to_file.get(path);
@@ -203,67 +268,6 @@ export namespace Builder {
       this.$data.text = text;
     }
   }
-
-  export let Dir = {
-    get Lib() {
-      return _dir_lib;
-    },
-    set Lib(path: string) {
-      _dir_lib = NODE_PATH.join(path);
-    },
-    get Out() {
-      return _dir_out;
-    },
-    set Out(path: string) {
-      _dir_out = NODE_PATH.join(path);
-    },
-    get Src() {
-      return _dir_src;
-    },
-    set Src(path: string) {
-      _dir_src = NODE_PATH.join(path);
-    },
-    get Tools() {
-      return _dir_tools;
-    },
-    set Tools(path: string) {
-      _dir_tools = NODE_PATH.join(path);
-    },
-  };
-
-  export function GetMode(): Builder.MODE {
-    return _mode;
-  }
-  export function SetMode(mode: Builder.MODE): void {
-    _mode = mode;
-  }
-
-  export function GetVerbosity(): Builder.VERBOSITY {
-    return _verbosity;
-  }
-  export function SetVerbosity(verbosity: Builder.VERBOSITY): void {
-    _verbosity = verbosity;
-  }
-
-  export function SetStartUpSteps(...steps: Builder.Step[]): void {
-    array__startup_steps = steps;
-  }
-  export function SetBeforeProcessingSteps(...steps: Builder.Step[]): void {
-    array__before_steps = steps;
-  }
-  export function SetProcessorModules(...modules: Builder.Processor[]): void {
-    array__processor_modules = modules;
-  }
-  export function SetAfterProcessingSteps(...steps: Builder.Step[]): void {
-    array__after_steps = steps;
-  }
-  export function SetCleanUpSteps(...steps: Builder.Step[]): void {
-    array__cleanup_steps = steps;
-  }
-
-  export async function Start(): Promise<void> {
-    await Init();
-  }
 }
 
 let _dir_lib = 'src/lib';
@@ -274,6 +278,7 @@ let _dir_tools = 'tools';
 let _channel = Logger('Builder').newChannel();
 let _mode = Builder.MODE.BUILD;
 let _verbosity = Builder.VERBOSITY._1_LOG;
+let _watcher_delay = 250;
 
 let array__startup_steps: Builder.Step[] = [];
 let array__before_steps: Builder.Step[] = [];
@@ -379,7 +384,7 @@ async function Async_ScanSourceFolder() {
 }
 
 function SetupWatcher() {
-  unwatch_source_directory = Cacher_Watch_Directory(Builder.Dir.Src, 250, async (added, deleted, modified) => {
+  unwatch_source_directory = Cacher_Watch_Directory(Builder.Dir.Src, Builder.GetWatcherDelay(), async (added, deleted, modified) => {
     if (quitting === false) {
       for (const path of added) {
         set__added_paths.add(path);

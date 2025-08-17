@@ -92,9 +92,11 @@ class Class implements Builder.Processor {
 
   async onProcessModule(file: Builder.File): Promise<void> {
     try {
+      const define: Options['define'] = typeof this.config.define === 'function' ? this.config.define() : this.config.define;
+
       const results = await ProcessBuildResults(
         Bun.build({
-          define: typeof this.config.define === 'function' ? this.config.define() : this.config.define,
+          define,
           entrypoints: [file.src_path],
           env: this.config.env,
           external: this.config.external,
@@ -148,12 +150,15 @@ class Class implements Builder.Processor {
   }
   async onProcessIIFEScript(file: Builder.File): Promise<void> {
     try {
+      const define: Options['define'] = (typeof this.config.define === 'function' ? this.config.define() : this.config.define) ?? {};
+      define['import.meta.url'] = 'undefined';
+
       const results = await ProcessBuildResults(
         Bun.build({
-          define: typeof this.config.define === 'function' ? this.config.define() : this.config.define,
+          define,
           entrypoints: [file.src_path],
           env: this.config.env,
-          format: 'esm',
+          format: 'iife',
           minify: {
             identifiers: false,
             syntax: false,
@@ -161,9 +166,9 @@ class Class implements Builder.Processor {
           },
           sourcemap: this.config.sourcemap,
           target: this.config.target,
-          // add iife around scripts
-          banner: '(() => {\n',
-          footer: '})();',
+          // add IIFE syntax around scripts
+          // banner: '(() => {\n',
+          // footer: '})();',
         }),
       );
       if (results.bundletext !== undefined) {
@@ -326,12 +331,12 @@ function RemapModuleImports(filepath: string, filetext: string, external?: strin
           let resolved_path = '';
           try {
             if (import_statement.path.startsWith('.')) {
-              // The import.meta.resolve api uses the current script file (this one) for resolving paths, which isn't what we want.
-              // Instead, we'll use Node's resolve api to resolve the relative path using the source file's directory.
+              // The import.meta.resolve API uses the current script file (this one) for resolving paths, which isn't what we want.
+              // Instead, we'll use Node's resolve API to resolve the relative path using the source file's directory.
               resolved_path = NODE_PATH.resolve(NODE_PATH.dirname(source_comment.path), import_statement.path);
             } else {
-              // Non-relative can be resolved using the import.meta.resolve api. If the file/module does not actually exist, an error will be thrown.
-              // Node's fileURLToPath api will convert the resulting url path into a valid file path.
+              // Non-relative can be resolved using the import.meta.resolve API. If the file/module does not actually exist, an error will be thrown.
+              // Node's fileURLToPath API will convert the resulting URL path into a valid file path.
               try {
                 const url = new URL(import.meta.resolve(import_statement.path));
                 if (url.protocol === 'file:') {
@@ -344,7 +349,7 @@ function RemapModuleImports(filepath: string, filetext: string, external?: strin
           }
           if (resolved_path.startsWith(srcpath)) {
             // Convert resolved path into relative path
-            // Import paths generally follow posix path rules, so we can convert to a posix relative path object here
+            // Import paths generally follow POSIX path rules, so we can convert to a POSIX relative path object here
             let relative_path_object = NodePlatform_PathObject_Relative_Class(NODE_PATH.relative(dirpath, resolved_path)).toPosix();
             // Set path extension to .js if the path is a script
             switch (relative_path_object.ext) {

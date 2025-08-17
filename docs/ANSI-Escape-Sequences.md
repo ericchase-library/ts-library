@@ -11,9 +11,9 @@ Standard escape codes are prefixed with `Escape`:
 - Hexadecimal: `\x1B`
 - Decimal: `27`
 
-Followed by the command, somtimes delimited by opening square bracket (`[`), known as a Control Sequence Introducer (CSI), optionally followed by arguments and the command itself.
+Followed by the command, sometimes delimited by opening square bracket (`[`), known as a Control Sequence Introducer (CSI), optionally followed by arguments and the command itself.
 
-Arguments are delimeted by semi colon (`;`).
+Arguments are delimited by semi colon (`;`).
 
 For example:
 
@@ -167,7 +167,7 @@ The table starts with the original 16 colors (0-15).
 
 The proceeding 216 colors (16-231) or formed by a 3bpc RGB value offset by 16, packed into a single value.
 
-The final 24 colors (232-255) are grayscale starting from a shade slighly lighter than black, ranging up to shade slightly darker than white.
+The final 24 colors (232-255) are grayscale starting from a shade slightly lighter than black, ranging up to shade slightly darker than white.
 
 Some emulators interpret these steps as linear increments (`256 / 24`) on all three channels, although some emulators may explicitly define these values.
 
