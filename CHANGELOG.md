@@ -23,6 +23,15 @@ Since last changelog entry, I have:
 - Updated build tools bundles
   - Will try to automate the update process for these tools somehow
   - Will upload those repos eventually
+- Removed `@types/adm-zip`, `adm-zip`, and `xxhash-wasm` packages
+  - Altogether, they required ~2.66MiB of storage space
+  - Replacing `adm-zip` is the custom bundle `zip-util` that costs ~54.3KiB
+  - Bun ships with it's own hashing implementations, so I've switched to one of those
+- Added a custom bundle as alternative to `jsonc-parser`, which would have cost ~207KiB
+  - The custom bundle `jsonc-parse` costs ~13.4KiB
+- Note, the custom bundle `html-util` (added a while back) costs ~147KiB
+  - The packages for it (`css-select` and `htmlparser2`) would have cost ~2.54MiB
+  - I am making these efforts to save as much space as possible, while also simplifying the project setup
 
 Experimental changes:
 

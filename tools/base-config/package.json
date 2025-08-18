@@ -1,11 +1,9 @@
 {
   "dependencies": {},
   "devDependencies": {
-    "@types/adm-zip": "0.5.7",
     "@types/bun": "1.2.20",
     "@types/chrome": "0.1.4",
     "@types/node": "24.3.0",
-    "adm-zip": "0.5.16",
     "tree-kill": "1.2.2"
   },
   "scripts": {
