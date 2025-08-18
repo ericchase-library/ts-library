@@ -25,7 +25,7 @@ Since last changelog entry, I have:
   - Will upload those repos eventually
 - Removed `@types/adm-zip`, `adm-zip`, and `xxhash-wasm` packages
   - Altogether, they required ~2.66MiB of storage space
-  - Replacing `adm-zip` is the custom bundle `zip-util` that costs ~54.3KiB
+  - Replacing `adm-zip` is the custom bundle `zip-util` that costs ~54.8KiB
   - Bun ships with it's own hashing implementations, so I've switched to one of those
 - Added a custom bundle as alternative to `jsonc-parser`, which would have cost ~207KiB
   - The custom bundle `jsonc-parse` costs ~13.4KiB
