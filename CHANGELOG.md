@@ -32,6 +32,8 @@ Since last changelog entry, I have:
 - Note, the custom bundle `html-util` (added a while back) costs ~147KiB
   - The packages for it (`css-select` and `htmlparser2`) would have cost ~2.54MiB
   - I am making these efforts to save as much space as possible, while also simplifying the project setup
+- Note, `tree-kill` costs ~21.1KiB and is pretty much a packaged executable
+  - There wouldn't be much to save there, so I will probably keep it as a dependency
 
 Experimental changes:
 
