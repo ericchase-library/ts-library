@@ -1,15 +1,12 @@
 export class Class_WebPlatform_DOM_CharacterData_Observer_Class {
   constructor(config) {
     config.options ??= {};
-    config.options.characterDataOldValue ??= true;
-    config.options.subtree ??= true;
-    config.source ??= document.documentElement;
     this.mutationObserver = new MutationObserver((mutationRecords) => {
       for (const record of mutationRecords) {
         this.send(record);
       }
     });
-    this.mutationObserver.observe(config.source, {
+    this.mutationObserver.observe(config.source ?? document.documentElement, {
       characterData: true,
       characterDataOldValue: config.options.characterDataOldValue ?? true,
       subtree: config.options.subtree ?? true

@@ -1,3 +1,14 @@
+## 2025-08-18
+
+- Added APIs for extracting environment variables
+  - `BunPlatform_Argv_To_Env`
+  - `Async_BunPlatform_Extract_Env_From_Dir`
+  - Extract from process ran in a target folder
+  - Extract list of named variables
+  - Added some test cases
+- Renamed `BunPlatform_Args_Has` to `BunPlatform_Argv_Includes` for consistency
+- Added some better JSDoc comments
+
 ## 2025-08-16
 
 Since last changelog entry, I have:

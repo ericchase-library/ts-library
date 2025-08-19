@@ -1,9 +1,6 @@
 class Class_WebPlatform_DOM_Element_Added_Observer_Class {
   constructor(config) {
-    config.include_existing_elements ??= true;
     config.options ??= {};
-    config.options.subtree ??= true;
-    config.source ??= document.documentElement;
     this.mutationObserver = new MutationObserver((mutationRecords) => {
       for (const record of mutationRecords) {
         if (record.target instanceof Element && record.target.matches(config.selector)) {
@@ -17,11 +14,11 @@ class Class_WebPlatform_DOM_Element_Added_Observer_Class {
         }
       }
     });
-    this.mutationObserver.observe(config.source, {
+    this.mutationObserver.observe(config.source ?? document.documentElement, {
       childList: true,
       subtree: config.options.subtree ?? true
     });
-    if (config.include_existing_elements === true) {
+    if ((config.include_existing_elements ?? true) === true) {
       const treeWalker = document.createTreeWalker(document, NodeFilter.SHOW_ELEMENT);
       while (treeWalker.nextNode()) {
         if (treeWalker.currentNode.matches(config.selector)) {
