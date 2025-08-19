@@ -1,4 +1,4 @@
-import { WebPlatform_DataTransferItem_CompatClass } from "./WebPlatform_DataTransferItem_CompatClass.js";
+import { WebPlatform_DataTransferItem_CompatClass } from './WebPlatform_DataTransferItem_CompatClass.js';
 
 export class Class_WebPlatform_DataTransfer_CompatClass {
   dataTransfer;

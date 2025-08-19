@@ -1,4 +1,4 @@
-import { Core_Array_Uint8_Concat } from "./Core_Array_Uint8_Concat.js";
+import { Core_Array_Uint8_Concat } from './Core_Array_Uint8_Concat.js';
 export async function Async_Core_Stream_Uint8_Read_All(stream) {
   const reader = stream.getReader();
   try {

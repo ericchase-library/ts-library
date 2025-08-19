@@ -13,5 +13,5 @@ export class Class_Core_Promise_Deferred_Class {
   }
 }
 export function Core_Promise_Deferred_Class() {
-  return new Class_Core_Promise_Deferred_Class;
+  return new Class_Core_Promise_Deferred_Class();
 }

@@ -1,7 +1,7 @@
 export async function Async_Core_Promise_Call_And_Count_Rejected(promises) {
   let count = 0;
   for (const { status } of await Promise.allSettled(promises)) {
-    if (status === "rejected") {
+    if (status === 'rejected') {
       count++;
     }
   }

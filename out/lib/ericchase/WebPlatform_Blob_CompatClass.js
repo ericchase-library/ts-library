@@ -10,10 +10,10 @@ export class Class_WebPlatform_Blob_CompatClass {
     return this.blob.type ?? undefined;
   }
   async arrayBuffer() {
-    return await this.blob.arrayBuffer?.() ?? undefined;
+    return (await this.blob.arrayBuffer?.()) ?? undefined;
   }
   async bytes() {
-    return await this.blob.bytes?.() ?? await this.blob.arrayBuffer?.().then((buffer) => buffer ? new Uint8Array(buffer) : undefined) ?? undefined;
+    return (await this.blob.bytes?.()) ?? (await this.blob.arrayBuffer?.().then((buffer) => (buffer ? new Uint8Array(buffer) : undefined))) ?? undefined;
   }
   slice() {
     return this.blob.slice?.() ?? undefined;
@@ -22,7 +22,7 @@ export class Class_WebPlatform_Blob_CompatClass {
     return this.blob.stream?.() ?? undefined;
   }
   async text() {
-    return await this.blob.text?.() ?? undefined;
+    return (await this.blob.text?.()) ?? undefined;
   }
 }
 export function WebPlatform_Blob_CompatClass(blob) {

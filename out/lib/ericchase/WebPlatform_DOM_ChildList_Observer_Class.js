@@ -8,7 +8,7 @@ export class Class_WebPlatform_DOM_ChildList_Observer_Class {
     });
     this.mutationObserver.observe(config.source ?? document.documentElement, {
       childList: true,
-      subtree: config.options.subtree ?? true
+      subtree: config.options.subtree ?? true,
     });
   }
   subscribe(callback) {
@@ -18,7 +18,7 @@ export class Class_WebPlatform_DOM_ChildList_Observer_Class {
     };
   }
   mutationObserver;
-  subscriptionSet = new Set;
+  subscriptionSet = new Set();
   send(record) {
     for (const callback of this.subscriptionSet) {
       callback(record, () => {

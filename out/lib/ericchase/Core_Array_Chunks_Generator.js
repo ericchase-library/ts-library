@@ -3,7 +3,7 @@ export function* Core_Array_Chunks_Generator(array, count) {
     yield { begin: 0, end: array.length, slice: array.slice() };
   } else if (count > 0) {
     let i = count;
-    for (;i < array.length; i += count) {
+    for (; i < array.length; i += count) {
       yield { begin: i - count, end: i, slice: array.slice(i - count, i) };
     }
     yield { begin: i - count, end: array.length, slice: array.slice(i - count) };

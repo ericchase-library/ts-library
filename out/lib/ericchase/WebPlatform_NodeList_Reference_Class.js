@@ -1,4 +1,4 @@
-import { WebPlatform_Node_Reference_Class } from "./WebPlatform_Node_Reference_Class.js";
+import { WebPlatform_Node_Reference_Class } from './WebPlatform_Node_Reference_Class.js';
 
 export class Class_WebPlatform_NodeList_Reference_Class extends Array {
   constructor(nodes) {
@@ -22,5 +22,5 @@ export function WebPlatform_NodeList_Reference_Class(nodes) {
   return new Class_WebPlatform_NodeList_Reference_Class(nodes);
 }
 export function WebPlatform_Node_QuerySelectorAll(...selectors) {
-  return WebPlatform_NodeList_Reference_Class(document.querySelectorAll(selectors.join(",")));
+  return WebPlatform_NodeList_Reference_Class(document.querySelectorAll(selectors.join(',')));
 }

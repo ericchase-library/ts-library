@@ -6,18 +6,18 @@ export function* Core_Array_Zip_Generator(...iterables) {
     },
     [Symbol.iterator]() {
       return this;
-    }
+    },
   };
   function process_iterators(iterators) {
     const values = [];
-    for (let index = 0;index < iterators.length; index++) {
+    for (let index = 0; index < iterators.length; index++) {
       const next = iterators[index].next();
-      if ("done" in next && next.done === true) {
+      if ('done' in next && next.done === true) {
         mock_count++;
         iterators[index] = mock_iterable;
         values[index] = undefined;
       } else {
-        values[index] = "value" in next ? next.value : undefined;
+        values[index] = 'value' in next ? next.value : undefined;
       }
     }
     return values;

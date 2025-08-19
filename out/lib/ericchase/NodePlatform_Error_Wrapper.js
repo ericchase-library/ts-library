@@ -5,11 +5,11 @@ export class Class_NodePlatform_Error extends Error {
   code;
   original;
   get message() {
-    return this.code + ": NODE PLATFORM ERROR (ORIGINAL ERROR BELOW)";
+    return this.code + ': NODE PLATFORM ERROR (ORIGINAL ERROR BELOW)';
   }
 }
 export function NodePlatform_Error(original) {
-  const error = new Class_NodePlatform_Error;
+  const error = new Class_NodePlatform_Error();
   error.path = original.path;
   error.syscall = original.syscall;
   error.errno = original.errno;

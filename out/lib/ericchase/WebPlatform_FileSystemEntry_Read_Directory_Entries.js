@@ -4,11 +4,14 @@ export async function Async_WebPlatform_FileSystemEntry_Read_Directory_Entries(e
   let done = false;
   while (done === false) {
     const entries = await new Promise((resolve, reject) => {
-      reader.readEntries((entries) => {
-        resolve(entries);
-      }, (error) => {
-        reject(error);
-      });
+      reader.readEntries(
+        (entries) => {
+          resolve(entries);
+        },
+        (error) => {
+          reject(error);
+        },
+      );
     });
     if (entries.length === 0) {
       break;

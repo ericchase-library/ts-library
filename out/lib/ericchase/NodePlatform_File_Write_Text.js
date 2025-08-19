@@ -1,5 +1,5 @@
-import { NODE_FS, NODE_PATH } from "./NodePlatform.js";
-import { Async_NodePlatform_Directory_Create } from "./NodePlatform_Directory_Create.js";
+import { NODE_FS, NODE_PATH } from './NodePlatform.js';
+import { Async_NodePlatform_Directory_Create } from './NodePlatform_Directory_Create.js';
 export async function Async_NodePlatform_File_Write_Text(path, text, recursive) {
   path = NODE_PATH.normalize(path);
   if (recursive === true) {

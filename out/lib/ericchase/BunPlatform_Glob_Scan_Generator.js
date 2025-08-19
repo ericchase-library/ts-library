@@ -1,5 +1,5 @@
-import { NODE_PATH } from "./NodePlatform.js";
-import { Async_NodePlatform_Path_Is_Directory } from "./NodePlatform_Path_Is_Directory.js";
+import { NODE_PATH } from './NodePlatform.js';
+import { Async_NodePlatform_Path_Is_Directory } from './NodePlatform_Path_Is_Directory.js';
 export async function* Async_BunPlatform_Glob_Scan_Generator(dir_path, pattern, options) {
   dir_path = NODE_PATH.normalize(dir_path);
   if (await Async_NodePlatform_Path_Is_Directory(dir_path)) {
@@ -7,7 +7,7 @@ export async function* Async_BunPlatform_Glob_Scan_Generator(dir_path, pattern, 
       absolute: options?.absolute_paths ?? false,
       cwd: dir_path,
       dot: true,
-      onlyFiles: options?.only_files ?? true
+      onlyFiles: options?.only_files ?? true,
     })) {
       yield value;
     }

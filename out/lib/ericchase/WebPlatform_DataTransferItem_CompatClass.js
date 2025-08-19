@@ -4,17 +4,17 @@ export class Class_WebPlatform_DataTransferItem_CompatClass {
     this.item = item;
   }
   getAsEntry() {
-    if (this.item.kind === "file") {
+    if (this.item.kind === 'file') {
       return this.item.getAsEntry?.() ?? this.item.webkitGetAsEntry?.() ?? undefined;
     }
   }
   getAsFile() {
-    if (this.item.kind === "file") {
+    if (this.item.kind === 'file') {
       return this.item.getAsFile?.() ?? undefined;
     }
   }
   getAsString(callback) {
-    if (this.item.kind === "string") {
+    if (this.item.kind === 'string') {
       this.item.getAsString?.(callback);
     }
   }

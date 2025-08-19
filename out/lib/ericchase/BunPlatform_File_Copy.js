@@ -1,5 +1,5 @@
-import { Async_BunPlatform_File_Compare } from "./BunPlatform_File_Compare.js";
-import { NODE_PATH } from "./NodePlatform.js";
+import { Async_BunPlatform_File_Compare } from './BunPlatform_File_Compare.js';
+import { NODE_PATH } from './NodePlatform.js';
 export async function Async_BunPlatform_File_Copy(from_path, to_path, overwrite) {
   from_path = NODE_PATH.normalize(from_path);
   to_path = NODE_PATH.normalize(to_path);
@@ -7,7 +7,7 @@ export async function Async_BunPlatform_File_Copy(from_path, to_path, overwrite)
     return { value: false };
   }
   if (overwrite !== true) {
-    if (await Bun.file(to_path).exists() === true) {
+    if ((await Bun.file(to_path).exists()) === true) {
       return { value: false };
     }
   }

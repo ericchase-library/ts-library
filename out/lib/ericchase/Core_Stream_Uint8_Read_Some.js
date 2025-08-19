@@ -1,6 +1,6 @@
-import { ARRAY__UINT8__EMPTY } from "./Core_Array_Uint8.js";
-import { Core_Array_Uint8_Concat } from "./Core_Array_Uint8_Concat.js";
-import { Core_Array_Uint8_Take } from "./Core_Array_Uint8_Take.js";
+import { ARRAY__UINT8__EMPTY } from './Core_Array_Uint8.js';
+import { Core_Array_Uint8_Concat } from './Core_Array_Uint8_Concat.js';
+import { Core_Array_Uint8_Take } from './Core_Array_Uint8_Take.js';
 export async function Async_Core_Stream_Uint8_Read_Some(stream, count) {
   if (count < 1) {
     return ARRAY__UINT8__EMPTY;

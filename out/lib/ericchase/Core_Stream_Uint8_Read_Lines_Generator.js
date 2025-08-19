@@ -1,6 +1,6 @@
-import { Core_String_Split_Lines } from "./Core_String_Split_Lines.js";
+import { Core_String_Split_Lines } from './Core_String_Split_Lines.js';
 export async function* Async_Core_Stream_Uint8_Read_Lines_Generator(stream) {
-  const textDecoderStream = new TextDecoderStream;
+  const textDecoderStream = new TextDecoderStream();
   const textDecoderReader = textDecoderStream.readable.getReader();
   const textDecoderWriter = textDecoderStream.writable.getWriter();
   const readable = new ReadableStream({
@@ -11,7 +11,7 @@ export async function* Async_Core_Stream_Uint8_Read_Lines_Generator(stream) {
       } else {
         controller.close();
       }
-    }
+    },
   });
   const writable = new WritableStream({
     async close() {
@@ -19,11 +19,11 @@ export async function* Async_Core_Stream_Uint8_Read_Lines_Generator(stream) {
     },
     async write(chunk) {
       await textDecoderWriter.write(chunk.slice());
-    }
+    },
   });
   const reader = stream.pipeThrough({ readable, writable }).getReader();
   try {
-    let buffer = "";
+    let buffer = '';
     while (true) {
       const { done, value } = await reader.read();
       if (done) {
@@ -33,7 +33,7 @@ export async function* Async_Core_Stream_Uint8_Read_Lines_Generator(stream) {
         return;
       }
       const lines = Core_String_Split_Lines(buffer + value);
-      buffer = lines[lines.length - 1] ?? "";
+      buffer = lines[lines.length - 1] ?? '';
       yield lines.slice(0, -1);
     }
   } finally {

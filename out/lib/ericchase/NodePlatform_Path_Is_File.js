@@ -1,4 +1,4 @@
-import { NODE_FS, NODE_PATH } from "./NodePlatform.js";
+import { NODE_FS, NODE_PATH } from './NodePlatform.js';
 export async function Async_NodePlatform_Path_Is_File(path) {
   path = NODE_PATH.normalize(path);
   try {

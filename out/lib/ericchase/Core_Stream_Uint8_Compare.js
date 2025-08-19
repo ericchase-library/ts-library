@@ -1,4 +1,4 @@
-import { Core_Stream_Uint8_Reader_Class } from "./Core_Stream_Uint8_Reader_Class.js";
+import { Core_Stream_Uint8_Reader_Class } from './Core_Stream_Uint8_Reader_Class.js';
 export async function Async_Core_Stream_Uint8_Compare(stream1, stream2) {
   const one = Core_Stream_Uint8_Reader_Class(stream1.getReader());
   const two = Core_Stream_Uint8_Reader_Class(stream2.getReader());

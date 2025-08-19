@@ -1,10 +1,10 @@
-import { NODE_FS, NODE_PATH } from "./NodePlatform.js";
-import { Async_NodePlatform_Path_Exists } from "./NodePlatform_Path_Exists.js";
-import { Async_NodePlatform_Path_Is_Directory } from "./NodePlatform_Path_Is_Directory.js";
+import { NODE_FS, NODE_PATH } from './NodePlatform.js';
+import { Async_NodePlatform_Path_Exists } from './NodePlatform_Path_Exists.js';
+import { Async_NodePlatform_Path_Is_Directory } from './NodePlatform_Path_Is_Directory.js';
 export async function Async_NodePlatform_Directory_Delete(path, recursive) {
   path = NODE_PATH.normalize(path);
   try {
-    if (await Async_NodePlatform_Path_Is_Directory(path) === true) {
+    if ((await Async_NodePlatform_Path_Is_Directory(path)) === true) {
       if (recursive === false) {
         await NODE_FS.rmdir(path);
       } else {

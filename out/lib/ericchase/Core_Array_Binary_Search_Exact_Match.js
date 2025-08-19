@@ -1,5 +1,5 @@
-import { Core_Array_Get_Endpoints } from "./Core_Array_Get_Endpoints.js";
-import { Core_Math_Get_Midpoint } from "./Core_Math_Get_Midpoint.js";
+import { Core_Array_Get_Endpoints } from './Core_Array_Get_Endpoints.js';
+import { Core_Math_Get_Midpoint } from './Core_Math_Get_Midpoint.js';
 export function Core_Array_Binary_Search_Exact_Match(array, target, isOrdered = (a, b) => a < b) {
   let [begin, end] = Core_Array_Get_Endpoints(array);
   let middle = Core_Math_Get_Midpoint(begin, end);

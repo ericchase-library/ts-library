@@ -1,5 +1,5 @@
-import { Core_Promise_Deferred_Class } from "./Core_Promise_Deferred_Class.js";
-import { Core_Promise_Orphan } from "./Core_Promise_Orphan.js";
+import { Core_Promise_Deferred_Class } from './Core_Promise_Deferred_Class.js';
+import { Core_Promise_Orphan } from './Core_Promise_Orphan.js';
 export function Core_Utility_Debounce(fn, delay_ms) {
   let deferred = Core_Promise_Deferred_Class();
   let timeout = undefined;

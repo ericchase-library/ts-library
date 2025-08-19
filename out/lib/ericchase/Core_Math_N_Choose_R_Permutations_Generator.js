@@ -1,13 +1,13 @@
-import { Core_Math_nPr } from "./Core_Math_nPr.js";
+import { Core_Math_nPr } from './Core_Math_nPr.js';
 export function* Core_Math_N_Choose_R_Permutations_Generator(choices, r, repetitions = false) {
   const count = Core_Math_nPr(choices.length, r, repetitions);
   if (repetitions === true) {
     const out = new Array(r).fill(choices[0]);
     const indices = new Array(r).fill(0);
-    for (let c = typeof count === "bigint" ? 0n : 0;c < count; c++) {
+    for (let c = typeof count === 'bigint' ? 0n : 0; c < count; c++) {
       yield out.slice();
       let i = r - 1;
-      for (let j = 0;j < r; j++, i--) {
+      for (let j = 0; j < r; j++, i--) {
         indices[i]++;
         if (indices[i] < choices.length) {
           out[i] = choices[indices[i]];
@@ -21,13 +21,13 @@ export function* Core_Math_N_Choose_R_Permutations_Generator(choices, r, repetit
     const out = choices.slice(0, r);
     const indices = [...out.keys()];
     const imap = new Array(choices.length).fill(0);
-    for (let i = 0;i < r; i++) {
+    for (let i = 0; i < r; i++) {
       imap[i] = 1;
     }
-    for (let c = typeof count === "bigint" ? 0n : 0;c < count; c++) {
+    for (let c = typeof count === 'bigint' ? 0n : 0; c < count; c++) {
       yield out.slice();
       let i = r - 1;
-      for (let j = 0;j < r; j++, i--) {
+      for (let j = 0; j < r; j++, i--) {
         imap[indices[i]] = 0;
         indices[i]++;
         while (imap[indices[i]] === 1) {
@@ -39,7 +39,7 @@ export function* Core_Math_N_Choose_R_Permutations_Generator(choices, r, repetit
           break;
         }
       }
-      for (;i < r; i++) {
+      for (; i < r; i++) {
         if (indices[i] < choices.length) {
           continue;
         }

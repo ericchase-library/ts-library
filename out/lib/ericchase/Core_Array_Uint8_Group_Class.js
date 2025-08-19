@@ -1,5 +1,5 @@
 export class Class_Core_Array_Uint8_Group_Class {
-  arrays = new Array;
+  arrays = new Array();
   byteLength = 0;
   constructor() {}
   add(bytes) {
@@ -15,7 +15,7 @@ export class Class_Core_Array_Uint8_Group_Class {
     let i_out = 0;
     let i_total = 0;
     for (const u8 of this.arrays) {
-      for (let i_u8 = 0;i_u8 < u8.length && i_out < out.length; i_u8++, i_total++) {
+      for (let i_u8 = 0; i_u8 < u8.length && i_out < out.length; i_u8++, i_total++) {
         if (i_total < offset) {
           continue;
         }
@@ -27,5 +27,5 @@ export class Class_Core_Array_Uint8_Group_Class {
   }
 }
 export function Core_Array_Uint8_Group_Class() {
-  return new Class_Core_Array_Uint8_Group_Class;
+  return new Class_Core_Array_Uint8_Group_Class();
 }

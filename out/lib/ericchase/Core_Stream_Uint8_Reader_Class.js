@@ -1,4 +1,4 @@
-import { ARRAY__UINT8__EMPTY } from "./Core_Array_Uint8.js";
+import { ARRAY__UINT8__EMPTY } from './Core_Array_Uint8.js';
 
 export class Class_Core_Stream_Uint8_Reader_Class {
   reader;
