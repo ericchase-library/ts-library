@@ -57,7 +57,7 @@ Glob patterns are essential for my build tools and even many of the other tools 
 
 > To match any number of _path segments_, `**` must be alone in its own path segment: `**`, `**/*`, `**/dir/*`, `dir/**`, `dir/**/*`, etc. If used alongside any other characters in a _path segment_, it will be treated like a single `*` instead. For example, `**.js` is equivalent to `*.js`, and `**dir/*` is equivalent to `*dir/*`.
 >
-> `**` matches all folders, subfolders, _and_ files. Yes, that means the pattern `**` itself will match literally everything. You do not need `**/*`; `**` will suffice. That means, `dir/**` will match all files in the `dir` and all files in all subfolders of `dir`. Because of this, developers usually never use `\` in paths for cross platform code. You should stick to `/` only. Likewise, Bun and Node treat `/` as the _path separator_ for all platforms, so you almost never need to use `\` anywhere.
+> `**` matches all folders, subfolders, _and_ files. Yes, that means the pattern `**` itself will match literally everything. You do not need `**/*`; `**` will suffice in most cases (not in `.tsconfig.json`). That means, `dir/**` will match all files in the `dir` and all files in all subfolders of `dir`. Because of this, developers usually never use `\` in paths for cross platform code. You should stick to `/` only. Likewise, Bun and Node treat `/` as the _path separator_ for all platforms, so you almost never need to use `\` anywhere.
 
 `\` and `/`
 

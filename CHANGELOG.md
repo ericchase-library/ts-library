@@ -1,3 +1,10 @@
+## 2025-08-19
+
+- Reworked the hot-reload feature
+  - Instead of calling a function in scripts, the `hot-reload.iife.ts` file should be added as a script tag to HTML files
+  - Use the new `Processor_HTML_Remove_HotReload_On_Build` processor to automatically remove this script tag during regular builds
+- Cleaned up some glob patterns around the code base
+
 ## 2025-08-18
 
 - Added APIs for extracting environment variables
