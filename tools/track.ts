@@ -9,7 +9,7 @@ import { Core_Console_Log } from '../src/lib/ericchase/Core_Console_Log.js';
 import { Async_Core_Stream_Uint8_Read_All } from '../src/lib/ericchase/Core_Stream_Uint8_Read_All.js';
 import { NODE_FS, NODE_PATH } from '../src/lib/ericchase/NodePlatform.js';
 
-const subrepo_paths = ['server'];
+const subrepo_paths: string[] = ['server'];
 
 async function async_trackSubrepos(paths: string[]) {
   for (const path of paths) {
