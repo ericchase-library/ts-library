@@ -4,6 +4,8 @@
   - Instead of calling a function in scripts, the `hot-reload.iife.ts` file should be added as a script tag to HTML files
   - Use the new `Processor_HTML_Remove_HotReload_On_Build` processor to automatically remove this script tag during regular builds
 - Cleaned up some glob patterns around the code base
+- Fixed a class of bugs I introduced by calling `Builder.Step` methods directly
+  - Use `Builder.ExecuteStep` to immediately process a `Builder.Step` instead of calling its methods directly
 
 ## 2025-08-18
 
