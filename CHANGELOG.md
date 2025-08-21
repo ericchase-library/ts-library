@@ -1,3 +1,11 @@
+## 2025-08-21
+
+- Improved error logging
+- Added `Builder.Add*Steps` methods to complement the `Builder.Set*Steps` methods
+- Added component stylesheet processing to `Processor_HTML_Custom_Component_Processor` processor
+  - In the components library directory, `*.css` and `*.html` files with matching names are internally linked
+  - The processor keeps track of component stylesheet upstreams and adds link tags to non-component `*.html` files for each component stylesheet it relies on
+
 ## 2025-08-19
 
 - Reworked the hot-reload feature
