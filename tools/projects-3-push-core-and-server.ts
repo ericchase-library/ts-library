@@ -23,8 +23,7 @@ Builder.SetCleanUpSteps(
   Step_Dev_Project_Sync_Core({ from_dir: '.', into_dir: template_path }),
   Step_Dev_Project_Sync_Server({ from_dir: '.', into_dir: template_path }),
   Step_Dev_Project_Update_Config({ project_dir: template_path }),
-  Step_Bun_Run({ cmd: ['bun', 'install'], cwd: template_path, showlogs: false }),
-  Step_Bun_Run({ cmd: ['bunx', 'prettier', '--write', '.'], cwd: template_path, showlogs: false }),
+  Step_Bun_Run({ cmd: ['bun', 'run', 'build'], cwd: template_path, showlogs: false }),
   // Sync Core
   Step_Log('--- push ---'),
   Step_Async(
@@ -43,8 +42,6 @@ Builder.SetCleanUpSteps(
         Step_Dev_Project_Sync_Core({ from_dir: template_path, into_dir: path }),
         Step_Dev_Project_Sync_Server({ from_dir: template_path, into_dir: path }),
         Step_Dev_Project_Update_Config({ project_dir: path }),
-        Step_Bun_Run({ cmd: ['bun', 'install'], cwd: path, showlogs: false }),
-        Step_Bun_Run({ cmd: ['bunx', 'prettier', '--write', '.'], cwd: path, showlogs: false }),
         //
       ]),
     ),

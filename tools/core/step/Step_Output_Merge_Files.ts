@@ -8,7 +8,8 @@ import { JSONC } from '../../core/bundle/jsonc-parse/jsonc-parse.js';
 import { Logger } from '../../core/Logger.js';
 
 /**
- * This step processes files in `Builder.Dir.Out` only. Ensure that all config paths are relative to that folder.
+ * This step processes files in `Builder.Dir.Out` only. Ensure that all config
+ * paths are relative to that folder.
  */
 export function Step_Output_Merge_Files(...configs: Config[]): Builder.Step {
   return new Class(configs);
@@ -21,6 +22,14 @@ class Class implements Builder.Step {
   steps: Builder.Step[] = [];
 
   constructor(readonly configs: Config[]) {}
+  async onStartUp(): Promise<void> {
+    for (const config of this.configs) {
+      for (let i = 0; i < config.merge_files.length; i++) {
+        config.merge_files[i] = NODE_PATH.join(Builder.Dir.Out, config.merge_files[i]);
+      }
+      config.out_file = NODE_PATH.join(Builder.Dir.Out, config.out_file);
+    }
+  }
   async onRun(): Promise<void> {
     for (const config of this.configs) {
       switch (config.type) {
@@ -29,7 +38,7 @@ class Class implements Builder.Step {
             const data_list: any[] = [];
             // read merge files
             for (const path of config.merge_files) {
-              const { error, value } = await Async_BunPlatform_File_Read_Text(NODE_PATH.join(Builder.Dir.Out, path));
+              const { error, value } = await Async_BunPlatform_File_Read_Text(path);
               if (value !== undefined) {
                 data_list.push(JSONC.parse(value));
               } else {
@@ -54,7 +63,7 @@ class Class implements Builder.Step {
             const text_list: any[] = [];
             // read merge files
             for (const path of config.merge_files) {
-              const { error, value } = await Async_BunPlatform_File_Read_Text(NODE_PATH.join(Builder.Dir.Out, path));
+              const { error, value } = await Async_BunPlatform_File_Read_Text(path);
               if (value !== undefined) {
                 text_list.push(value.trim());
               } else {
@@ -80,7 +89,7 @@ class Class implements Builder.Step {
 type Config =
   | {
       /**
-       * For `type` `json`, later files merge onto earlier files.
+       * For `type` `json`, later files are merged on top of earlier files.
        */
       type: 'json';
       /**
@@ -95,8 +104,7 @@ type Config =
     }
   | {
       /**
-       * For `type` `text`, later files in `merge_list` append to bottom of
-       * output file.
+       * For `type` `text`, later files are appended to bottom of output file.
        */
       type: 'text';
       /**
