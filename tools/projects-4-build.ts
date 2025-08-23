@@ -10,8 +10,8 @@ import project_paths from './synced-projects.jsonc' assert { type: 'jsonc' };
 SetLoggerOptions({ ceremony: false });
 
 Builder.SetCleanUpSteps(
-  Step_Bun_Run({ cmd: ['bun', 'run', 'build'], dir: template_path, showlogs: false }),
-  Step_Async(project_paths.map((path: string) => Step_Bun_Run({ cmd: ['bun', 'run', 'build'], dir: path, showlogs: true }))),
+  Step_Bun_Run({ cmd: ['bun', 'run', 'build'], cwd: template_path, showlogs: false }),
+  Step_Async(project_paths.map((path: string) => Step_Bun_Run({ cmd: ['bun', 'run', 'build'], cwd: path, showlogs: true }))),
   //
 );
 

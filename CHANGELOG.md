@@ -1,3 +1,9 @@
+## 2025-08-22
+
+- Cleaned up some code
+- Changed some processor and step config property names to be more standard and clear
+- Added `Step_FS_Move_Files` and `Step_Output_Merge_Files`
+
 ## 2025-08-21
 
 - Improved error logging

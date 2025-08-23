@@ -18,7 +18,7 @@ if (BunPlatform_Argv_Includes('--dev')) {
 Builder.SetVerbosity(Builder.VERBOSITY._1_LOG);
 
 Builder.SetStartUpSteps(
-  Step_Dev_Project_Update_Config({ project_path: '.' }),
+  Step_Dev_Project_Update_Config({ project_dir: '.' }),
   Step_Bun_Run({ cmd: ['bun', 'update', '--latest'], showlogs: false }),
   Step_Bun_Run({ cmd: ['bun', 'install'], showlogs: false }),
   Step_FS_Clean_Directory(Builder.Dir.Out),
@@ -41,8 +41,8 @@ Builder.SetCleanUpSteps(
   Step_Dev_Format({ showlogs: false }),
   // Update Local Server Files
   Step_FS_Mirror_Directory({
-    from_path: NODE_PATH.join(Builder.Dir.Lib, 'ericchase'),
-    to_path: NODE_PATH.join('server', 'src', 'lib', 'ericchase'),
+    from_dir: NODE_PATH.join(Builder.Dir.Lib, 'ericchase'),
+    into_dir: NODE_PATH.join('server', 'src', 'lib', 'ericchase'),
     include_patterns: [
       'Core_Console_Error.ts',
       'Core_Console_Log.ts',

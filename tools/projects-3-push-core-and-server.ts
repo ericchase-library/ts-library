@@ -20,18 +20,18 @@ Builder.SetCleanUpSteps(
   // Update Template Project
   Step_FS_Clean_Directory(NODE_PATH.join(template_path, 'server')),
   Step_FS_Clean_Directory(NODE_PATH.join(template_path, 'src')),
-  Step_Dev_Project_Sync_Core({ from_path: '.', to_path: template_path }),
-  Step_Dev_Project_Sync_Server({ from_path: '.', to_path: template_path }),
-  Step_Dev_Project_Update_Config({ project_path: template_path }),
-  Step_Bun_Run({ cmd: ['bun', 'install'], dir: template_path, showlogs: false }),
-  Step_Bun_Run({ cmd: ['bunx', 'prettier', '--write', '.'], dir: template_path, showlogs: false }),
+  Step_Dev_Project_Sync_Core({ from_dir: '.', into_dir: template_path }),
+  Step_Dev_Project_Sync_Server({ from_dir: '.', into_dir: template_path }),
+  Step_Dev_Project_Update_Config({ project_dir: template_path }),
+  Step_Bun_Run({ cmd: ['bun', 'install'], cwd: template_path, showlogs: false }),
+  Step_Bun_Run({ cmd: ['bunx', 'prettier', '--write', '.'], cwd: template_path, showlogs: false }),
   // Sync Core
   Step_Log('--- push ---'),
   Step_Async(
     project_paths.map((path: string) =>
       Step_Sync([
-        Step_Dev_Project_Sync_Core({ from_path: template_path, to_path: path }),
-        Step_Dev_Project_Sync_Server({ from_path: template_path, to_path: path }),
+        Step_Dev_Project_Sync_Core({ from_dir: template_path, into_dir: path }),
+        Step_Dev_Project_Sync_Server({ from_dir: template_path, into_dir: path }),
         //
       ]),
     ),
@@ -40,11 +40,11 @@ Builder.SetCleanUpSteps(
   Step_Async(
     project_paths.map((path: string) =>
       Step_Sync([
-        Step_Dev_Project_Sync_Core({ from_path: template_path, to_path: path }),
-        Step_Dev_Project_Sync_Server({ from_path: template_path, to_path: path }),
-        Step_Dev_Project_Update_Config({ project_path: path }),
-        Step_Bun_Run({ cmd: ['bun', 'install'], dir: path, showlogs: false }),
-        Step_Bun_Run({ cmd: ['bunx', 'prettier', '--write', '.'], dir: path, showlogs: false }),
+        Step_Dev_Project_Sync_Core({ from_dir: template_path, into_dir: path }),
+        Step_Dev_Project_Sync_Server({ from_dir: template_path, into_dir: path }),
+        Step_Dev_Project_Update_Config({ project_dir: path }),
+        Step_Bun_Run({ cmd: ['bun', 'install'], cwd: path, showlogs: false }),
+        Step_Bun_Run({ cmd: ['bunx', 'prettier', '--write', '.'], cwd: path, showlogs: false }),
         //
       ]),
     ),
