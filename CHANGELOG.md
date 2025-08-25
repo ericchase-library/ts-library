@@ -2,6 +2,9 @@
 
 I'm planning to start creating new branches in each library and template project every month now that the library and build tools are fairly stable. The main branch will continue to be the development branch, and the monthly branches can be considered versions for each project. When that happens, the changelogs will likely be updated once per month. We will see what happens.
 
+- Change default `tsconfig.json` property "jsx" from "react-jsx" to "react"
+- Expose the "minify" property in `Processor_TypeScript_Generic_Bundler` config
+
 ### tools/core/processor
 
 `addition`
