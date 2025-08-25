@@ -1,3 +1,44 @@
+## 2025-08-24
+
+I'm planning to start creating new branches in each library and template project every month now that the library and build tools are fairly stable. The main branch will continue to be the development branch, and the monthly branches can be considered versions for each project. When that happens, the changelogs will likely be updated once per month. We will see what happens.
+
+### tools/core/processor
+
+`addition`
+
+- `Processor_TypeScript_Generic_Bundler`
+  - Rename class `BuildArtifact` -> `Class_BuildArtifact`
+  - Clean up types and export `Class_BuildArtifact` for other bundler processors to use
+
+`breaking`
+
+- Add `Processor_Merge_Files` as replacement for `Step_Output_Merge_Files`
+
+### tools/core/step
+
+`addition`
+
+- Add `Step_FS_Move_Files` to compliment `Step_FS_Copy_Files`
+
+`breaking`
+
+- Rename a number of config properties in the following Steps
+  - `Step_Bun_Run`
+  - `Step_FS_Archive_Directory`
+  - `Step_FS_Clean_Directory`
+  - `Step_FS_Copy_Files`
+  - `Step_FS_Delete_Directory`
+  - `Step_FS_Mirror_Directory`
+
+### tools/core-dev/step
+
+`breaking`
+
+- Rename a number of config properties in the following Steps
+  - `Step_Dev_Project_Sync_Core`
+  - `Step_Dev_Project_Sync_Server`
+  - `Step_Dev_Project_Update_Config`
+
 ## 2025-08-22
 
 - Cleaned up some code
