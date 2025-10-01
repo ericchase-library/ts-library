@@ -79,4 +79,5 @@ sync.ffs_db
 
 ## Project Specific
 
-synced-projects.jsonc
+/tools/git-projects.jsonc
+/tools/synced-projects.jsonc

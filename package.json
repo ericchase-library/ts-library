@@ -1,12 +1,14 @@
 {
   "dependencies": {
+    "@types/chai": "5.2.2",
     "@types/lodash": "4.17.20",
+    "chai": "6.2.0",
     "lodash": "4.17.21"
   },
   "devDependencies": {
-    "@types/bun": "1.2.21",
-    "@types/chrome": "0.1.4",
-    "@types/node": "24.3.0",
+    "@types/bun": "1.2.23",
+    "@types/chrome": "0.1.17",
+    "@types/node": "24.6.1",
     "tree-kill": "1.2.2"
   },
   "scripts": {

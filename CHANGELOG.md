@@ -1,3 +1,20 @@
+## 2025-10-01
+
+**Fixes**
+
+- Turns out that the `@types` folder must be in the directory chain for source files that rely on them for module augmentation
+  - The resolution logic is a true mystery, so storing the `@types` folder under `src` will be the easiest solution for now
+- Add logic to `Step_Dev_Project_Update_Config` that skips entries in `devDependencies` when the entry is already found in `dependencies`
+- Add better logging to `Step_FS_Copy_Files.ts`, `Step_FS_Mirror_Directory.ts`, and `Step_FS_Move_Files.ts`
+- Add test page for `Class_WebPlatform_DOM_Element_Added_Observer_Class`
+- Add `Chai` for unit testing in browser
+
+**Breaking Changes**
+
+- Rewrite `Class_WebPlatform_DOM_Element_Added_Observer_Class` to:
+  - Properly check config options when expected
+  - Use `record.addedNodes` instead of walking entire subtree each time
+
 ## 2025-08-24
 
 I'm planning to start creating new branches in each library and template project every month now that the library and build tools are fairly stable. The main branch will continue to be the development branch, and the monthly branches can be considered versions for each project. When that happens, the changelogs will likely be updated once per month. We will see what happens.

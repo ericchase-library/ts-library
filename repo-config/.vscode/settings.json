@@ -1,3 +1,4 @@
 {
+  "typescript.preferences.autoImportSpecifierExcludeRegexes": ["^chai$"],
   "typescript.tsserver.experimental.enableProjectDiagnostics": true
 }

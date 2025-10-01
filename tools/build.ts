@@ -2,8 +2,10 @@ import { BunPlatform_Argv_Includes } from '../src/lib/ericchase/BunPlatform_Argv
 import { NODE_PATH } from '../src/lib/ericchase/NodePlatform.js';
 import { Step_Dev_Format } from './core-dev/step/Step_Dev_Format.js';
 import { Step_Dev_Project_Update_Config } from './core-dev/step/Step_Dev_Project_Update_Config.js';
+import { Processor_HTML_Custom_Component_Processor } from './core-web/processor/Processor_HTML_Custom_Component_Processor.js';
 import { Step_Run_Dev_Server } from './core-web/step/Step_Run_Dev_Server.js';
 import { Builder } from './core/Builder.js';
+import { Processor_Set_Writable } from './core/processor/Processor_Set_Writable.js';
 import { PATTERN, Processor_TypeScript_Generic_Bundler } from './core/processor/Processor_TypeScript_Generic_Bundler.js';
 import { Processor_TypeScript_Generic_Transpiler } from './core/processor/Processor_TypeScript_Generic_Transpiler.js';
 import { Step_Bun_Run } from './core/step/Step_Bun_Run.js';
@@ -26,9 +28,11 @@ Builder.SetStartUpSteps(
 );
 
 Builder.SetProcessorModules(
+  Processor_HTML_Custom_Component_Processor(),
   Processor_TypeScript_Generic_Bundler({}, { bundler_mode: 'iife' }),
   Processor_TypeScript_Generic_Bundler({ external: ['lodash/shuffle'] }, { bundler_mode: 'module' }),
   Processor_TypeScript_Generic_Transpiler({}, { exclude_patterns: ['**/*.d.ts', `**/*${PATTERN.IIFE_MODULE}`, `**/*{.test}${PATTERN.JS_JSX_TS_TSX}`] }),
+  Processor_Set_Writable({ include_patterns: ['**/*.html'], value: true }),
   //
 );
 

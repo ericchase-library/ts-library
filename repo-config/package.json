@@ -1,6 +1,8 @@
 {
   "dependencies": {
+    "@types/chai": "5.2.2",
     "@types/lodash": "4.17.20",
+    "chai": "6.2.0",
     "lodash": "4.17.21"
   },
   "devDependencies": {}

@@ -16,5 +16,6 @@
     "package.json": true,
     "tsconfig.json": true
   },
+  "typescript.preferences.autoImportSpecifierExcludeRegexes": ["^chai$"],
   "typescript.tsserver.experimental.enableProjectDiagnostics": true
 }

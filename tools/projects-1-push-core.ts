@@ -20,6 +20,8 @@ Builder.SetCleanUpSteps(
   Step_FS_Clean_Directory(NODE_PATH.join(template_path, 'src')),
   Step_Dev_Project_Sync_Core({ from_dir: '.', into_dir: template_path }),
   Step_Dev_Project_Update_Config({ project_dir: template_path }),
+  Step_Bun_Run({ cmd: ['bun', 'update', '--latest'], cwd: template_path, showlogs: false }),
+  Step_Bun_Run({ cmd: ['bun', 'install'], cwd: template_path, showlogs: false }),
   Step_Bun_Run({ cmd: ['bun', 'run', 'build'], cwd: template_path, showlogs: false }),
   // Sync Core
   Step_Log('--- push ---'),
