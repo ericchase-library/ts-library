@@ -72,6 +72,9 @@ export class Class_NodePlatform_PathObject_Relative_Class {
     this.overwrite(...segments);
     return removed;
   }
+  top() {
+    return this.split().slice(-1)[0];
+  }
   unshift(...pathlike) {
     this.overwrite(...pathlike, ...this.split());
     return this;

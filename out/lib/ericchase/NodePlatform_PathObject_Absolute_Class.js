@@ -63,6 +63,9 @@ export class Class_NodePlatform_PathObject_Absolute_Class {
     this.overwrite(...segments);
     return removed;
   }
+  top() {
+    return this.split().slice(-1)[0];
+  }
   slice(start = 0, end) {
     if (start !== 0) {
       start = 0;
