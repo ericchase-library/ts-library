@@ -1,4 +1,4 @@
-class Class_WebPlatform_DOM_Element_Added_Observer_Class {
+export class Class_WebPlatform_DOM_Element_Added_Observer_Class {
   config;
   $match_set = new Set();
   $mutation_observer;
