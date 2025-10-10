@@ -1,28 +1,34 @@
 export class Class_WebPlatform_DOM_ChildList_Observer_Class {
+  $mutation_observer;
+  $subscription_set = new Set();
   constructor(config) {
     config.options ??= {};
-    this.mutationObserver = new MutationObserver((mutationRecords) => {
+    this.$mutation_observer = new MutationObserver((mutationRecords) => {
       for (const record of mutationRecords) {
-        this.send(record);
+        this.$send(record);
       }
     });
-    this.mutationObserver.observe(config.source ?? document.documentElement, {
+    this.$mutation_observer.observe(config.source ?? document.documentElement, {
       childList: true,
       subtree: config.options.subtree ?? true,
     });
   }
+  disconnect() {
+    this.$mutation_observer.disconnect();
+    for (const callback of this.$subscription_set) {
+      this.$subscription_set.delete(callback);
+    }
+  }
   subscribe(callback) {
-    this.subscriptionSet.add(callback);
+    this.$subscription_set.add(callback);
     return () => {
-      this.subscriptionSet.delete(callback);
+      this.$subscription_set.delete(callback);
     };
   }
-  mutationObserver;
-  subscriptionSet = new Set();
-  send(record) {
-    for (const callback of this.subscriptionSet) {
+  $send(record) {
+    for (const callback of this.$subscription_set) {
       callback(record, () => {
-        this.subscriptionSet.delete(callback);
+        this.$subscription_set.delete(callback);
       });
     }
   }
