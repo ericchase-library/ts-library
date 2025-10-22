@@ -42,7 +42,7 @@ Builder.SetAfterProcessingSteps(
 );
 
 Builder.SetCleanUpSteps(
-  Step_Dev_Format({ showlogs: false }),
+  Step_Dev_Format({ showlogs: true }),
   // Update Local Server Files
   Step_FS_Mirror_Directory({
     from_dir: NODE_PATH.join(Builder.Dir.Lib, 'ericchase'),
