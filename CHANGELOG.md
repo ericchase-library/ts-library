@@ -4,6 +4,7 @@
 
 - Add `top()` utility method to `Class_NodePlatform_PathObject_Absolute_Class` and `Class_NodePlatform_PathObject_Relative_Class` classes
   - Add unit tests as well
+- Slight adjustment to build scripts
 
 ## 2025-10-01
 
