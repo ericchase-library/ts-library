@@ -1,9 +1,11 @@
 // node_modules/chai/index.js
 var __defProp = Object.defineProperty;
+var __defNormalProp = (obj, key, value) => (key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : (obj[key] = value));
 var __name = (target, value) => __defProp(target, 'name', { value, configurable: true });
 var __export = (target, all) => {
   for (var name in all) __defProp(target, name, { get: all[name], enumerable: true });
 };
+var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== 'symbol' ? key + '' : key, value);
 var utils_exports = {};
 __export(utils_exports, {
   addChainableMethod: () => addChainableMethod,
@@ -132,28 +134,25 @@ function type(obj) {
 }
 __name(type, 'type');
 var canElideFrames = 'captureStackTrace' in Error;
-var AssertionError = class _AssertionError extends Error {
-  static {
-    __name(this, 'AssertionError');
-  }
-  message;
-  get name() {
-    return 'AssertionError';
-  }
-  get ok() {
-    return false;
-  }
+var _AssertionError = class _AssertionError2 extends Error {
   constructor(message = 'Unspecified AssertionError', props, ssf) {
     super(message);
+    __publicField(this, 'message');
     this.message = message;
     if (canElideFrames) {
-      Error.captureStackTrace(this, ssf || _AssertionError);
+      Error.captureStackTrace(this, ssf || _AssertionError2);
     }
     for (const key in props) {
       if (!(key in this)) {
         this[key] = props[key];
       }
     }
+  }
+  get name() {
+    return 'AssertionError';
+  }
+  get ok() {
+    return false;
   }
   toJSON(stack) {
     return {
@@ -165,6 +164,8 @@ var AssertionError = class _AssertionError extends Error {
     };
   }
 };
+__name(_AssertionError, 'AssertionError');
+var AssertionError = _AssertionError;
 function expectTypes(obj, types) {
   let flagMsg = flag(obj, 'message');
   let ssfi = flag(obj, 'ssfi');
@@ -1201,13 +1202,10 @@ function getPathInfo(obj, path) {
   return info;
 }
 __name(getPathInfo, 'getPathInfo');
-var Assertion = class _Assertion {
-  static {
-    __name(this, 'Assertion');
-  }
-  __flags = {};
+var _Assertion = class _Assertion2 {
   constructor(obj, msg, ssfi, lockSsfi) {
-    flag(this, 'ssfi', ssfi || _Assertion);
+    __publicField(this, '__flags', {});
+    flag(this, 'ssfi', ssfi || _Assertion2);
     flag(this, 'lockSsfi', lockSsfi);
     flag(this, 'object', obj);
     flag(this, 'message', msg);
@@ -1275,17 +1273,18 @@ var Assertion = class _Assertion {
     flag(this, 'object', val);
   }
 };
+__name(_Assertion, 'Assertion');
+var Assertion = _Assertion;
 var events = new EventTarget();
-var PluginEvent = class extends Event {
-  static {
-    __name(this, 'PluginEvent');
-  }
+var _PluginEvent = class _PluginEvent2 extends Event {
   constructor(type3, name, fn) {
     super(type3);
     this.name = String(name);
     this.fn = fn;
   }
 };
+__name(_PluginEvent, 'PluginEvent');
+var PluginEvent = _PluginEvent;
 function isProxyEnabled() {
   return config.useProxy && typeof Proxy !== 'undefined' && typeof Reflect !== 'undefined';
 }
@@ -1471,15 +1470,14 @@ var excludeNames = Object.getOwnPropertyNames(testFn).filter(function (name) {
 });
 var call = Function.prototype.call;
 var apply = Function.prototype.apply;
-var PluginAddChainableMethodEvent = class extends PluginEvent {
-  static {
-    __name(this, 'PluginAddChainableMethodEvent');
-  }
+var _PluginAddChainableMethodEvent = class _PluginAddChainableMethodEvent2 extends PluginEvent {
   constructor(type3, name, fn, chainingBehavior) {
     super(type3, name, fn);
     this.chainingBehavior = chainingBehavior;
   }
 };
+__name(_PluginAddChainableMethodEvent, 'PluginAddChainableMethodEvent');
+var PluginAddChainableMethodEvent = _PluginAddChainableMethodEvent;
 function addChainableMethod(ctx, name, method, chainingBehavior) {
   if (typeof chainingBehavior !== 'function') {
     chainingBehavior = /* @__PURE__ */ __name(function () {}, 'chainingBehavior');
