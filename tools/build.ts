@@ -21,8 +21,8 @@ Builder.SetVerbosity(Builder.VERBOSITY._1_LOG);
 
 Builder.SetStartUpSteps(
   Step_Dev_Project_Update_Config({ project_dir: '.' }),
-  Step_Bun_Run({ cmd: ['bun', 'update', '--latest'], showlogs: false }),
-  Step_Bun_Run({ cmd: ['bun', 'install'], showlogs: false }),
+  Step_Bun_Run({ cmd: ['bun', 'update'], showlogs: true }),
+  Step_Bun_Run({ cmd: ['bun', 'install'], showlogs: true }),
   Step_FS_Clean_Directory(Builder.Dir.Out),
   //
 );

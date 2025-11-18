@@ -10,10 +10,6 @@ const paths: string[] = [template_path, ...path_json];
 SetLoggerOptions({ ceremony: false });
 
 Builder.SetCleanUpSteps(
-  // ...paths.map((path) => Step_Bun_Run({ cmd: ['bun', 'update', '--latest'], cwd: path, showlogs: false })),
-  // ...paths.map((path) => Step_Dev_Project_Update_Config({ project_dir: path })),
-  // ...paths.map((path) => Step_Bun_Run({ cmd: ['bun', 'update', '--latest'], cwd: path, showlogs: false })),
-  // ...paths.map((path) => Step_Bun_Run({ cmd: ['bun', 'install'], cwd: path, showlogs: false })),
   ...paths.map((path) => Step_Bun_Run({ cmd: ['bun', 'run', 'build'], cwd: path, showlogs: false })),
   //
 );
