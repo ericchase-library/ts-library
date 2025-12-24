@@ -1,3 +1,16 @@
+## 2026-01-01 - Part 1
+
+**Features**
+
+- Add `WebPlatform_Utility_Ancestor_Node`
+  - Can use some tests, probably
+- Update `WebPlatform_Utility_Ancestor_Node`
+  - Rename `Dirent` type to `DirentArray` to be more precise
+  - This doesn't change the public API at all
+- Adding in the `sfw` package to screen for malicious packages
+  - https://github.com/SocketDev/sfw-free
+  - https://socket.dev/blog/introducing-socket-firewall
+
 ## 2025-11-01
 
 **Features**

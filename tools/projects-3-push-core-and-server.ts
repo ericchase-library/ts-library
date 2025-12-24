@@ -23,7 +23,7 @@ Builder.SetCleanUpSteps(
   Step_Dev_Project_Sync_Core({ from_dir: '.', into_dir: template_path }),
   Step_Dev_Project_Sync_Server({ from_dir: '.', into_dir: template_path }),
   Step_Dev_Project_Update_Config({ project_dir: template_path }),
-  Step_Bun_Run({ cmd: ['bun', 'run', 'build'], cwd: template_path, showlogs: false }),
+  Step_Bun_Run({ cmd: ['sfw', 'bun', 'run', 'build'], cwd: template_path, showlogs: false }),
   // Sync Core
   Step_Log('--- push ---'),
   Step_Async(

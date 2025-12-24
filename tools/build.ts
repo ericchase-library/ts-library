@@ -19,10 +19,11 @@ if (BunPlatform_Argv_Includes('--dev')) {
 }
 Builder.SetVerbosity(Builder.VERBOSITY._1_LOG);
 
+/** sfw is a global package that scans npm packages before installing them */
 Builder.SetStartUpSteps(
   Step_Dev_Project_Update_Config({ project_dir: '.' }),
-  Step_Bun_Run({ cmd: ['bun', 'update'], showlogs: true }),
-  Step_Bun_Run({ cmd: ['bun', 'install'], showlogs: true }),
+  Step_Bun_Run({ cmd: ['sfw', 'bun', 'update'], showlogs: true }),
+  Step_Bun_Run({ cmd: ['sfw', 'bun', 'install'], showlogs: true }),
   Step_FS_Clean_Directory(Builder.Dir.Out),
   //
 );

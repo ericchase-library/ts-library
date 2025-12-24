@@ -7,9 +7,9 @@
     "tree-kill": "^1.2.x"
   },
   "scripts": {
-    "build": "bun run tools/build.ts",
-    "dev": "bun run tools/build.ts --dev",
-    "format": "bunx prettier --write ."
+    "build": "sfw bun run tools/build.ts",
+    "dev": "sfw bun run tools/build.ts --dev",
+    "format": "sfw bunx prettier --write ."
   },
   "type": "module"
 }

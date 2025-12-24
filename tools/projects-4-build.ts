@@ -10,7 +10,7 @@ const paths: string[] = [template_path, ...path_json];
 SetLoggerOptions({ ceremony: false });
 
 Builder.SetCleanUpSteps(
-  ...paths.map((path) => Step_Bun_Run({ cmd: ['bun', 'run', 'build'], cwd: path, showlogs: false })),
+  ...paths.map((path) => Step_Bun_Run({ cmd: ['sfw', 'bun', 'run', 'build'], cwd: path, showlogs: false })),
   //
 );
 

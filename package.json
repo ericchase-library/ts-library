@@ -1,20 +1,20 @@
 {
   "dependencies": {
     "@types/chai": "5.2.3",
-    "@types/lodash": "4.17.20",
-    "chai": "6.2.1",
+    "@types/lodash": "4.17.21",
+    "chai": "6.2.2",
     "lodash": "4.17.21"
   },
   "devDependencies": {
-    "@types/bun": "1.3.2",
-    "@types/chrome": "0.1.30",
-    "@types/node": "24.10.1",
+    "@types/bun": "1.3.5",
+    "@types/chrome": "0.1.32",
+    "@types/node": "24.10.4",
     "tree-kill": "1.2.2"
   },
   "scripts": {
-    "build": "bun run tools/build.ts",
-    "dev": "bun run tools/build.ts --dev",
-    "format": "bunx prettier --write ."
+    "build": "sfw bun run tools/build.ts",
+    "dev": "sfw bun run tools/build.ts --dev",
+    "format": "sfw bunx prettier --write ."
   },
   "type": "module"
 }
