@@ -6,6 +6,9 @@ export class Class_NodePlatform_PathObject_Absolute_Class {
   dir = '';
   name = '';
   ext = '';
+  get basename() {
+    return this.name + this.ext;
+  }
   os_api;
   constructor(os) {
     this.os = os;

@@ -1,3 +1,35 @@
+## 2026-02-01
+
+**Features**
+
+- Add `Core_Utility_Optional` because I'm sick and tired of having to write:
+  - `let var: SomeType | undefined = new SomeType();`
+
+## 2026-01-01 - Part 2
+
+**Runtime Upgrade**
+
+- All tests passing in `Bun 1.3.5`
+
+**Features**
+
+- Update `Class_NodePlatform_PathObject_Absolute_Class` and `Class_NodePlatform_PathObject_Relative_Class`
+  - Add getter method `basename` to retrieve path object's name+ext string.
+  - I originally didn't include a way to get the basename for reasons(?); but I keep finding myself needing it, so I decided to finally add it in.
+
+**Breaking Changes**
+
+- Rewrite `tools/core/bundle/zip-util`
+  - There were a number of issues I found while adding an extract function
+  - Rename `ZIP_UTIL.Instance` to `ZIP_UTIL.CreateInstance`
+  - Split `addFile` instance method into `createDirectory` and `createFile` methods
+  - Rename `addLocalFile` to `async_addFile`
+  - Rename `addLocalFolder` to `async_addDirectory`
+  - Rename `writeZip` to `async_writeZip`
+    - All `async_*` methods use promises
+  - Add `ZIP_UTIL.Async_Extract` for simple zip extraction
+    - Also uses promises
+
 ## 2026-01-01 - Part 1
 
 **Features**

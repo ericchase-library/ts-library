@@ -13,9 +13,9 @@ class Class implements Builder.Step {
   constructor(readonly config: Config) {}
   async onRun(): Promise<void> {
     try {
-      const zip = ZIP_UTIL.Instance();
-      zip.addLocalFolder(this.config.from_dir);
-      zip.writeZip(this.config.out_file);
+      const zip = ZIP_UTIL.CreateInstance();
+      await zip.async_addDirectory(this.config.from_dir);
+      await zip.async_writeZip(this.config.out_file);
       const { error, value: stats } = await Async_NodePlatform_Path_Get_Stats(this.config.out_file);
       if (stats !== undefined) {
         if (stats.isFile() === true) {
